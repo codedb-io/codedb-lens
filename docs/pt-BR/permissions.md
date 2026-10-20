@@ -9,6 +9,7 @@ O Lens precisa apenas de leitura de estado e metadados do servidor. Regras sem p
 CREATE LOGIN codedb_lens WITH PASSWORD = '<senha forte>';
 GRANT VIEW SERVER STATE TO codedb_lens;
 GRANT VIEW ANY DEFINITION TO codedb_lens;
+GRANT CONNECT ANY DATABASE TO codedb_lens;   -- regras por banco (índices); não dá acesso a dados
 USE msdb;
 CREATE USER codedb_lens FOR LOGIN codedb_lens;
 ALTER ROLE db_datareader ADD MEMBER codedb_lens;

@@ -11,8 +11,10 @@ import (
 )
 
 type PG struct {
-	conn *pgx.Conn
-	info engine.ServerInfo
+	conn  *pgx.Conn
+	cfg   *pgx.ConnConfig
+	info  engine.ServerInfo
+	perDB map[string]*pgx.Conn // statistics are per database: one extra connection each, closed with the session
 }
 
 func pgConfig(c Conn) (*pgx.ConnConfig, error) {
@@ -52,7 +54,7 @@ func OpenPG(ctx context.Context, c Conn) (*PG, error) {
 	if err != nil {
 		return nil, err
 	}
-	p := &PG{conn: conn, info: engine.ServerInfo{Engine: "pg", Host: cfg.Host}}
+	p := &PG{conn: conn, cfg: cfg, info: engine.ServerInfo{Engine: "pg", Host: cfg.Host}, perDB: map[string]*pgx.Conn{}}
 	var num int
 	var start string
 	err = conn.QueryRow(ctx, `SELECT current_setting('server_version'), current_setting('server_version_num')::int,
@@ -80,7 +82,51 @@ func (p *PG) detectPlatform(ctx context.Context) string {
 func (p *PG) Info() engine.ServerInfo { return p.info }
 
 func (p *PG) Query(ctx context.Context, q string) ([]string, [][]any, error) {
-	rows, err := p.conn.Query(ctx, q)
+	return query(ctx, p.conn, q)
+}
+
+// Databases: connectable, non-template databases, split by the CONNECT privilege.
+func (p *PG) Databases(ctx context.Context) (open, noAccess []string, err error) {
+	rows, err := p.conn.Query(ctx, `SELECT datname, has_database_privilege(datname, 'CONNECT')
+		FROM pg_database WHERE datallowconn AND NOT datistemplate ORDER BY datname`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		var ok bool
+		if err := rows.Scan(&name, &ok); err != nil {
+			return nil, nil, err
+		}
+		if ok {
+			open = append(open, name)
+		} else {
+			noAccess = append(noAccess, name)
+		}
+	}
+	return open, noAccess, rows.Err()
+}
+
+func (p *PG) QueryDB(ctx context.Context, db, q string) ([]string, [][]any, error) {
+	if db == p.cfg.Database {
+		return query(ctx, p.conn, q)
+	}
+	c := p.perDB[db]
+	if c == nil {
+		cfg := p.cfg.Copy() // same read-only, low-impact runtime params
+		cfg.Database = db
+		var err error
+		if c, err = pgx.ConnectConfig(ctx, cfg); err != nil {
+			return nil, nil, err
+		}
+		p.perDB[db] = c
+	}
+	return query(ctx, c, q)
+}
+
+func query(ctx context.Context, conn *pgx.Conn, q string) ([]string, [][]any, error) {
+	rows, err := conn.Query(ctx, q)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -103,4 +149,9 @@ func (p *PG) Query(ctx context.Context, q string) ([]string, [][]any, error) {
 	return cols, out, rows.Err()
 }
 
-func (p *PG) Close() error { return p.conn.Close(context.Background()) }
+func (p *PG) Close() error {
+	for _, c := range p.perDB {
+		c.Close(context.Background())
+	}
+	return p.conn.Close(context.Background())
+}

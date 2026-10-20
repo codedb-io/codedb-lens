@@ -152,3 +152,37 @@ func firstNonEmpty(s ...string) string {
 	}
 	return ""
 }
+
+// Databases: online user databases, split by whether this login can open them (HAS_DBACCESS).
+func (m *MSSQL) Databases(ctx context.Context) (open, noAccess []string, err error) {
+	rows, err := m.conn.QueryContext(ctx, `SELECT name, HAS_DBACCESS(name) FROM sys.databases
+		WHERE database_id > 4 AND state_desc = 'ONLINE' AND source_database_id IS NULL ORDER BY name`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		var access sql.NullInt64
+		if err := rows.Scan(&name, &access); err != nil {
+			return nil, nil, err
+		}
+		if access.Int64 == 1 {
+			open = append(open, name)
+		} else {
+			noAccess = append(noAccess, name)
+		}
+	}
+	return open, noAccess, rows.Err()
+}
+
+// QueryDB switches the session to db (USE is a context switch, not a write), runs q, and switches back.
+func (m *MSSQL) QueryDB(ctx context.Context, db, q string) ([]string, [][]any, error) {
+	if _, err := m.conn.ExecContext(ctx, "USE "+quoteName(db)); err != nil {
+		return nil, nil, err
+	}
+	defer m.conn.ExecContext(context.Background(), "USE master")
+	return m.Query(ctx, q)
+}
+
+func quoteName(s string) string { return "[" + strings.ReplaceAll(s, "]", "]]") + "]" }

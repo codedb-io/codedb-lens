@@ -1,0 +1,25 @@
+id: MSSQL-WAITS-001
+engine: mssql
+category: performance
+severity: high
+confidence: hint
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE (2022+ VIEW SERVER PERFORMANCE STATE)
+params:
+  min_share_pct: 20          # wait category share of all meaningful waits
+  min_wait_s_per_hour: 300   # ...and at least this much waiting per hour of uptime (5 min)
+title:
+  en: The instance spends a lot of time waiting on one resource
+  pt-BR: A instância passa muito tempo esperando por um recurso
+impact:
+  en: Waits are where query time goes when it isn't running. A dominant wait points straight at the bottleneck (disk, locks, CPU, memory).
+  pt-BR: As esperas mostram para onde vai o tempo das consultas quando elas não estão executando. Uma espera dominante aponta direto para o gargalo (disco, bloqueios, CPU, memória).
+next_action:
+  en: Start with the top row. The meaning column says which resource to look at; the rule's documentation page lists the usual causes for each wait.
+  pt-BR: Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.
+caveat:
+  en: Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.
+  pt-BR: Os totais acumulam desde o último restart, então mostram o perfil de longo prazo, não o que acontece agora. Só diferenças ao longo do tempo mostram o presente.
+saas_cta:
+  en: codeDB samples waits every minute, so you can see what changed at 03:12, not just since the last restart.
+  pt-BR: O codeDB amostra as esperas a cada minuto, para você ver o que mudou às 03:12, e não só desde o último restart.

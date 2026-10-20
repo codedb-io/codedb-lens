@@ -72,14 +72,15 @@
   </div>
   <h3>{{tx .Rule.Title}}</h3>
   <div class="table"><table>
-    <tr>{{range .Columns}}<th>{{.}}</th>{{end}}</tr>
-    {{range .Rows}}<tr>{{range .}}<td>{{str .}}</td>{{end}}</tr>{{end}}
+    <tr>{{range .Columns}}<th{{collang .}}>{{colname .}}</th>{{end}}</tr>
+    {{$cols := .Columns}}{{range .Rows}}<tr>{{range $i, $v := .}}<td{{collang (index $cols $i)}}>{{str $v}}</td>{{end}}</tr>{{end}}
   </table></div>
   <div class="boxes">
     <div class="box"><h4>{{t "what_means"}}</h4><p>{{tx .Rule.Impact}}</p></div>
     <div class="box action"><h4>{{t "recommended"}}</h4><p>{{tx .Rule.NextAction}}</p></div>
   </div>
   {{if .Rule.Caveat}}<p class="caveat"><b>{{t "caveat"}}:</b> {{tx .Rule.Caveat}}</p>{{end}}
+  {{if .Reason}}<p class="caveat"><b>{{t "partial_scope"}}:</b> {{.Reason}}</p>{{end}}
   <details><summary>{{t "query"}} · {{t "collected"}} {{date .CollectedAt}} UTC · {{.Duration}}</summary><pre>{{.Rule.SQL}}</pre></details>
   <footer>
     <span><code class="rid">{{.Rule.ID}}</code> · <a lang="en" href="{{.Rule.DocURL}}" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="{{docpt .Rule.DocURL}}" target="_blank" rel="noopener">Documentação ↗</a></span>
@@ -102,7 +103,7 @@
 
 <h2 class="sec">{{t "passed"}} <span class="n">{{.Count "ok"}}</span></h2>
 <ul class="passed">
-{{range .Results}}{{if eq .Status "ok"}}<li>{{tx .Rule.Title}}</li>{{end}}{{end}}
+{{range .Results}}{{if eq .Status "ok"}}<li>{{tx .Rule.Title}}{{if .Reason}}<br><small class="muted">{{t "partial_scope"}}: {{.Reason}}</small>{{end}}</li>{{end}}{{end}}
 {{range .Results}}{{if eq .Status "not_applicable"}}<li class="na">{{tx .Rule.Title}} · {{t "not_applicable"}}</li>{{end}}{{end}}
 </ul>
 

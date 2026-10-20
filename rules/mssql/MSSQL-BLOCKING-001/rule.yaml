@@ -1,0 +1,23 @@
+id: MSSQL-BLOCKING-001
+engine: mssql
+category: concurrency
+severity: high
+confidence: confirmed
+permission: VIEW SERVER STATE
+params:
+  min_wait_ms: 5000   # sessions blocked for at least this long
+title:
+  en: Sessions blocked right now
+  pt-BR: Sessões bloqueadas neste momento
+impact:
+  en: Blocked sessions wait for another session to release its locks. Users see timeouts and frozen screens.
+  pt-BR: Sessões bloqueadas esperam outra sessão liberar seus locks. Os usuários veem timeouts e telas travadas.
+next_action:
+  en: Look at the blocker first. A blocker in "sleeping" status with an open transaction is usually an application that forgot to commit. Talk to its owner before considering KILL.
+  pt-BR: Olhe primeiro para quem bloqueia. Um bloqueador em status "sleeping" com transação aberta costuma ser uma aplicação que esqueceu o commit. Fale com o responsável antes de pensar em KILL.
+caveat:
+  en: A snapshot only sees blocking happening at the moment of the check.
+  pt-BR: Um retrato só vê bloqueios que estão acontecendo no momento da verificação.
+saas_cta:
+  en: codeDB catches blocking chains as they happen, at any hour, and alerts you within minutes.
+  pt-BR: O codeDB pega cadeias de bloqueio na hora em que acontecem, a qualquer hora, e alerta em minutos.

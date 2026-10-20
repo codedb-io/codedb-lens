@@ -52,6 +52,7 @@ Passwords are never accepted as command-line arguments. Use integrated auth, an 
 CREATE LOGIN codedb_lens WITH PASSWORD = '<strong password>';
 GRANT VIEW SERVER STATE TO codedb_lens;
 GRANT VIEW ANY DEFINITION TO codedb_lens;
+GRANT CONNECT ANY DATABASE TO codedb_lens;   -- per-database rules (indexes); no data access
 USE msdb;
 CREATE USER codedb_lens FOR LOGIN codedb_lens;
 ALTER ROLE db_datareader ADD MEMBER codedb_lens;

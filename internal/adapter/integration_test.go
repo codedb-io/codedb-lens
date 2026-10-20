@@ -6,7 +6,9 @@ package adapter
 
 import (
 	"context"
+	"database/sql"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -116,10 +118,23 @@ func TestMSSQL(t *testing.T) {
 	t.Run("MSSQL-SPACE-001", func(t *testing.T) {
 		r := *rs["MSSQL-SPACE-001"]
 		expect(t, s, &r, engine.StatusOK, "")
-		// FULL recovery + enough log to force growth after a full backup -> log_reuse_wait = LOG_BACKUP
+		// An open transaction in another session + BACKUP LOG -> log_reuse_wait = ACTIVE_TRANSACTION, deterministically.
+		db, err := sql.Open("sqlserver", mssqlURL(Conn{Server: env("LENS_MSSQL_SERVER", "localhost,14322"), User: "sa",
+			Password: env("MSSQL_SA_PASSWORD", "Lens_dev_Passw0rd!"), TrustServerCert: true}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer db.Close()
+		holder, _ := db.Conn(ctx)
+		defer holder.Close()
 		exec(t, `BACKUP DATABASE lens_fixture TO DISK = 'NUL';
-			IF OBJECT_ID('lens_fixture.dbo.big') IS NULL EXEC ('USE lens_fixture; CREATE TABLE dbo.big (v char(1000))');
-			EXEC ('USE lens_fixture; INSERT dbo.big SELECT TOP (20000) ''x'' FROM sys.all_objects a CROSS JOIN sys.all_objects b; TRUNCATE TABLE dbo.big;');`)
+			IF OBJECT_ID('lens_fixture.dbo.big') IS NULL EXEC ('USE lens_fixture; CREATE TABLE dbo.big (v char(1000))');`)
+		if _, err := holder.ExecContext(ctx, `BEGIN TRAN; INSERT lens_fixture.dbo.big VALUES ('x');
+			INSERT lens_fixture.dbo.big SELECT TOP (20000) 'y' FROM sys.all_objects a CROSS JOIN sys.all_objects b;`); err != nil {
+			t.Fatal(err)
+		}
+		defer holder.ExecContext(ctx, `ROLLBACK`)
+		exec(t, `BACKUP LOG lens_fixture TO DISK = 'NUL'`)
 		r.Params = map[string]float64{"volume_hint_pct": 0, "volume_confirmed_pct": 0, "log_hint_pct": 0, "log_confirmed_pct": 1000}
 		expect(t, s, &r, engine.StatusFinding, engine.Hint)
 		r.Params = map[string]float64{"volume_hint_pct": 101, "volume_confirmed_pct": 101, "log_hint_pct": 1000, "log_confirmed_pct": 1000}
@@ -157,6 +172,110 @@ func TestMSSQL(t *testing.T) {
 		exec(t, `ALTER DATABASE tempdb MODIFY FILE (NAME = templog, FILEGROWTH = 64MB)`)
 		if hasPercent() {
 			t.Error("percent growth still reported after fixing it")
+		}
+	})
+
+	// rowsOf runs one rule and returns its evidence rows; fails the test on No data.
+	rowsOf := func(t *testing.T, r *engine.Rule) [][]any {
+		t.Helper()
+		res := engine.Run(context.Background(), s, []*engine.Rule{r}, nil)[0]
+		if res.Status == engine.StatusNoData {
+			t.Fatal(r.ID, res.Reason)
+		}
+		return res.Rows
+	}
+	mentions := func(rows [][]any, s string) bool {
+		for _, row := range rows {
+			for _, v := range row {
+				if str, ok := v.(string); ok && strings.Contains(str, s) {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	t.Run("MSSQL-WAITS-001", func(t *testing.T) {
+		r := *rs["MSSQL-WAITS-001"]
+		r.Params = map[string]float64{"min_share_pct": 0, "min_wait_s_per_hour": 0}
+		expect(t, s, &r, engine.StatusFinding, "")
+		r.Params = map[string]float64{"min_share_pct": 101, "min_wait_s_per_hour": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-BLOCKING-001", func(t *testing.T) {
+		r := *rs["MSSQL-BLOCKING-001"]
+		r.Params = map[string]float64{"min_wait_ms": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+		exec(t, `IF OBJECT_ID('lens_fixture.dbo.lock_t') IS NULL EXEC ('USE lens_fixture; CREATE TABLE dbo.lock_t (v int); INSERT dbo.lock_t VALUES (0)')`)
+
+		db, err := sql.Open("sqlserver", mssqlURL(Conn{Server: env("LENS_MSSQL_SERVER", "localhost,14322"), User: "sa",
+			Password: env("MSSQL_SA_PASSWORD", "Lens_dev_Passw0rd!"), TrustServerCert: true}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer db.Close()
+		holder, _ := db.Conn(ctx)
+		defer holder.Close()
+		if _, err := holder.ExecContext(ctx, `BEGIN TRAN; UPDATE lens_fixture.dbo.lock_t SET v = v + 1;`); err != nil {
+			t.Fatal(err)
+		}
+		done := make(chan error, 1)
+		go func() { // blocked reader, released by the ROLLBACK below
+			_, err := db.ExecContext(ctx, `SELECT v FROM lens_fixture.dbo.lock_t`)
+			done <- err
+		}()
+		time.Sleep(1500 * time.Millisecond)
+		rows := rowsOf(t, &r)
+		if len(rows) == 0 || !mentions(rows, "sleeping") {
+			t.Errorf("blocking not detected (or blocker not shown as sleeping): %v", rows)
+		}
+		holder.ExecContext(ctx, `ROLLBACK`)
+		if err := <-done; err != nil {
+			t.Fatal(err)
+		}
+		expect(t, s, &r, engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-TOPQUERY-001", func(t *testing.T) {
+		r := *rs["MSSQL-TOPQUERY-001"]
+		r.Params = map[string]float64{"dominant_pct": 0, "min_total_cpu_s": 0}
+		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+		r.Params = map[string]float64{"dominant_pct": 101, "min_total_cpu_s": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-MISSINGIDX-001", func(t *testing.T) {
+		r := *rs["MSSQL-MISSINGIDX-001"]
+		r.Params = map[string]float64{"min_improvement": 0, "min_impact_pct": 0}
+		exec(t, `IF OBJECT_ID('lens_fixture.dbo.mi') IS NOT NULL EXEC ('USE lens_fixture; DROP TABLE dbo.mi');
+			EXEC ('USE lens_fixture; CREATE TABLE dbo.mi (id int IDENTITY PRIMARY KEY, k int, pad char(200));
+			INSERT dbo.mi (k, pad) SELECT TOP (50000) ABS(CHECKSUM(NEWID())) % 1000, ''x'' FROM sys.all_objects a CROSS JOIN sys.all_objects b;')`)
+		for i := 0; i < 5; i++ {
+			exec(t, `EXEC ('USE lens_fixture; SELECT a.pad FROM dbo.mi a JOIN dbo.mi b ON b.id = a.id WHERE a.k = 42')`) // a join avoids a trivial plan
+		}
+		if !mentions(rowsOf(t, &r), "[mi]") {
+			t.Error("missing index on lens_fixture.dbo.mi not reported")
+		}
+		exec(t, `EXEC ('USE lens_fixture; CREATE INDEX ix_k ON dbo.mi (k) INCLUDE (pad)')`)
+		if mentions(rowsOf(t, &r), "[mi]") {
+			t.Error("missing index still reported after creating it")
+		}
+	})
+
+	t.Run("MSSQL-UNUSEDIDX-001", func(t *testing.T) {
+		r := *rs["MSSQL-UNUSEDIDX-001"]
+		r.Params = map[string]float64{"min_writes": 1}
+		exec(t, `IF OBJECT_ID('lens_fixture.dbo.ui') IS NOT NULL EXEC ('USE lens_fixture; DROP TABLE dbo.ui');
+			EXEC ('USE lens_fixture; CREATE TABLE dbo.ui (id int PRIMARY KEY, a int); CREATE INDEX ix_a ON dbo.ui (a);
+			CREATE INDEX ix_a_dup ON dbo.ui (a); INSERT dbo.ui VALUES (1, 1), (2, 2); UPDATE dbo.ui SET a = a + 1;')`)
+		rows := rowsOf(t, &r)
+		if !mentions(rows, "ix_a") || !mentions(rows, "duplicate") {
+			t.Errorf("unused/duplicate index not reported: %v", rows)
+		}
+		exec(t, `EXEC ('USE lens_fixture; DROP TABLE dbo.ui')`)
+		if mentions(rowsOf(t, &r), "dbo.ui") {
+			t.Error("dropped indexes still reported")
 		}
 	})
 

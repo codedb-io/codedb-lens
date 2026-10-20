@@ -1,0 +1,25 @@
+id: MSSQL-TOPQUERY-001
+engine: mssql
+category: performance
+severity: medium
+confidence: hint
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE
+params:
+  dominant_pct: 40      # one query using at least this share of the CPU in the plan cache
+  min_total_cpu_s: 60   # ignore idle instances
+title:
+  en: A single query dominates CPU usage
+  pt-BR: Uma única consulta domina o uso de CPU
+impact:
+  en: Tuning a database is rarely about tuning everything. When one query takes most of the CPU, fixing it pays more than anything else.
+  pt-BR: Otimizar um banco quase nunca é otimizar tudo. Quando uma consulta leva a maior parte da CPU, corrigi-la rende mais que qualquer outra coisa.
+next_action:
+  en: Start from the first query in the evidence (the top 5 are listed). Look at its execution plan, missing indexes and whether it runs more often than it should.
+  pt-BR: Comece pela primeira consulta da evidência (as 5 maiores aparecem). Veja o plano de execução, os índices faltando e se ela roda mais vezes do que deveria.
+caveat:
+  en: Based on the plan cache, which is cleared on restart and under memory pressure. Queries with OPTION (RECOMPILE) may not appear.
+  pt-BR: Baseado no plan cache, que é limpo no restart e sob pressão de memória. Consultas com OPTION (RECOMPILE) podem não aparecer.
+saas_cta:
+  en: codeDB keeps the query history, so you can see when a query started dominating and what changed.
+  pt-BR: O codeDB guarda o histórico das consultas, para você ver quando uma consulta passou a dominar e o que mudou.

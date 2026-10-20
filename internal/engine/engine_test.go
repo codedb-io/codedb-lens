@@ -44,6 +44,15 @@ type fake struct {
 }
 
 func (f fake) Info() engine.ServerInfo { return f.info }
+func (f fake) Databases(context.Context) ([]string, []string, error) {
+	return []string{"app", "broken"}, []string{"secret"}, nil
+}
+func (f fake) QueryDB(ctx context.Context, db, q string) ([]string, [][]any, error) {
+	if db == "broken" {
+		return nil, nil, errors.New("boom")
+	}
+	return f.Query(ctx, q)
+}
 func (f fake) Query(ctx context.Context, q string) ([]string, [][]any, error) {
 	return f.resp[q](ctx)
 }
@@ -106,6 +115,21 @@ func TestRunStatusesAndScore(t *testing.T) {
 		if !strings.Contains(buf.String(), must) {
 			t.Errorf("report HTML missing %q", must)
 		}
+	}
+}
+
+func TestDatabaseScope(t *testing.T) {
+	a := fake{resp: map[string]func(context.Context) ([]string, [][]any, error){
+		"idx": func(context.Context) ([]string, [][]any, error) { return []string{"index"}, [][]any{{"ix1"}}, nil },
+	}}
+	r := rule("IDX", engine.Low, "idx")
+	r.Scope = "database"
+	res := engine.Run(context.Background(), a, []*engine.Rule{r}, nil)[0]
+	if res.Status != engine.StatusFinding || res.Columns[0] != "database" || res.Rows[0][0] != "app" || len(res.Rows) != 1 {
+		t.Fatalf("per-db result: %+v", res)
+	}
+	if !strings.Contains(res.Reason, "secret (no access)") || !strings.Contains(res.Reason, "broken (boom)") {
+		t.Errorf("skipped databases not reported: %q", res.Reason)
 	}
 }
 

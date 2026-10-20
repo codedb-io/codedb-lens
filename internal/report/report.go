@@ -121,6 +121,14 @@ var funcs = template.FuncMap{
 	"date":  func(t time.Time) string { return t.Format("2006-01-02 15:04") },
 	"css":   func() template.CSS { return template.CSS(Tokens + style) },
 	"add1":  func(i int) int { return i + 1 },
+	// Evidence columns named "meaning@en" / "meaning@pt-BR" show only in their language.
+	"colname": func(c string) string { name, _, _ := strings.Cut(c, "@"); return name },
+	"collang": func(c string) template.HTMLAttr {
+		if _, l, ok := strings.Cut(c, "@"); ok {
+			return template.HTMLAttr(` lang="` + html.EscapeString(l) + `"`)
+		}
+		return ""
+	},
 	"engineName": func(e string) string {
 		if e == "pg" {
 			return "PostgreSQL"

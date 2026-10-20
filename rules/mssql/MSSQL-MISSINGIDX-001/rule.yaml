@@ -1,0 +1,22 @@
+id: MSSQL-MISSINGIDX-001
+engine: mssql
+category: indexes
+severity: medium
+confidence: hint
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE
+params:
+  min_improvement: 100000   # avg_total_user_cost * avg_user_impact * (seeks + scans)
+  min_impact_pct: 50        # optimizer's estimated improvement
+title:
+  en: High-impact missing indexes
+  pt-BR: Índices ausentes de alto impacto
+impact:
+  en: The optimizer recorded queries that would run much cheaper with an index that doesn't exist. They read more pages and hold locks longer than needed.
+  pt-BR: O otimizador registrou consultas que ficariam bem mais baratas com um índice que não existe. Elas leem mais páginas e seguram locks por mais tempo que o necessário.
+next_action:
+  en: Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.
+  pt-BR: Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.
+caveat:
+  en: Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.
+  pt-BR: Sempre um indício. A DMV ignora índices parecidos que já existem, sugere índices sobrepostos e é zerada no restart.

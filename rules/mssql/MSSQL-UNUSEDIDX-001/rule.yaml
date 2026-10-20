@@ -1,0 +1,22 @@
+id: MSSQL-UNUSEDIDX-001
+engine: mssql
+category: indexes
+severity: low
+confidence: hint
+scope: database
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE + VIEW ANY DEFINITION + CONNECT ANY DATABASE
+params:
+  min_writes: 1000   # unused index must cost at least this many writes since restart
+title:
+  en: Unused or duplicate indexes
+  pt-BR: Índices não usados ou duplicados
+impact:
+  en: Every index is updated on every insert, update and delete. Indexes nobody reads only slow writes down, take space and lengthen maintenance.
+  pt-BR: Todo índice é atualizado em cada insert, update e delete. Índices que ninguém lê só deixam as escritas mais lentas, ocupam espaço e alongam a manutenção.
+next_action:
+  en: Confirm over a full business cycle (month-end, reports) before dropping. Script the index first so it can be recreated, or disable it instead of dropping.
+  pt-BR: Confirme durante um ciclo completo do negócio (fechamento de mês, relatórios) antes de remover. Gere o script do índice antes, para poder recriá-lo, ou desabilite em vez de remover.
+caveat:
+  en: Usage statistics reset on restart; the longer the instance has been up, the more reliable this is. Replicas and readable secondaries have their own usage.
+  pt-BR: As estatísticas de uso zeram no restart; quanto mais tempo a instância está no ar, mais confiável. Réplicas e secundárias legíveis têm uso próprio.

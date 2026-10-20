@@ -11,6 +11,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - SQL Server and PostgreSQL adapters with read-only, low-impact sessions.
 - Rules: MSSQL-BACKUP-001, MSSQL-VERSION-001, PG-VERSION-001, PG-WRAPAROUND-001.
 - Rules: MSSQL-CHECKDB-001, MSSQL-AGENT-001, MSSQL-SPACE-001, MSSQL-CONFIG-001, MSSQL-TEMPDB-001.
+- Rules: MSSQL-WAITS-001, MSSQL-BLOCKING-001, MSSQL-TOPQUERY-001, MSSQL-MISSINGIDX-001, MSSQL-UNUSEDIDX-001.
+- Per-database rules (`scope: database`): databases the login can't open are reported, never hidden.
+- Bilingual evidence columns (`name@en` / `name@pt-BR`).
+- Minimum SQL Server permissions now include `CONNECT ANY DATABASE` (no data access).
 - Self-contained HTML report (English / Portuguese toggle) and JSON report.
 - Saved connection profiles; passwords in the OS credential store.
 - Windows app (same executable also works as CLI).

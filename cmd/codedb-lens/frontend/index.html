@@ -295,7 +295,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 <script>
 const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s), api = () => window.go.main.App;
 const PERMS = {
-  mssql: "CREATE LOGIN codedb_lens WITH PASSWORD = '<senha>';\nGRANT VIEW SERVER STATE TO codedb_lens;\nGRANT VIEW ANY DEFINITION TO codedb_lens;\nUSE msdb;\nCREATE USER codedb_lens FOR LOGIN codedb_lens;\nALTER ROLE db_datareader ADD MEMBER codedb_lens;\nALTER ROLE SQLAgentReaderRole ADD MEMBER codedb_lens;",
+  mssql: "CREATE LOGIN codedb_lens WITH PASSWORD = '<senha>';\nGRANT VIEW SERVER STATE TO codedb_lens;\nGRANT VIEW ANY DEFINITION TO codedb_lens;\nGRANT CONNECT ANY DATABASE TO codedb_lens;\nUSE msdb;\nCREATE USER codedb_lens FOR LOGIN codedb_lens;\nALTER ROLE db_datareader ADD MEMBER codedb_lens;\nALTER ROLE SQLAgentReaderRole ADD MEMBER codedb_lens;",
   pg: "CREATE ROLE codedb_lens LOGIN PASSWORD '<senha>';\nGRANT pg_monitor TO codedb_lens;\nGRANT CONNECT ON DATABASE app TO codedb_lens;"
 };
 let state, texts = {}, uiLang = 'en', current = null, engine = 'mssql', auth = 'windows', lastPath = '', lastProfile = null, histCache = {};

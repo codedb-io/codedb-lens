@@ -47,7 +47,8 @@ type Rule struct {
 	Confidence Confidence         `yaml:"confidence" json:"-"` // default for rows without a _confidence column
 	MinMajor   int                `yaml:"min_major" json:"-"`
 	MaxMajor   int                `yaml:"max_major" json:"-"`
-	SkipOn     []string           `yaml:"skip_on" json:"-"` // platforms where the rule doesn't apply
+	SkipOn     []string           `yaml:"skip_on" json:"-"`             // platforms where the rule doesn't apply
+	Scope      string             `yaml:"scope" json:"scope,omitempty"` // "" = instance, "database" = run in each database
 	Permission string             `yaml:"permission" json:"permission"`
 	Timeout    time.Duration      `yaml:"timeout" json:"-"`
 	Params     map[string]float64 `yaml:"params" json:"params,omitempty"`
@@ -74,6 +75,9 @@ type ServerInfo struct {
 type Adapter interface {
 	Info() ServerInfo
 	Query(ctx context.Context, sql string) (cols []string, rows [][]any, err error)
+	// Databases lists user databases the login can open, and those it can't (reported, never hidden).
+	Databases(ctx context.Context) (open, noAccess []string, err error)
+	QueryDB(ctx context.Context, db, sql string) (cols []string, rows [][]any, err error)
 }
 
 type Status string
@@ -91,7 +95,7 @@ type Result struct {
 	Confidence  Confidence `json:"confidence,omitempty"`
 	Columns     []string   `json:"columns,omitempty"`
 	Rows        [][]any    `json:"rows,omitempty"`
-	Reason      string     `json:"reason,omitempty"` // why no data / not applicable
+	Reason      string     `json:"reason,omitempty"` // why no data / not applicable, or which databases were skipped
 	Duration    string     `json:"duration"`
 	CollectedAt time.Time  `json:"collected_at"`
 }
@@ -236,7 +240,14 @@ func runOne(ctx context.Context, a Adapter, info ServerInfo, r *Rule) Result {
 	qctx, cancel := context.WithTimeout(ctx, r.Timeout)
 	defer cancel()
 	start := time.Now()
-	cols, rows, err := a.Query(qctx, r.Render())
+	var cols []string
+	var rows [][]any
+	var err error
+	if r.Scope == "database" {
+		cols, rows, res.Reason, err = queryEachDB(qctx, a, r.Render())
+	} else {
+		cols, rows, err = a.Query(qctx, r.Render())
+	}
 	res.Duration = time.Since(start).Round(time.Millisecond).String()
 	switch {
 	case errors.Is(qctx.Err(), context.DeadlineExceeded):
@@ -244,7 +255,7 @@ func runOne(ctx context.Context, a Adapter, info ServerInfo, r *Rule) Result {
 	case err != nil:
 		res.Status, res.Confidence, res.Reason = StatusNoData, NoData, err.Error()
 	case len(rows) == 0:
-		res.Status = StatusOK
+		res.Status = StatusOK // Reason may still list skipped databases
 	default:
 		res.Status, res.Confidence = StatusFinding, r.Confidence
 		res.Columns, res.Rows = splitConfidence(cols, rows, &res.Confidence)
@@ -272,4 +283,45 @@ func splitConfidence(cols []string, rows [][]any, conf *Confidence) ([]string, [
 		out[i] = append(append([]any{}, row[:idx]...), row[idx+1:]...)
 	}
 	return append(append([]string{}, cols[:idx]...), cols[idx+1:]...), out
+}
+
+// queryEachDB runs sql in every database the login can open and prefixes rows with a "database" column.
+// Databases without access or that fail are listed in reason; it errors only if none could be read.
+func queryEachDB(ctx context.Context, a Adapter, sql string) ([]string, [][]any, string, error) {
+	open, noAccess, err := a.Databases(ctx)
+	if err != nil {
+		return nil, nil, "", err
+	}
+	var cols []string
+	var rows [][]any
+	var skipped []string
+	for _, db := range noAccess {
+		skipped = append(skipped, db+" (no access)")
+	}
+	read := 0
+	for _, db := range open {
+		c, rs, err := a.QueryDB(ctx, db, sql)
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil, nil, "", ctx.Err()
+			}
+			skipped = append(skipped, db+" ("+err.Error()+")")
+			continue
+		}
+		read++
+		if cols == nil {
+			cols = append([]string{"database"}, c...)
+		}
+		for _, row := range rs {
+			rows = append(rows, append([]any{db}, row...))
+		}
+	}
+	reason := ""
+	if len(skipped) > 0 {
+		reason = "skipped databases: " + strings.Join(skipped, "; ")
+	}
+	if read == 0 && len(skipped) > 0 {
+		return nil, nil, "", errors.New(reason)
+	}
+	return cols, rows, reason, nil
 }

@@ -22,7 +22,7 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
   sem dados vira "Sem dados", nunca falso "OK".
 - Limitar continuidade/escala (24h, 1 instância por chave), **nunca** a qualidade do diagnóstico.
 - **Não reaproveitar código do agente do codeDB** (repo MonitorSQL). Este repo será público.
-- Permissões mínimas: SQL Server `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + leitura no msdb;
+- Permissões mínimas: SQL Server `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + `CONNECT ANY DATABASE` + leitura no msdb;
   PostgreSQL `pg_monitor` + `CONNECT` em cada banco. Regra que precise de mais = rever a regra.
 
 ## Stack (MVP)
