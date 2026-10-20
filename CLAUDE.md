@@ -60,6 +60,10 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
+Status (2026-10-20): fase 1 com as 12 + 12 regras do MVP, GUI, relatório, update assinado e pipeline de release
+prontos e testados localmente (SQL Server 2017–2025, PostgreSQL 14–18). Falta: repositório no GitHub + secret
+`LENS_SIGNING_KEY`, primeira execução do CI, checklist de serviços gerenciados (`RELEASING.md`) e teste com os 2 clientes.
+
 Em aberto: validade da chave (90/30 dias), elegibilidade do Azure Trusted Signing, overhead máximo do `record`.
 
 ---

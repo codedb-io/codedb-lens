@@ -30,6 +30,25 @@ rules and writes a self-contained HTML + JSON report with an **A–F grade** and
 - **Rules are data.** Each rule is a YAML file plus a SQL query. Contributions don't touch the engine.
 - **English and Portuguese (Brazil)**, in the app, the CLI and the report.
 
+## What it checks
+
+| SQL Server | PostgreSQL |
+|---|---|
+| Missing or old backups | Version out of support |
+| No recent clean DBCC CHECKDB | pg_stat_statements not available |
+| Failing SQL Agent jobs | A single query dominating execution time |
+| Disk or transaction log running out of space | Long and idle-in-transaction sessions |
+| Dominant waits, translated | Sessions blocked by locks |
+| Sessions blocked right now | Transaction ID wraparound risk |
+| A single query dominating CPU | Dead rows and autovacuum falling behind |
+| Instance settings left at defaults | Replication slots retaining WAL, replica lag |
+| TempDB file layout | Connections near the limit, no pooler |
+| Version out of support | Unused, duplicate and invalid indexes |
+| High-impact missing indexes | Estimated table bloat |
+| Unused and duplicate indexes | Largest tables |
+
+Each rule has a [documentation page](docs/en/rules/) with what it checks, why it matters, what to do and its limits.
+
 ## Quick start
 
 Windows: run the installer (or the portable `.zip`) and open **codeDB Lens** from the Start menu.

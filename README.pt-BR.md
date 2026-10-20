@@ -30,6 +30,25 @@ cobertura** (quantas regras puderam de fato rodar). Nenhum dado do seu banco sai
 - **Regras são dados.** Cada regra é um YAML + uma query SQL. Contribuir não exige mexer no motor.
 - **Inglês e português (Brasil)** no app, na linha de comando e no relatório.
 
+## O que verifica
+
+| SQL Server | PostgreSQL |
+|---|---|
+| Backup ausente ou antigo | Versão fora de suporte |
+| Sem DBCC CHECKDB recente e sem erros | pg_stat_statements indisponível |
+| Jobs do SQL Agent com falha | Uma consulta dominando o tempo de execução |
+| Disco ou log de transações ficando sem espaço | Transações longas e "idle in transaction" |
+| Esperas dominantes, traduzidas | Sessões bloqueadas por locks |
+| Sessões bloqueadas neste momento | Risco de wraparound de XID |
+| Uma consulta dominando a CPU | Linhas mortas e autovacuum ficando para trás |
+| Configurações da instância no padrão | Slots de replicação retendo WAL, réplica atrasada |
+| Arquivos do TempDB | Conexões perto do limite, sem pooler |
+| Versão fora de suporte | Índices não usados, duplicados e inválidos |
+| Índices ausentes de alto impacto | Bloat estimado de tabelas |
+| Índices não usados e duplicados | Maiores tabelas |
+
+Cada regra tem uma [página de documentação](docs/pt-BR/rules/) com o que verifica, por que importa, o que fazer e seus limites.
+
 ## Início rápido
 
 Windows: execute o instalador (ou o `.zip` portátil) e abra o **codeDB Lens** pelo menu Iniciar.

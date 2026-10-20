@@ -21,6 +21,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Saved connection profiles; passwords in the OS credential store.
 - Windows app (same executable also works as CLI).
 - Daily version check and `codedb-lens update` with Ed25519-signed checksums.
+- Docs: getting started and roadmap pages; RELEASING.md with the managed-services checklist.
 
 ### Fixed
 - Negative rule parameters no longer turn into SQL comments (`--1`).

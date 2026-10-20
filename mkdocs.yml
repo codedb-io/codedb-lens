@@ -28,11 +28,14 @@ plugins:
             Permissions: Permissões
             Privacy: Privacidade
             Rules: Regras
+            Getting started: Primeiros passos
 
 nav:
   - Home: index.md
+  - Getting started: getting-started.md
   - Permissions: permissions.md
   - Privacy: privacy.md
+  - Roadmap: roadmap.md
   - Rules:
       - SQL Server:
           - MSSQL-AGENT-001: rules/mssql-agent-001.md
