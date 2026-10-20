@@ -12,5 +12,5 @@ Free limits are on continuity and scale (24 hours of history, one instance per k
 
 The free key is signed and checked offline: Lens never phones home to validate it.
 
-Have a rule or a feature in mind? [Open an issue](https://github.com/codedb-monitorsql/codedb-lens/issues/new/choose).
+Have a rule or a feature in mind? [Open an issue](https://github.com/codedb-io/codedb-lens/issues/new/choose).
 For continuous monitoring today, see [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=roadmap).

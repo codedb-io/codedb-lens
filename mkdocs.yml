@@ -1,6 +1,6 @@
 site_name: codeDB Lens
 site_url: https://lens.codedb.com.br/
-repo_url: https://github.com/codedb-monitorsql/codedb-lens
+repo_url: https://github.com/codedb-io/codedb-lens
 docs_dir: docs
 
 theme:

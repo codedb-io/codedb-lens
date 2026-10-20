@@ -59,7 +59,7 @@ release:
 #     license: Apache-2.0
 #     description: Free, read-only health check for SQL Server and PostgreSQL.
 # dockers_v2:
-#   - images: [ghcr.io/codedb-monitorsql/codedb-lens]
+#   - images: [ghcr.io/codedb-io/codedb-lens]
 #     ids: [linux]
 #     platforms: [linux/amd64, linux/arm64]
 # winget:
@@ -68,9 +68,9 @@ release:
 #     package_identifier: codeDB.Lens
 #     license: Apache-2.0
 #     short_description: Free, read-only health check for SQL Server and PostgreSQL.
-#     repository: { owner: codedb-monitorsql, name: winget-pkgs }
+#     repository: { owner: codedb-io, name: winget-pkgs }
 # chocolateys:
 #   - name: codedb-lens
 #     title: codeDB Lens
 #     authors: codeDB
-#     license_url: https://github.com/codedb-monitorsql/codedb-lens/blob/main/LICENSE
+#     license_url: https://github.com/codedb-io/codedb-lens/blob/main/LICENSE

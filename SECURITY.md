@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Please **do not** open a public issue. Use GitHub's
-[private vulnerability reporting](https://github.com/codedb-monitorsql/codedb-lens/security/advisories/new).
+[private vulnerability reporting](https://github.com/codedb-io/codedb-lens/security/advisories/new).
 We aim to acknowledge reports within 3 business days.
 
 ## What codeDB Lens does and does not do

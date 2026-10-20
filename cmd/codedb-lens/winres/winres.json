@@ -1,5 +1,5 @@
 {
-  "RT_GROUP_ICON": { "APP": { "0000": "icon.png" } },
+  "RT_GROUP_ICON": { "#3": { "0000": "icon.png" } },
   "RT_MANIFEST": {
     "#1": {
       "0409": {

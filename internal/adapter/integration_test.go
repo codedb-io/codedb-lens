@@ -14,8 +14,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
-	"github.com/codedb-monitorsql/codedb-lens/rules"
+	"github.com/codedb-io/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/rules"
 )
 
 func env(k, def string) string {

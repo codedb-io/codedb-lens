@@ -13,14 +13,14 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
-	"github.com/codedb-monitorsql/codedb-lens/internal/i18n"
-	"github.com/codedb-monitorsql/codedb-lens/internal/profile"
-	"github.com/codedb-monitorsql/codedb-lens/internal/report"
-	"github.com/codedb-monitorsql/codedb-lens/internal/saas"
-	"github.com/codedb-monitorsql/codedb-lens/internal/update"
-	"github.com/codedb-monitorsql/codedb-lens/rules"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/i18n"
+	"github.com/codedb-io/codedb-lens/internal/profile"
+	"github.com/codedb-io/codedb-lens/internal/report"
+	"github.com/codedb-io/codedb-lens/internal/saas"
+	"github.com/codedb-io/codedb-lens/internal/update"
+	"github.com/codedb-io/codedb-lens/rules"
 )
 
 var version = "dev" // set by -ldflags at release
@@ -200,6 +200,9 @@ func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log fu
 	log(fmt.Sprintf(i18n.T(lang, "connecting"), c.Server))
 	sess, err := adapter.Open(ctx, c)
 	if err != nil {
+		if ctx.Err() != nil { // stopped while connecting: drivers wrap it as a dial error
+			return nil, ctx.Err()
+		}
 		return nil, err
 	}
 	defer sess.Close()
@@ -213,6 +216,9 @@ func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log fu
 			onRule(i, total, r, res)
 		}
 	})
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	return report.New(version, lang, info, scoring.Compute(results), results), nil
 }
 

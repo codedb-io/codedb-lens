@@ -220,6 +220,9 @@ func Run(ctx context.Context, a Adapter, rules []*Rule, progress func(i, total i
 	info := a.Info()
 	results := make([]Result, 0, len(rules))
 	for i, r := range rules {
+		if ctx.Err() != nil { // cancelled: stop instead of marking the rest "no data"
+			break
+		}
 		if progress != nil {
 			progress(i, len(rules), r, nil)
 		}

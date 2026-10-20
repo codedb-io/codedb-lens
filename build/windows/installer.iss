@@ -14,7 +14,7 @@ AppName=codeDB Lens
 AppVersion={#AppVersion}
 AppPublisher=codeDB
 AppPublisherURL=https://codedb.com.br/?utm_source=lens&utm_medium=installer&utm_campaign=publisher
-AppSupportURL=https://github.com/codedb-monitorsql/codedb-lens/issues
+AppSupportURL=https://github.com/codedb-io/codedb-lens/issues
 DefaultDirName={localappdata}\Programs\codeDB Lens
 DefaultGroupName=codeDB Lens
 DisableProgramGroupPage=yes

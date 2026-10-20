@@ -4,7 +4,7 @@ Ferramenta gratuita de diagnóstico para SQL Server e PostgreSQL. É o lead magn
 (SaaS de monitoramento, Azure, Stripe): útil de verdade, leva o usuário ao SaaS e captura e-mail.
 Um binário `codedb-lens` (engine por `--engine mssql|pg`); "for SQL Server" e "for PostgreSQL" são
 páginas de docs/marketing. Windows (GUI + CLI) e Linux (CLI).
-Repo: github.com/codedb-monitorsql/codedb-lens (privado até a v0.5, escrito como público, em inglês).
+Repo: github.com/codedb-io/codedb-lens (privado até a v0.5, escrito como público, em inglês).
 Plano detalhado: `C:\Users\DESKTOP\.claude\plans\c-users-desktop-downloads-proposta-fina-logical-cloud.md`.
 
 Proposta completa, matriz de validação e análise: https://claude.ai/code/artifact/8dc89e78-12ee-4ac4-b670-5f07795a99c4
@@ -63,6 +63,9 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 Status (2026-10-20): fase 1 com as 12 + 12 regras do MVP, GUI, relatório, update assinado e pipeline de release
 prontos e testados localmente (SQL Server 2017–2025, PostgreSQL 14–18). Falta: repositório no GitHub + secret
 `LENS_SIGNING_KEY`, primeira execução do CI, checklist de serviços gerenciados (`RELEASING.md`) e teste com os 2 clientes.
+
+Cadastro (decidido 2026-10-20): nome e e-mail obrigatórios + empresa opcional, pedidos só ao ativar a chave
+grátis na fase 2 (`compare`/`record`), enviados ao backend do codeDB. O `check` da v0.1 segue sem cadastro.
 
 Em aberto: validade da chave (90/30 dias), elegibilidade do Azure Trusted Signing, overhead máximo do `record`.
 

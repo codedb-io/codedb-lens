@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
 )
 
 func main() {

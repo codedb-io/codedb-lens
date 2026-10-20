@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
-	"github.com/codedb-monitorsql/codedb-lens/internal/report"
-	"github.com/codedb-monitorsql/codedb-lens/rules"
+	"github.com/codedb-io/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/report"
+	"github.com/codedb-io/codedb-lens/rules"
 )
 
 // The built-in catalog must load and pass validation (both languages, params, ID = folder).
@@ -115,6 +115,17 @@ func TestRunStatusesAndScore(t *testing.T) {
 		if !strings.Contains(buf.String(), must) {
 			t.Errorf("report HTML missing %q", must)
 		}
+	}
+}
+
+func TestRunStopsWhenCancelled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	a := fake{resp: map[string]func(context.Context) ([]string, [][]any, error){
+		"stop": func(context.Context) ([]string, [][]any, error) { cancel(); return []string{"a"}, nil, nil },
+	}}
+	res := engine.Run(ctx, a, []*engine.Rule{rule("A", engine.Low, "stop"), rule("B", engine.Low, "never")}, nil)
+	if len(res) != 1 {
+		t.Fatalf("ran %d rules after cancel, want 1", len(res))
 	}
 }
 

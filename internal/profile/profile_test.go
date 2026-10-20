@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
 )
 
 func TestPasswordNeverSerialized(t *testing.T) {

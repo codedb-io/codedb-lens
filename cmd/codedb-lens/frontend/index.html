@@ -52,7 +52,7 @@ main { overflow-y: auto; min-width: 0; }
 .ph-ic svg { width: 26px; height: 26px; }
 .ph h1 { margin: 0; font: 700 var(--fs-2xl)/1.2 var(--font-display); letter-spacing: -.01em; }
 .ph p { margin: var(--s1) 0 0; color: var(--muted); }
-.ph .del { margin-left: auto; }
+.ph .hact { margin-left: auto; display: flex; gap: var(--s2); }
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 26vw, 380px); gap: var(--s5); align-items: start; }
 @media (max-width: 1180px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 
@@ -109,7 +109,8 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .btn.primary { background: var(--blue-600); border-color: var(--blue-600); color: #fff; padding: 0 var(--s5); }
 .btn.primary:hover { background: var(--blue-700); }
 .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
-.btn.danger { color: var(--crit); }
+.btn.danger { color: var(--crit); border-color: var(--crit); }
+.btn.danger:hover { background: var(--crit-bg); }
 .btn:disabled { opacity: .55; cursor: default; }
 .actions { display: flex; gap: var(--s3); flex-wrap: wrap; align-items: center; }
 .actions .sp { flex: 1; }
@@ -124,7 +125,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .rail h3 { margin: 0 0 var(--s3); font-size: var(--fs-md); display: flex; gap: var(--s2); align-items: center; }
 .rail h3 svg { color: var(--blue-600); }
 .rail .sub { color: var(--muted); font-size: var(--fs-xs); margin: -6px 0 var(--s3); }
-.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); font-size: var(--fs-sm); }
+.rules { max-height: 260px; overflow-y: auto; list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); font-size: var(--fs-sm); }
 .rules li { display: flex; gap: var(--s2); align-items: baseline; }
 .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; transform: translateY(-1px); background: var(--low); }
 .dot.critical { background: var(--crit); } .dot.high { background: var(--high); } .dot.medium { background: var(--med); }
@@ -194,7 +195,10 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <div class="ph">
     <div class="ph-ic"><svg class="i"><use href="#i-db"/></svg></div>
     <div><h1 id="title"></h1><p id="subtitle"></p></div>
-    <button class="btn ghost danger del" id="del" hidden data-t="gui_delete"></button>
+    <div class="hact">
+      <button class="btn" id="dup" hidden data-t="gui_duplicate"></button>
+      <button class="btn danger" id="del" hidden data-t="gui_delete"></button>
+    </div>
   </div>
 
   <div class="grid">
@@ -209,7 +213,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 
         <div class="sec">
           <div class="sh"><span class="num">1</span><div><h2 data-t="gui_step_server"></h2><p data-t="gui_step_server_sub"></p></div>
-            <button type="button" class="linkbtn right" id="pastebtn"><svg class="i"><use href="#i-paste"/></svg><span data-t="gui_paste"></span></button></div>
+            <button type="button" class="linkbtn right" id="pastebtn" aria-expanded="false" aria-controls="pastebox"><svg class="i"><use href="#i-paste"/></svg><span id="pastelbl" data-t="gui_paste"></span></button></div>
           <div id="pastebox" hidden style="margin-bottom:var(--s4)">
             <textarea class="cs" id="cs" spellcheck="false" placeholder="Server=sql01,1433;Database=app;User Id=lens;Password=…   |   postgres://lens@pg01:5432/app"></textarea>
             <div class="actions" style="margin-top:var(--s2)"><button type="button" class="btn" id="csapply" data-t="gui_paste_apply"></button><span id="csmsg" class="hint"></span></div>
@@ -257,7 +261,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
           <div id="status"></div>
           <div class="actions">
             <button type="button" class="btn" id="test"><svg class="i"><use href="#i-plug"/></svg><span data-t="gui_test"></span></button>
-            <button type="button" class="btn ghost" id="save" data-t="gui_save"></button>
+            <button type="button" class="btn" id="save" data-t="gui_save"></button>
             <span class="sp"></span>
             <button type="button" class="btn primary" id="run"><svg class="i"><use href="#i-play"/></svg><span data-t="gui_run"></span></button>
           </div>
@@ -275,7 +279,8 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 </div>
 
 <div class="wrap run" id="runner" hidden>
-  <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-play"/></svg></div><div><h1 id="runtitle"></h1><p id="runsub"></p></div></div>
+  <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-play"/></svg></div><div><h1 id="runtitle"></h1><p id="runsub"></p></div>
+    <button class="btn danger" id="stop" style="margin-left:auto" data-t="gui_stop"></button></div>
   <div class="prog"><i id="progbar"></i></div>
   <ul class="steps" id="steps"></ul>
 </div>
@@ -340,10 +345,18 @@ function fill(p) {
   $('#trust').checked = !!c.trust_server_cert;
   setAuth(c.auth || (c.engine === 'mssql' ? 'windows' : 'sql'));
   setEngine(c.engine || 'mssql');
-  $('#pwhint').hidden = !p; $('#del').hidden = !p;
+  $('#pwhint').hidden = !p; $('#del').hidden = !p; $('#dup').hidden = !p;
   $('#title').textContent = p ? p.name : t('gui_new_title');
   $('#subtitle').textContent = p ? t('gui_edit_sub') : t('gui_new_sub');
-  $('#pastebox').hidden = true; status(); renderList(); renderHistory(p);
+  setPaste(false); status(); renderList(); renderHistory(p);
+}
+function setPaste(open) {
+  $('#pastebox').hidden = !open; $('#pastebtn').setAttribute('aria-expanded', open);
+  const l = $('#pastelbl'); l.dataset.t = open ? 'gui_paste_hide' : 'gui_paste'; l.textContent = t(l.dataset.t);
+  if (open) $('#cs').focus();
+}
+function showReport(html, path, p) {
+  lastPath = path; lastProfile = p; $('#frame').srcdoc = html; $('#view').hidden = false;
 }
 
 /* ── sidebar & rail ── */
@@ -373,7 +386,9 @@ function renderHistory(p) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'hrow';
     b.innerHTML = '<span class="gbadge g-' + esc(r.letter) + '">' + esc(r.letter) + '</span><span>' + esc(new Date(r.when).toLocaleString(uiLang)) +
       '<br><small>' + esc(tf('gui_findings_n', r.findings)) + ' · ' + Math.round(r.coverage * 100) + '%</small></span><small>' + Math.round(r.value) + '</small>';
-    b.onclick = () => api().OpenReport(r.path);
+    b.onclick = async () => {
+      try { showReport(await api().ReadReport(r.path), r.path, p); } catch (e) { status('err', String(e)); }
+    };
     box.appendChild(b);
   });
 }
@@ -405,7 +420,8 @@ function busy(on) { ['#run', '#test', '#save'].forEach(s => $(s).disabled = on);
 async function save() {
   const p = profileFromForm();
   if (!p.conn.server) { status('err', t('gui_required')); $('#server').focus(); return null; }
-  await api().SaveProfile(p, $('#password').value);
+  await api().SaveProfile(p, $('#password').value, current || '', uiLang);
+  if (current && current !== p.name) { histCache[p.name] = await api().History(p) || []; delete histCache[current]; }
   state = await api().State(); current = p.name; $('#password').value = '';
   $('#pwhint').hidden = false; $('#del').hidden = false; $('#title').textContent = p.name; $('#subtitle').textContent = t('gui_edit_sub');
   renderList();
@@ -420,18 +436,19 @@ async function test() {
   finally { busy(false); }
 }
 async function run(p) {
+  if (!p) { try { p = await save(); } catch (e) { status('err', String(e)); return; } if (!p) return; }
   busy(true);
   try {
-    p = p || await save(); if (!p) return;
-    lastProfile = p;
     $('#editor').hidden = true; $('#runner').hidden = false;
     $('#runtitle').textContent = tf('gui_running', p.name); $('#runsub').textContent = p.conn.server;
-    $('#steps').innerHTML = ''; $('#progbar').style.width = '0';
+    $('#steps').innerHTML = ''; $('#progbar').style.width = '0'; $('#stop').disabled = false;
     const r = await api().Run(p, '');
-    lastPath = r.path; $('#frame').srcdoc = r.html; $('#view').hidden = false;
+    showReport(r.html, r.path, p);
     histCache[p.name] = await api().History(p) || []; renderList(); renderHistory(p);
   } catch (e) {
-    $('#runner').hidden = true; $('#editor').hidden = false; status('err', friendly(e), String(e));
+    $('#runner').hidden = true; $('#editor').hidden = false;
+    if (/context canceled/i.test(String(e))) status('info', t('gui_stopped'));
+    else status('err', friendly(e), String(e));
   } finally { busy(false); }
 }
 function onRule(ev) {
@@ -472,7 +489,7 @@ $$('.etile').forEach(b => b.onclick = () => setEngine(b.dataset.engine));
 $$('#authseg button').forEach(b => b.onclick = () => setAuth(b.dataset.auth));
 $('#new').onclick = () => fill(null);
 $('#eye').onclick = () => { const p = $('#password'); p.type = p.type === 'password' ? 'text' : 'password'; };
-$('#pastebtn').onclick = () => { $('#pastebox').hidden = !$('#pastebox').hidden; if (!$('#pastebox').hidden) $('#cs').focus(); };
+$('#pastebtn').onclick = () => setPaste($('#pastebox').hidden);
 $('#csapply').onclick = () => {
   let c = null; try { c = parseCS($('#cs').value); } catch (e) {}
   if (!c || !c.server) { $('#csmsg').textContent = t('gui_paste_bad'); return; }
@@ -480,10 +497,21 @@ $('#csapply').onclick = () => {
   for (const k of ['server', 'port', 'database', 'user', 'password', 'sslmode']) if (c[k] !== undefined) $('#' + k).value = c[k] || '';
   if (c.trust !== undefined) $('#trust').checked = c.trust;
   if (!$('#name').value) $('#name').value = c.server;
-  $('#cs').value = ''; $('#csmsg').textContent = ''; $('#pastebox').hidden = true;
+  $('#cs').value = ''; $('#csmsg').textContent = ''; setPaste(false);
 };
 $('#save').onclick = async () => { try { if (await save()) status('ok', t('gui_saved')); } catch (e) { status('err', String(e)); } };
-$('#del').onclick = async () => { if (!current) return; await api().DeleteProfile(current); state = await api().State(); fill(null); };
+$('#del').onclick = async () => {
+  if (!current || !await api().Confirm(t('gui_delete'), tf('gui_delete_confirm', current))) return;
+  await api().DeleteProfile(current); state = await api().State(); fill(null);
+};
+$('#dup').onclick = async () => {
+  try {
+    const p = await api().DuplicateProfile(current);
+    state = await api().State(); histCache[p.name] = [];
+    fill(p); $('#name').focus(); $('#name').select();
+  } catch (e) { status('err', String(e)); }
+};
+$('#stop').onclick = () => { $('#stop').disabled = true; api().Cancel(); };
 $('#test').onclick = test;
 $('#run').onclick = () => run();
 $('#f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); e.ctrlKey ? run() : test(); } });
@@ -495,7 +523,13 @@ $('#again').onclick = () => { $('#view').hidden = true; run(lastProfile); };
 $('#browser').onclick = () => api().OpenReport(lastPath);
 $('#folder').onclick = () => api().OpenFolder(lastPath);
 $('#frame').onload = () => $('#frame').contentDocument.addEventListener('click', e => {
-  const a = e.target.closest('a[href^="http"]'); if (a) { e.preventDefault(); api().OpenURL(a.href); }
+  const a = e.target.closest('a[href]'); if (!a) return;
+  const href = a.getAttribute('href');
+  if (href.startsWith('#')) { // srcdoc resolves "#id" against the app URL: scroll instead of navigating away
+    e.preventDefault();
+    const el = $('#frame').contentDocument.getElementById(decodeURIComponent(href.slice(1)));
+    if (el) el.scrollIntoView({ block: 'start' });
+  } else if (/^https?:/i.test(href)) { e.preventDefault(); api().OpenURL(a.href); }
 });
 $('#uilang').onchange = async e => {
   uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts();

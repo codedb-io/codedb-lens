@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/engine"
 	_ "github.com/microsoft/go-mssqldb"
 )
 

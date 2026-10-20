@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/wailsapp/wails/v2"
@@ -17,21 +18,25 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
-	"github.com/codedb-monitorsql/codedb-lens/internal/i18n"
-	"github.com/codedb-monitorsql/codedb-lens/internal/profile"
-	"github.com/codedb-monitorsql/codedb-lens/internal/report"
-	"github.com/codedb-monitorsql/codedb-lens/internal/saas"
-	"github.com/codedb-monitorsql/codedb-lens/internal/update"
-	"github.com/codedb-monitorsql/codedb-lens/rules"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/i18n"
+	"github.com/codedb-io/codedb-lens/internal/profile"
+	"github.com/codedb-io/codedb-lens/internal/report"
+	"github.com/codedb-io/codedb-lens/internal/saas"
+	"github.com/codedb-io/codedb-lens/internal/update"
+	"github.com/codedb-io/codedb-lens/rules"
 )
 
 //go:embed frontend
 var frontend embed.FS
 
 // App is bound to the frontend: every exported method is callable as window.go.main.App.<Name>.
-type App struct{ ctx context.Context }
+type App struct {
+	ctx    context.Context
+	mu     sync.Mutex
+	cancel context.CancelFunc // of the running diagnosis
+}
 
 type State struct {
 	Lang     string            `json:"lang"`
@@ -90,10 +95,26 @@ func (a *App) History(p profile.Profile) []report.Summary {
 func (a *App) Texts(lang string) map[string]string { return i18n.All(i18n.Normalize(lang)) }
 
 // SaveProfile stores settings; an empty password keeps the one already in the credential store.
-func (a *App) SaveProfile(p profile.Profile, password string) error {
+// old is the name the profile had when loaded ("" for a new one): a different name renames it,
+// carrying its password and (default-folder) history along.
+func (a *App) SaveProfile(p profile.Profile, password, old, lang string) error {
 	f, err := profile.Load()
 	if err != nil {
 		return err
+	}
+	if p.Name != old {
+		if _, taken := f.Get(p.Name); taken {
+			return fmt.Errorf(i18n.T(i18n.Normalize(lang), "gui_name_taken"), p.Name)
+		}
+	}
+	if old != "" && old != p.Name {
+		if password == "" {
+			password, _ = profile.Password(old)
+		}
+		if p.OutDir == "" {
+			_ = os.Rename(report.DefaultDir(old), report.DefaultDir(p.Name)) // ponytail: no history yet = nothing to move
+		}
+		f.Delete(old)
 	}
 	f.Put(p)
 	if err := f.Save(); err != nil {
@@ -103,6 +124,32 @@ func (a *App) SaveProfile(p profile.Profile, password string) error {
 		return profile.SetPassword(p.Name, password)
 	}
 	return nil
+}
+
+// DuplicateProfile saves a copy named "<name> (2)" (or the next free number), password included.
+func (a *App) DuplicateProfile(name string) (profile.Profile, error) {
+	f, err := profile.Load()
+	if err != nil {
+		return profile.Profile{}, err
+	}
+	p, ok := f.Get(name)
+	if !ok {
+		return profile.Profile{}, fmt.Errorf("profile %q not found", name)
+	}
+	for n := 2; ; n++ {
+		p.Name = fmt.Sprintf("%s (%d)", name, n)
+		if _, taken := f.Get(p.Name); !taken {
+			break
+		}
+	}
+	pw, _ := profile.Password(name)
+	return p, a.SaveProfile(p, pw, "", "")
+}
+
+// Confirm shows a native Yes/No dialog.
+func (a *App) Confirm(title, msg string) bool {
+	r, _ := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{Type: runtime.QuestionDialog, Title: title, Message: msg})
+	return r == "Yes"
 }
 
 func (a *App) DeleteProfile(name string) error {
@@ -141,8 +188,13 @@ type RunResult struct {
 
 // Run diagnoses the profile, saves the report and returns it for display. Progress goes to the "log" event.
 func (a *App) Run(p profile.Profile, password string) (RunResult, error) {
+	ctx, cancel := context.WithCancel(a.ctx)
+	defer cancel()
+	a.mu.Lock()
+	a.cancel = cancel
+	a.mu.Unlock()
 	lang := i18n.Normalize(firstNonEmpty(p.Lang, i18n.Detect()))
-	rep, err := Diagnose(a.ctx, connFor(p, password), lang, "", func(m string) { runtime.EventsEmit(a.ctx, "log", m) },
+	rep, err := Diagnose(ctx, connFor(p, password), lang, "", func(m string) { runtime.EventsEmit(a.ctx, "log", m) },
 		func(i, total int, r *engine.Rule, res *engine.Result) {
 			ev := map[string]any{"i": i, "total": total, "id": r.ID, "title": r.Title[lang], "status": "running"}
 			if res != nil {
@@ -164,8 +216,27 @@ func (a *App) Run(p profile.Profile, password string) (RunResult, error) {
 	return RunResult{HTML: b.String(), Path: path}, nil
 }
 
+// Cancel stops the running diagnosis: the query in flight is cancelled and the connection closed.
+func (a *App) Cancel() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.cancel != nil {
+		a.cancel()
+	}
+}
+
+// OpenReport opens a saved report in the default browser (Wails' BrowserOpenURL refuses file:// URLs).
 func (a *App) OpenReport(path string) {
-	runtime.BrowserOpenURL(a.ctx, "file:///"+filepath.ToSlash(path))
+	_ = exec.Command("rundll32", "url.dll,FileProtocolHandler", path).Start()
+}
+
+// ReadReport returns a saved HTML report, for the in-app viewer.
+func (a *App) ReadReport(path string) (string, error) {
+	if !strings.EqualFold(filepath.Ext(path), ".html") {
+		return "", fmt.Errorf("not a report: %s", path)
+	}
+	b, err := os.ReadFile(path)
+	return string(b), err
 }
 
 func (a *App) OpenFolder(path string) { _ = exec.Command("explorer", "/select,", path).Start() }

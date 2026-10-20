@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/jackc/pgx/v5"
 )
 

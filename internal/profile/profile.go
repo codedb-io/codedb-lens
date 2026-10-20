@@ -10,7 +10,7 @@ import (
 
 	"github.com/zalando/go-keyring"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
 )
 
 const keyringService = "codeDB Lens"

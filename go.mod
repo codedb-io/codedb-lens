@@ -1,4 +1,4 @@
-module github.com/codedb-monitorsql/codedb-lens
+module github.com/codedb-io/codedb-lens
 
 go 1.27.0
 

@@ -13,5 +13,5 @@ qualidade do diagnóstico**.
 
 A chave gratuita é assinada e validada offline: o Lens nunca chama a internet para validá-la.
 
-Tem uma regra ou funcionalidade em mente? [Abra uma issue](https://github.com/codedb-monitorsql/codedb-lens/issues/new/choose).
+Tem uma regra ou funcionalidade em mente? [Abra uma issue](https://github.com/codedb-io/codedb-lens/issues/new/choose).
 Para monitoramento contínuo hoje, conheça o [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=roadmap).

@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability / Vulnerabilidade
-    url: https://github.com/codedb-monitorsql/codedb-lens/security/advisories/new
+    url: https://github.com/codedb-io/codedb-lens/security/advisories/new
     about: Report privately / Reporte de forma privada
   - name: Continuous monitoring (codeDB) / Monitoramento contínuo
     url: https://codedb.com.br/?utm_source=lens&utm_medium=github&utm_campaign=issues

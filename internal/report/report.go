@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
-	"github.com/codedb-monitorsql/codedb-lens/internal/i18n"
-	"github.com/codedb-monitorsql/codedb-lens/internal/saas"
+	"github.com/codedb-io/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/i18n"
+	"github.com/codedb-io/codedb-lens/internal/saas"
 )
 
 //go:embed report.html.tmpl

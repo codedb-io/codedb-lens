@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/engine"
 )
 
 const AppName = "codeDB Lens"

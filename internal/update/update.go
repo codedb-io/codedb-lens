@@ -26,7 +26,7 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-const repo = "codedb-monitorsql/codedb-lens"
+const repo = "codedb-io/codedb-lens"
 
 // PublicKey verifies checksums.txt.sig. Base64 Ed25519 public key; generate with `go run ./tools/sign -genkey`.
 var PublicKey = "NrM/Ysclywhc9sgLxJuysnl/44RwWZkTS7Xc029h4BM="
