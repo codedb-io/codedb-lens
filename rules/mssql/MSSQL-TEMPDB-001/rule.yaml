@@ -1,0 +1,16 @@
+id: MSSQL-TEMPDB-001
+engine: mssql
+category: configuration
+severity: medium
+confidence: confirmed
+skip_on: [azure_sqldb]
+permission: VIEW ANY DEFINITION + VIEW SERVER STATE
+title:
+  en: TempDB files not laid out for concurrency
+  pt-BR: Arquivos do TempDB fora do padrão para concorrência
+impact:
+  en: Too few or uneven data files cause allocation contention (PAGELATCH waits); percent growth makes growth events slower and slower.
+  pt-BR: Poucos arquivos de dados, ou de tamanhos diferentes, causam disputa de alocação (esperas PAGELATCH); crescimento em percentual deixa cada crescimento mais lento.
+next_action:
+  en: Use one data file per logical CPU up to 8, all with the same size and the same fixed growth in MB.
+  pt-BR: Use um arquivo de dados por CPU lógica, até 8, todos com o mesmo tamanho e o mesmo crescimento fixo em MB.

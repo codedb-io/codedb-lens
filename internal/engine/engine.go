@@ -191,7 +191,7 @@ func mergeTexts(a, b map[string]Text) map[string]Text {
 func (r *Rule) Render() string {
 	return placeholder.ReplaceAllStringFunc(r.SQL, func(s string) string {
 		name := placeholder.FindStringSubmatch(s)[1]
-		return strconv.FormatFloat(r.Params[name], 'f', -1, 64)
+		return "(" + strconv.FormatFloat(r.Params[name], 'f', -1, 64) + ")" // parens: -1 must not become a -- comment
 	})
 }
 

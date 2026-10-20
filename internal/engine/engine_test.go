@@ -112,7 +112,7 @@ func TestRunStatusesAndScore(t *testing.T) {
 func TestRenderOnlyNumbers(t *testing.T) {
 	r := rule("R", engine.Low, "SELECT {{n}} , {{ n }}")
 	r.Params = map[string]float64{"n": 1.5}
-	if got := r.Render(); got != "SELECT 1.5 , 1.5" {
+	if got := r.Render(); got != "SELECT (1.5) , (1.5)" {
 		t.Errorf("Render = %q", got)
 	}
 }

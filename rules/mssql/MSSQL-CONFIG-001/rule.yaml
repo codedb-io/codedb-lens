@@ -1,0 +1,21 @@
+id: MSSQL-CONFIG-001
+engine: mssql
+category: configuration
+severity: medium
+confidence: hint
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE (host CPU and RAM)
+params:
+  maxdop_cpus: 8   # MAXDOP 0 is only flagged above this many logical CPUs
+title:
+  en: Instance settings left at defaults that hurt performance
+  pt-BR: Configurações da instância no padrão que prejudicam o desempenho
+impact:
+  en: Default memory can starve the OS; default parallelism settings make small queries go parallel and fight for CPU.
+  pt-BR: A memória padrão pode sufocar o sistema operacional; o paralelismo padrão faz consultas pequenas rodarem em paralelo e disputarem CPU.
+next_action:
+  en: Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.
+  pt-BR: Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.
+caveat:
+  en: Recommendations are common starting points, not universal rules. Hosts running other services may need different values.
+  pt-BR: As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores.

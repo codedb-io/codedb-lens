@@ -8,6 +8,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
 	"github.com/codedb-monitorsql/codedb-lens/rules"
@@ -83,6 +84,80 @@ func TestMSSQL(t *testing.T) {
 				FETCH c INTO @n;
 			END`)
 		expect(t, s, rs["MSSQL-BACKUP-001"], engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-CHECKDB-001", func(t *testing.T) {
+		r := *rs["MSSQL-CHECKDB-001"]
+		r.Params = map[string]float64{"max_days": -1} // every database, even a fresh one, counts as overdue
+		expect(t, s, &r, engine.StatusFinding, engine.Confirmed)
+		exec(t, `DBCC CHECKDB ('master') WITH NO_INFOMSGS; DBCC CHECKDB ('model') WITH NO_INFOMSGS;
+			DBCC CHECKDB ('msdb') WITH NO_INFOMSGS; DBCC CHECKDB ('lens_fixture') WITH NO_INFOMSGS;`)
+		expect(t, s, rs["MSSQL-CHECKDB-001"], engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-AGENT-001", func(t *testing.T) {
+		exec(t, `IF EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = 'lens_failing_job') EXEC msdb.dbo.sp_delete_job @job_name = 'lens_failing_job'`)
+		expect(t, s, rs["MSSQL-AGENT-001"], engine.StatusOK, "")
+		exec(t, `EXEC msdb.dbo.sp_add_job @job_name = 'lens_failing_job';
+			EXEC msdb.dbo.sp_add_jobstep @job_name = 'lens_failing_job', @step_name = 'fail', @command = 'RAISERROR(''lens fixture'', 16, 1)';
+			EXEC msdb.dbo.sp_add_jobserver @job_name = 'lens_failing_job';
+			EXEC msdb.dbo.sp_start_job @job_name = 'lens_failing_job';`)
+		for i := 0; i < 30; i++ { // the Agent runs the job asynchronously
+			if res := engine.Run(context.Background(), s, []*engine.Rule{rs["MSSQL-AGENT-001"]}, nil)[0]; res.Status == engine.StatusFinding {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+		expect(t, s, rs["MSSQL-AGENT-001"], engine.StatusFinding, engine.Confirmed)
+		exec(t, `EXEC msdb.dbo.sp_delete_job @job_name = 'lens_failing_job'`)
+		expect(t, s, rs["MSSQL-AGENT-001"], engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-SPACE-001", func(t *testing.T) {
+		r := *rs["MSSQL-SPACE-001"]
+		expect(t, s, &r, engine.StatusOK, "")
+		// FULL recovery + enough log to force growth after a full backup -> log_reuse_wait = LOG_BACKUP
+		exec(t, `BACKUP DATABASE lens_fixture TO DISK = 'NUL';
+			IF OBJECT_ID('lens_fixture.dbo.big') IS NULL EXEC ('USE lens_fixture; CREATE TABLE dbo.big (v char(1000))');
+			EXEC ('USE lens_fixture; INSERT dbo.big SELECT TOP (20000) ''x'' FROM sys.all_objects a CROSS JOIN sys.all_objects b; TRUNCATE TABLE dbo.big;');`)
+		r.Params = map[string]float64{"volume_hint_pct": 0, "volume_confirmed_pct": 0, "log_hint_pct": 0, "log_confirmed_pct": 1000}
+		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+		r.Params = map[string]float64{"volume_hint_pct": 101, "volume_confirmed_pct": 101, "log_hint_pct": 1000, "log_confirmed_pct": 1000}
+		expect(t, s, &r, engine.StatusFinding, engine.Confirmed)
+		exec(t, `BACKUP LOG lens_fixture TO DISK = 'NUL'`)
+	})
+
+	t.Run("MSSQL-CONFIG-001", func(t *testing.T) {
+		exec(t, `EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+			EXEC sp_configure 'cost threshold for parallelism', 5; EXEC sp_configure 'optimize for ad hoc workloads', 0; RECONFIGURE;`)
+		expect(t, s, rs["MSSQL-CONFIG-001"], engine.StatusFinding, engine.Hint)
+		exec(t, `EXEC sp_configure 'max server memory (MB)', 4096; EXEC sp_configure 'max degree of parallelism', 8;
+			EXEC sp_configure 'cost threshold for parallelism', 50; EXEC sp_configure 'optimize for ad hoc workloads', 1; RECONFIGURE;`)
+		expect(t, s, rs["MSSQL-CONFIG-001"], engine.StatusOK, "")
+	})
+
+	t.Run("MSSQL-TEMPDB-001", func(t *testing.T) {
+		r := rs["MSSQL-TEMPDB-001"]
+		hasPercent := func() bool {
+			res := engine.Run(context.Background(), s, []*engine.Rule{r}, nil)[0]
+			if res.Status == engine.StatusNoData {
+				t.Fatal(res.Reason)
+			}
+			for _, row := range res.Rows {
+				if row[0] == "growth in percent" {
+					return true
+				}
+			}
+			return false
+		}
+		exec(t, `ALTER DATABASE tempdb MODIFY FILE (NAME = templog, FILEGROWTH = 10%)`)
+		if !hasPercent() {
+			t.Error("percent growth not detected")
+		}
+		exec(t, `ALTER DATABASE tempdb MODIFY FILE (NAME = templog, FILEGROWTH = 64MB)`)
+		if hasPercent() {
+			t.Error("percent growth still reported after fixing it")
+		}
 	})
 
 	t.Run("MSSQL-VERSION-001", func(t *testing.T) {

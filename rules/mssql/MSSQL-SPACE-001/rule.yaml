@@ -1,0 +1,27 @@
+id: MSSQL-SPACE-001
+engine: mssql
+category: capacity
+severity: high
+confidence: hint
+skip_on: [azure_sqldb]
+permission: VIEW SERVER STATE (2022+ VIEW SERVER PERFORMANCE STATE)
+params:
+  volume_hint_pct: 15        # volume free space below this -> hint
+  volume_confirmed_pct: 5    # ... below this -> confirmed
+  log_hint_pct: 75           # active log above this % of the log size, with a blocking reuse wait -> hint
+  log_confirmed_pct: 90
+title:
+  en: Disk or transaction log running out of space
+  pt-BR: Disco ou log de transações ficando sem espaço
+impact:
+  en: A full volume or log stops all writes in the affected databases. Usually it happens at the worst possible time.
+  pt-BR: Um volume ou log cheio interrompe todas as escritas nos bancos afetados. Normalmente acontece na pior hora possível.
+next_action:
+  en: "Volumes: free space or grow the disk. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica)."
+  pt-BR: "Volumes: libere espaço ou aumente o disco. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
+caveat:
+  en: A snapshot shows how full things are now, not how fast they grow. Only volumes that hold database files are checked.
+  pt-BR: Um retrato mostra o quanto está cheio agora, não a velocidade de crescimento. Só são verificados volumes com arquivos de banco.
+saas_cta:
+  en: codeDB projects when each volume and log will fill up and alerts you days before.
+  pt-BR: O codeDB projeta quando cada volume e log vai encher e alerta dias antes.

@@ -1,0 +1,24 @@
+id: MSSQL-CHECKDB-001
+engine: mssql
+category: integrity
+severity: high
+confidence: confirmed
+skip_on: [azure_sqldb]
+permission: VIEW ANY DEFINITION
+params:
+  max_days: 7   # last clean DBCC CHECKDB older than this
+title:
+  en: Databases without a recent clean DBCC CHECKDB
+  pt-BR: Bancos sem DBCC CHECKDB recente e sem erros
+impact:
+  en: Corruption can sit unnoticed for weeks and end up in every backup, leaving nothing clean to restore.
+  pt-BR: Uma corrupção pode passar semanas sem ser notada e entrar em todos os backups, sem deixar nada limpo para restaurar.
+next_action:
+  en: Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.
+  pt-BR: Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.
+caveat:
+  en: Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.
+  pt-BR: Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados.
+saas_cta:
+  en: codeDB tracks integrity checks on every instance and warns when one is overdue.
+  pt-BR: O codeDB acompanha os checks de integridade de todas as instâncias e avisa quando um atrasa.

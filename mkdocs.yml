@@ -35,7 +35,12 @@ nav:
   - Privacy: privacy.md
   - Rules:
       - SQL Server:
+          - MSSQL-AGENT-001: rules/mssql-agent-001.md
           - MSSQL-BACKUP-001: rules/mssql-backup-001.md
+          - MSSQL-CHECKDB-001: rules/mssql-checkdb-001.md
+          - MSSQL-CONFIG-001: rules/mssql-config-001.md
+          - MSSQL-SPACE-001: rules/mssql-space-001.md
+          - MSSQL-TEMPDB-001: rules/mssql-tempdb-001.md
           - MSSQL-VERSION-001: rules/mssql-version-001.md
       - PostgreSQL:
           - PG-VERSION-001: rules/pg-version-001.md

@@ -1,0 +1,24 @@
+id: MSSQL-AGENT-001
+engine: mssql
+category: agent
+severity: high
+confidence: confirmed
+skip_on: [azure_sqldb]
+permission: SQLAgentReaderRole on msdb
+params:
+  days: 7   # look at failures in this window
+title:
+  en: SQL Agent jobs failing
+  pt-BR: Jobs do SQL Agent com falha
+impact:
+  en: Failed jobs usually mean backups, maintenance or data loads that silently stopped happening.
+  pt-BR: Jobs com falha geralmente significam backups, manutenção ou cargas de dados que pararam de acontecer sem ninguém perceber.
+next_action:
+  en: Open the job history for each job, fix the failing step and set up an operator to be notified on failure.
+  pt-BR: Abra o histórico de cada job, corrija o passo que falha e configure um operador para ser notificado em caso de falha.
+caveat:
+  en: Shows enabled jobs whose last run failed within the window. Not available on Express or Azure SQL Database (no Agent).
+  pt-BR: Mostra jobs habilitados cuja última execução falhou dentro da janela. Não existe no Express nem no Azure SQL Database (sem Agent).
+saas_cta:
+  en: codeDB alerts on Teams, Slack or e-mail the moment a job fails.
+  pt-BR: O codeDB alerta no Teams, Slack ou e-mail assim que um job falha.
