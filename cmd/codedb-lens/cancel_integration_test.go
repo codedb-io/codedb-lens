@@ -15,8 +15,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	_ "github.com/microsoft/go-mssqldb"
 
-	"github.com/codedb-monitorsql/codedb-lens/internal/adapter"
-	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
+	"github.com/codedb-io/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/engine"
 )
 
 func envOr(k, def string) string {

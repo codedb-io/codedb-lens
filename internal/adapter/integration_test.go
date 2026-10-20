@@ -1,5 +1,8 @@
 //go:build integration
 
+// SQL Server 2017 self-signed certificates have negative serial numbers, which Go rejects by default.
+//go:debug x509negativeserial=1
+
 // Runs the real catalog against the docker-compose databases (or LENS_MSSQL_SERVER / LENS_PG_DSN in CI).
 // Each rule is provoked (finding expected) and checked clean (OK expected).
 package adapter
@@ -119,7 +122,8 @@ func TestMSSQL(t *testing.T) {
 
 	t.Run("MSSQL-SPACE-001", func(t *testing.T) {
 		r := *rs["MSSQL-SPACE-001"]
-		expect(t, s, &r, engine.StatusOK, "")
+		r.Params = map[string]float64{"volume_hint_pct": 0, "volume_confirmed_pct": 0, "log_hint_pct": 75, "log_confirmed_pct": 90}
+		expect(t, s, &r, engine.StatusOK, "") // log branch only: CI runner disks really are low on space
 		// An open transaction in another session + BACKUP LOG -> log_reuse_wait = ACTIVE_TRANSACTION, deterministically.
 		db, err := sql.Open("sqlserver", mssqlURL(Conn{Server: env("LENS_MSSQL_SERVER", "localhost,14322"), User: "sa",
 			Password: env("MSSQL_SA_PASSWORD", "Lens_dev_Passw0rd!"), TrustServerCert: true}))

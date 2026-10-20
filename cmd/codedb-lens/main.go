@@ -1,4 +1,8 @@
 // codedb-lens: free, read-only health check for SQL Server and PostgreSQL.
+
+// SQL Server 2017 self-signed certificates have negative serial numbers, which Go rejects by default.
+//
+//go:debug x509negativeserial=1
 package main
 
 import (

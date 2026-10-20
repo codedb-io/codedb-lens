@@ -1,4 +1,7 @@
 // waitdb blocks until the CI database accepts connections (up to 3 minutes). Usage: waitdb mssql|pg
+// SQL Server 2017 self-signed certificates have negative serial numbers, which Go rejects by default.
+//
+//go:debug x509negativeserial=1
 package main
 
 import (
