@@ -29,8 +29,7 @@ import (
 const repo = "codedb-monitorsql/codedb-lens"
 
 // PublicKey verifies checksums.txt.sig. Base64 Ed25519 public key; generate with `go run ./tools/sign -genkey`.
-// ponytail: empty until the release key exists; Apply refuses to run without it.
-var PublicKey = ""
+var PublicKey = "NrM/Ysclywhc9sgLxJuysnl/44RwWZkTS7Xc029h4BM="
 
 var api = "https://api.github.com/repos/" + repo + "/releases/latest"
 
