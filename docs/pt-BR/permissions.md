@@ -28,3 +28,7 @@ GRANT CONNECT ON DATABASE app TO codedb_lens;  -- repita para cada banco
 ```
 
 O Lens conecta em cada banco, um de cada vez, porque várias estatísticas são por banco.
+
+Opcional: o `PG-BLOAT-001` estima o bloat pelas estatísticas das colunas, que o PostgreSQL só mostra para tabelas em que o
+login tem `SELECT`. Sem isso, a regra fica *Sem dados*. Conceda `pg_read_all_data` (14+) ou `SELECT` nas tabelas só se
+quiser essa estimativa; todas as outras regras funcionam sem ler dados das tabelas.

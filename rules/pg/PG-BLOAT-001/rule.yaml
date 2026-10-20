@@ -1,0 +1,22 @@
+id: PG-BLOAT-001
+engine: pg
+category: vacuum
+severity: medium
+confidence: hint
+scope: database
+permission: pg_monitor + CONNECT on each database + column statistics (SELECT on the tables, or pg_read_all_data)
+params:
+  min_size_mb: 100   # only tables at least this big
+  bloat_pct: 40      # estimated wasted share of the table
+title:
+  en: Tables with estimated bloat
+  pt-BR: Tabelas com inchaço (bloat) estimado
+impact:
+  en: Bloated tables take more disk, more memory in cache and more I/O for the same data. Regular vacuum reuses the space but doesn't give it back.
+  pt-BR: Tabelas inchadas ocupam mais disco, mais memória de cache e mais I/O para os mesmos dados. O vacuum comum reaproveita o espaço, mas não o devolve.
+next_action:
+  en: Confirm with pgstattuple before acting. To reclaim space without long locks, use pg_repack or pg_squeeze; VACUUM FULL locks the table for the whole run. Then fix the cause (PG-AUTOVAC-001, PG-LONGTX-001).
+  pt-BR: Confirme com o pgstattuple antes de agir. Para recuperar espaço sem locks longos, use pg_repack ou pg_squeeze; o VACUUM FULL trava a tabela durante toda a execução. Depois corrija a causa (PG-AUTOVAC-001, PG-LONGTX-001).
+caveat:
+  en: Always an estimate from planner statistics (pg_stats). Tables never analyzed are skipped. If the login can't see the statistics of large tables (no SELECT), the rule reports No data instead of guessing.
+  pt-BR: É sempre uma estimativa a partir das estatísticas do planejador (pg_stats). Tabelas nunca analisadas são ignoradas. Se o login não enxerga as estatísticas de tabelas grandes (sem SELECT), a regra fica Sem dados em vez de chutar.

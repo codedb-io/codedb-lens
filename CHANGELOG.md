@@ -13,6 +13,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Rules: MSSQL-CHECKDB-001, MSSQL-AGENT-001, MSSQL-SPACE-001, MSSQL-CONFIG-001, MSSQL-TEMPDB-001.
 - Rules: MSSQL-WAITS-001, MSSQL-BLOCKING-001, MSSQL-TOPQUERY-001, MSSQL-MISSINGIDX-001, MSSQL-UNUSEDIDX-001.
 - Rules: PG-PGSS-001, PG-CONN-001, PG-SLOTS-001, PG-SIZE-001, PG-LONGTX-001.
+- Rules: PG-LOCKS-001, PG-TOPQUERY-001, PG-AUTOVAC-001, PG-INDEXES-001, PG-BLOAT-001.
 - Per-database rules (`scope: database`): databases the login can't open are reported, never hidden.
 - Bilingual evidence columns (`name@en` / `name@pt-BR`).
 - Minimum SQL Server permissions now include `CONNECT ANY DATABASE` (no data access).
@@ -24,3 +25,4 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ### Fixed
 - Negative rule parameters no longer turn into SQL comments (`--1`).
 - Two runs in the same minute no longer overwrite each other's report.
+- Rule texts containing ": " are quoted so the YAML loads.

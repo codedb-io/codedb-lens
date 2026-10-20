@@ -1,0 +1,24 @@
+id: PG-TOPQUERY-001
+engine: pg
+category: performance
+severity: medium
+confidence: hint
+permission: pg_monitor (pg_read_all_stats) + pg_stat_statements
+params:
+  dominant_pct: 40    # one query using at least this share of total execution time
+  min_total_s: 60     # ignore idle instances
+title:
+  en: A single query dominates execution time
+  pt-BR: Uma única consulta domina o tempo de execução
+impact:
+  en: Tuning a database is rarely about tuning everything. When one query takes most of the time, fixing it pays more than anything else.
+  pt-BR: Otimizar um banco quase nunca é otimizar tudo. Quando uma consulta leva a maior parte do tempo, corrigi-la rende mais que qualquer outra coisa.
+next_action:
+  en: Start from the first query in the evidence (the top 5 are listed). Run EXPLAIN (ANALYZE, BUFFERS) on a copy and look for sequential scans on large tables, bad estimates and missing indexes.
+  pt-BR: Comece pela primeira consulta da evidência (as 5 maiores aparecem). Rode EXPLAIN (ANALYZE, BUFFERS) numa cópia e procure scans sequenciais em tabelas grandes, estimativas ruins e índices faltando.
+caveat:
+  en: Needs pg_stat_statements (see PG-PGSS-001). Totals accumulate since the last pg_stat_statements_reset() or restart.
+  pt-BR: Exige o pg_stat_statements (veja PG-PGSS-001). Os totais acumulam desde o último pg_stat_statements_reset() ou restart.
+saas_cta:
+  en: codeDB keeps the query history, so you can see when a query started dominating and what changed.
+  pt-BR: O codeDB guarda o histórico das consultas, para você ver quando uma consulta passou a dominar e o que mudou.

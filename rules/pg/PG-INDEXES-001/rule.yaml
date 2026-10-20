@@ -1,0 +1,21 @@
+id: PG-INDEXES-001
+engine: pg
+category: indexes
+severity: low
+confidence: hint
+scope: database
+permission: pg_monitor + CONNECT on each database
+params:
+  min_unused_mb: 10   # unused indexes at least this big
+title:
+  en: Unused, duplicate or invalid indexes
+  pt-BR: Índices não usados, duplicados ou inválidos
+impact:
+  en: Every index is updated on every write and takes space in memory, disk and backups. Unused and duplicate ones are pure cost; invalid ones (a failed CREATE INDEX CONCURRENTLY) are maintained but never used.
+  pt-BR: Todo índice é atualizado em cada escrita e ocupa memória, disco e backup. Os não usados e duplicados são puro custo; os inválidos (um CREATE INDEX CONCURRENTLY que falhou) são mantidos mas nunca usados.
+next_action:
+  en: Drop invalid indexes and recreate them if needed (DROP INDEX CONCURRENTLY). For unused ones, confirm over a full business cycle and on replicas before dropping. Keep one of each duplicate pair.
+  pt-BR: Remova os índices inválidos e recrie se precisar (DROP INDEX CONCURRENTLY). Para os não usados, confirme durante um ciclo completo do negócio e nas réplicas antes de remover. Mantenha um de cada par duplicado.
+caveat:
+  en: Usage counters reset with pg_stat_reset(); replicas keep their own counters, so an index unused here may be used on a replica.
+  pt-BR: Os contadores de uso zeram com pg_stat_reset(); réplicas têm contadores próprios, então um índice sem uso aqui pode ser usado numa réplica.

@@ -16,8 +16,8 @@ partitioning and index cleanup pay off.
 
 ## Next action
 
-For each table: can old rows be archived or partitioned by date? Are all its indexes used (`PG-UNUSEDIDX`, coming in a
-later batch)? Is it bloated (`PG-BLOAT`)?
+For each table: can old rows be archived or partitioned by date? Are all its indexes used (`PG-INDEXES-001`)? Is it bloated
+(`PG-BLOAT-001`)?
 
 ## Limitations
 

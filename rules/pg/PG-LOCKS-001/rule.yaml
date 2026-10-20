@@ -1,0 +1,23 @@
+id: PG-LOCKS-001
+engine: pg
+category: concurrency
+severity: high
+confidence: confirmed
+permission: pg_monitor (pg_read_all_stats)
+params:
+  min_wait_s: 5   # sessions waiting on a lock for at least this long
+title:
+  en: Sessions blocked by locks right now
+  pt-BR: Sessões bloqueadas por locks neste momento
+impact:
+  en: Blocked sessions wait for another session to release its locks. Users see timeouts, and a blocked DDL can queue every query behind it.
+  pt-BR: Sessões bloqueadas esperam outra sessão liberar seus locks. Os usuários veem timeouts, e um DDL bloqueado pode enfileirar todas as consultas atrás dele.
+next_action:
+  en: Look at the blocker first. A blocker "idle in transaction" is usually an application that forgot to commit. Talk to its owner before pg_terminate_backend(pid).
+  pt-BR: Olhe primeiro para quem bloqueia. Um bloqueador "idle in transaction" costuma ser uma aplicação que esqueceu o commit. Fale com o responsável antes de pg_terminate_backend(pid).
+caveat:
+  en: A snapshot only sees blocking happening at the moment of the check.
+  pt-BR: Um retrato só vê bloqueios que estão acontecendo no momento da verificação.
+saas_cta:
+  en: codeDB catches lock chains as they happen, at any hour, and alerts you within minutes.
+  pt-BR: O codeDB pega cadeias de locks na hora em que acontecem, a qualquer hora, e alerta em minutos.

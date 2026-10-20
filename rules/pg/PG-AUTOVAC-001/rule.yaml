@@ -1,0 +1,26 @@
+id: PG-AUTOVAC-001
+engine: pg
+category: vacuum
+severity: high
+confidence: hint
+scope: database
+permission: pg_monitor + CONNECT on each database
+params:
+  min_dead: 10000         # at least this many dead rows ...
+  dead_pct: 20            # ... and this share of the table
+  confirmed_dead_pct: 50
+title:
+  en: Tables with many dead rows (autovacuum falling behind)
+  pt-BR: Tabelas com muitas linhas mortas (autovacuum ficando para trás)
+impact:
+  en: Dead rows make tables and indexes bigger and slower to scan, and the space is only reused after vacuum. Left alone, this turns into permanent bloat.
+  pt-BR: Linhas mortas deixam tabelas e índices maiores e mais lentos de ler, e o espaço só é reaproveitado depois do vacuum. Sem tratamento, isso vira inchaço permanente.
+next_action:
+  en: Check what holds vacuum back (PG-LONGTX-001, PG-SLOTS-001). For hot tables, lower autovacuum_vacuum_scale_factor per table (e.g. 0.02) and raise autovacuum_vacuum_cost_limit. A manual VACUUM (VERBOSE) on the table helps right away.
+  pt-BR: "Veja o que segura o vacuum (PG-LONGTX-001, PG-SLOTS-001). Em tabelas muito alteradas, reduza o autovacuum_vacuum_scale_factor da tabela (ex.: 0.02) e aumente o autovacuum_vacuum_cost_limit. Um VACUUM (VERBOSE) manual na tabela ajuda na hora."
+caveat:
+  en: Counters reset with pg_stat_reset() and after a crash. Runs in each database the login can connect to.
+  pt-BR: Os contadores zeram com pg_stat_reset() e após um crash. Roda em cada banco em que o login consegue conectar.
+saas_cta:
+  en: codeDB follows dead rows and vacuum runs over time and alerts when a table stops being vacuumed.
+  pt-BR: O codeDB acompanha linhas mortas e execuções de vacuum ao longo do tempo e alerta quando uma tabela deixa de ser limpa.

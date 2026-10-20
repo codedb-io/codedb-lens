@@ -28,3 +28,7 @@ GRANT CONNECT ON DATABASE app TO codedb_lens;  -- repeat for each database
 ```
 
 Lens connects to each database in turn, because several statistics are per database.
+
+Optional: `PG-BLOAT-001` estimates bloat from column statistics, which PostgreSQL only shows for tables the login can
+`SELECT`. Without it the rule reports *No data*. Grant `pg_read_all_data` (14+) or `SELECT` on the tables only if you want
+that estimate; every other rule works without reading table data.

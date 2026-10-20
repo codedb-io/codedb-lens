@@ -391,6 +391,130 @@ func TestPG(t *testing.T) {
 		expect(t, s, &r, engine.StatusOK, "")
 	})
 
+	// rowsWith returns whether any evidence row of a rule mentions s (in any column).
+	rowsWith := func(t *testing.T, r *engine.Rule, s2 string) bool {
+		t.Helper()
+		res := engine.Run(ctx, s, []*engine.Rule{r}, nil)[0]
+		if res.Status == engine.StatusNoData {
+			t.Fatal(r.ID, res.Reason)
+		}
+		for _, row := range res.Rows {
+			for _, v := range row {
+				if str, ok := v.(string); ok && strings.Contains(str, s2) {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	t.Run("PG-LOCKS-001", func(t *testing.T) {
+		r := *rs["PG-LOCKS-001"]
+		r.Params = map[string]float64{"min_wait_s": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+		pexec(t, `CREATE TABLE IF NOT EXISTS lens_lock (v int)`)
+		holder, err := pgx.Connect(ctx, dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer holder.Close(ctx)
+		if _, err := holder.Exec(ctx, `BEGIN; LOCK TABLE lens_lock IN ACCESS EXCLUSIVE MODE;`); err != nil {
+			t.Fatal(err)
+		}
+		waiter, err := pgx.Connect(ctx, dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer waiter.Close(ctx)
+		done := make(chan error, 1)
+		go func() { _, err := waiter.Exec(ctx, `SELECT count(*) FROM lens_lock`); done <- err }()
+		time.Sleep(700 * time.Millisecond)
+		if !rowsWith(t, &r, "idle in transaction") {
+			t.Error("lock wait not reported with the idle-in-transaction blocker")
+		}
+		holder.Exec(ctx, `ROLLBACK`)
+		if err := <-done; err != nil {
+			t.Fatal(err)
+		}
+		expect(t, s, &r, engine.StatusOK, "")
+	})
+
+	t.Run("PG-TOPQUERY-001", func(t *testing.T) {
+		pexec(t, `CREATE EXTENSION IF NOT EXISTS pg_stat_statements`)
+		pexec(t, `SELECT count(*) FROM generate_series(1, 200000)`)
+		r := *rs["PG-TOPQUERY-001"]
+		r.Params = map[string]float64{"dominant_pct": 0, "min_total_s": 0}
+		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+		r.Params = map[string]float64{"dominant_pct": 101, "min_total_s": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+	})
+
+	t.Run("PG-AUTOVAC-001", func(t *testing.T) {
+		r := *rs["PG-AUTOVAC-001"]
+		r.Params = map[string]float64{"min_dead": 1, "dead_pct": 1, "confirmed_dead_pct": 50}
+		pexec(t, `DROP TABLE IF EXISTS lens_dead`)
+		pexec(t, `CREATE TABLE lens_dead WITH (autovacuum_enabled = false) AS SELECT g AS id FROM generate_series(1, 20000) g`)
+		pexec(t, `DELETE FROM lens_dead WHERE id <= 15000`)
+		found := false
+		for i := 0; i < 20 && !found; i++ { // table statistics are flushed asynchronously
+			pexec(t, `SELECT pg_sleep(0.3)`)
+			found = rowsWith(t, &r, "public.lens_dead")
+		}
+		if !found {
+			t.Error("dead rows on lens_dead not reported")
+		}
+		pexec(t, `VACUUM lens_dead`)
+		cleared := false
+		for i := 0; i < 20 && !cleared; i++ {
+			pexec(t, `SELECT pg_sleep(0.3)`)
+			cleared = !rowsWith(t, &r, "public.lens_dead")
+		}
+		if !cleared {
+			t.Error("lens_dead still reported after VACUUM")
+		}
+	})
+
+	t.Run("PG-INDEXES-001", func(t *testing.T) {
+		r := *rs["PG-INDEXES-001"]
+		r.Params = map[string]float64{"min_unused_mb": 0}
+		pexec(t, `DROP TABLE IF EXISTS lens_idx`)
+		pexec(t, `CREATE TABLE lens_idx AS SELECT g % 10 AS v FROM generate_series(1, 1000) g`)
+		pexec(t, `CREATE INDEX lens_idx_a ON lens_idx (v)`)
+		pexec(t, `CREATE INDEX lens_idx_b ON lens_idx (v)`)
+		// a failed CREATE INDEX CONCURRENTLY leaves an invalid index behind
+		if _, err := admin.Exec(ctx, `CREATE UNIQUE INDEX CONCURRENTLY lens_idx_bad ON lens_idx (v)`); err == nil {
+			t.Fatal("expected the unique index build to fail")
+		}
+		for _, want := range []string{"lens_idx_bad", "duplicate", "unused"} {
+			if !rowsWith(t, &r, want) {
+				t.Errorf("%q not reported", want)
+			}
+		}
+		pexec(t, `DROP TABLE lens_idx`)
+		if rowsWith(t, &r, "lens_idx") {
+			t.Error("dropped table's indexes still reported")
+		}
+	})
+
+	t.Run("PG-BLOAT-001", func(t *testing.T) {
+		r := *rs["PG-BLOAT-001"]
+		r.Params = map[string]float64{"min_size_mb": 0, "bloat_pct": 30}
+		pexec(t, `DROP TABLE IF EXISTS lens_bloat`)
+		pexec(t, `CREATE TABLE lens_bloat WITH (autovacuum_enabled = false) AS SELECT g AS id, repeat('x', 100) AS pad FROM generate_series(1, 50000) g`)
+		pexec(t, `UPDATE lens_bloat SET id = id + 1`)
+		pexec(t, `UPDATE lens_bloat SET id = id + 1`)
+		pexec(t, `VACUUM ANALYZE lens_bloat`) // frees space inside the file but keeps the pages
+		if !rowsWith(t, &r, "public.lens_bloat") {
+			t.Error("bloat on lens_bloat not estimated")
+		}
+		pexec(t, `VACUUM FULL lens_bloat`)
+		pexec(t, `ANALYZE lens_bloat`)
+		if rowsWith(t, &r, "public.lens_bloat") {
+			t.Error("lens_bloat still reported after VACUUM FULL")
+		}
+		pexec(t, `DROP TABLE lens_bloat`)
+	})
+
 	t.Run("read-only session", func(t *testing.T) {
 		if _, _, err := s.Query(ctx, `CREATE TABLE lens_must_fail (id int)`); err == nil {
 			t.Fatal("session accepted DDL; default_transaction_read_only is not in effect")

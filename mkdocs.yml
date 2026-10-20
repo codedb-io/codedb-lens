@@ -48,11 +48,16 @@ nav:
           - MSSQL-VERSION-001: rules/mssql-version-001.md
           - MSSQL-WAITS-001: rules/mssql-waits-001.md
       - PostgreSQL:
+          - PG-AUTOVAC-001: rules/pg-autovac-001.md
+          - PG-BLOAT-001: rules/pg-bloat-001.md
           - PG-CONN-001: rules/pg-conn-001.md
+          - PG-INDEXES-001: rules/pg-indexes-001.md
+          - PG-LOCKS-001: rules/pg-locks-001.md
           - PG-LONGTX-001: rules/pg-longtx-001.md
           - PG-PGSS-001: rules/pg-pgss-001.md
           - PG-SIZE-001: rules/pg-size-001.md
           - PG-SLOTS-001: rules/pg-slots-001.md
+          - PG-TOPQUERY-001: rules/pg-topquery-001.md
           - PG-VERSION-001: rules/pg-version-001.md
           - PG-WRAPAROUND-001: rules/pg-wraparound-001.md
 

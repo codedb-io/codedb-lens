@@ -16,8 +16,8 @@ arquivamento, particionamento e limpeza de índices compensam.
 
 ## Próxima ação
 
-Para cada tabela: dá para arquivar ou particionar por data as linhas antigas? Todos os índices são usados (`PG-UNUSEDIDX`,
-no próximo lote)? Ela está inchada (`PG-BLOAT`)?
+Para cada tabela: dá para arquivar ou particionar por data as linhas antigas? Todos os índices são usados (`PG-INDEXES-001`)?
+Ela está inchada (`PG-BLOAT-001`)?
 
 ## Limitações
 
