@@ -1,0 +1,18 @@
+id: PG-PGSS-001
+engine: pg
+category: observability
+severity: medium
+confidence: confirmed
+permission: pg_monitor (pg_read_all_settings)
+title:
+  en: pg_stat_statements is not available
+  pt-BR: pg_stat_statements não está disponível
+impact:
+  en: Without pg_stat_statements there is no record of which queries consume time and I/O, so slow queries can only be found by guessing.
+  pt-BR: Sem o pg_stat_statements não há registro de quais consultas consomem tempo e I/O, e consultas lentas só são encontradas no chute.
+next_action:
+  en: Add pg_stat_statements to shared_preload_libraries (needs a restart), then run CREATE EXTENSION pg_stat_statements in the database Lens connects to. On RDS, Aurora and Azure it is enabled through the parameter group / server parameters.
+  pt-BR: Inclua pg_stat_statements em shared_preload_libraries (exige restart) e rode CREATE EXTENSION pg_stat_statements no banco em que o Lens conecta. No RDS, Aurora e Azure, isso se ativa pelo parameter group / parâmetros do servidor.
+caveat:
+  en: Checks the database Lens connects to. Query rules (top queries) lose coverage while this is missing.
+  pt-BR: Verifica o banco em que o Lens conecta. As regras de consultas (top queries) perdem cobertura enquanto isso faltar.

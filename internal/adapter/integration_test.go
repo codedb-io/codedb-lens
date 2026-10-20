@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
 	"github.com/codedb-monitorsql/codedb-lens/rules"
 )
@@ -315,6 +317,78 @@ func TestPG(t *testing.T) {
 		expect(t, s, &r, engine.StatusFinding, engine.Hint)
 		r.Params = map[string]float64{"hint_ratio": 0, "confirmed_xid_age": 0}
 		expect(t, s, &r, engine.StatusFinding, engine.Confirmed)
+	})
+
+	// admin is a separate, writable superuser connection used only to build fixtures.
+	dsn := env("LENS_PG_DSN", "postgres://postgres:lens_dev@localhost:15417/postgres?sslmode=disable")
+	admin, err := pgx.Connect(ctx, dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer admin.Close(ctx)
+	pexec := func(t *testing.T, q string) {
+		t.Helper()
+		if _, err := admin.Exec(ctx, q); err != nil {
+			t.Fatal(q, err)
+		}
+	}
+
+	t.Run("PG-PGSS-001", func(t *testing.T) {
+		pexec(t, `DROP EXTENSION IF EXISTS pg_stat_statements`)
+		expect(t, s, rs["PG-PGSS-001"], engine.StatusFinding, engine.Confirmed)
+		pexec(t, `CREATE EXTENSION pg_stat_statements`) // the containers preload it
+		expect(t, s, rs["PG-PGSS-001"], engine.StatusOK, "")
+	})
+
+	t.Run("PG-CONN-001", func(t *testing.T) {
+		r := *rs["PG-CONN-001"]
+		expect(t, s, &r, engine.StatusOK, "")
+		r.Params = map[string]float64{"hint_pct": 0, "confirmed_pct": 1000, "idle_min": 0, "idle_pct": 0}
+		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+	})
+
+	t.Run("PG-SLOTS-001", func(t *testing.T) {
+		r := *rs["PG-SLOTS-001"]
+		pexec(t, `SELECT pg_drop_replication_slot(slot_name) FROM pg_replication_slots WHERE slot_name = 'lens_slot'`)
+		r.Params = map[string]float64{"retained_mb": 0, "confirmed_retained_mb": 1e9, "lag_s": 1e9}
+		expect(t, s, &r, engine.StatusOK, "")
+		pexec(t, `SELECT pg_create_physical_replication_slot('lens_slot', true)`) // inactive, WAL reserved
+		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+		pexec(t, `SELECT pg_drop_replication_slot('lens_slot')`)
+		expect(t, s, rs["PG-SLOTS-001"], engine.StatusOK, "")
+	})
+
+	t.Run("PG-SIZE-001", func(t *testing.T) {
+		r := *rs["PG-SIZE-001"]
+		expect(t, s, &r, engine.StatusOK, "")
+		pexec(t, `CREATE TABLE IF NOT EXISTS lens_big AS SELECT g AS id, repeat('x', 200) AS pad FROM generate_series(1, 20000) g`)
+		r.Params = map[string]float64{"min_rel_gb": 0}
+		res := engine.Run(ctx, s, []*engine.Rule{&r}, nil)[0]
+		found := false
+		for _, row := range res.Rows {
+			found = found || row[1] == "public.lens_big"
+		}
+		if res.Status != engine.StatusFinding || res.Columns[0] != "database" || !found {
+			t.Errorf("lens_big not reported per database: %s %v %v", res.Reason, res.Columns, res.Rows)
+		}
+	})
+
+	t.Run("PG-LONGTX-001", func(t *testing.T) {
+		r := *rs["PG-LONGTX-001"]
+		r.Params = map[string]float64{"max_tx_s": 1e9, "idle_tx_s": 0}
+		expect(t, s, &r, engine.StatusOK, "")
+		holder, err := pgx.Connect(ctx, dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer holder.Close(ctx)
+		if _, err := holder.Exec(ctx, `BEGIN; SELECT 1;`); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(200 * time.Millisecond)
+		expect(t, s, &r, engine.StatusFinding, engine.Confirmed)
+		holder.Exec(ctx, `COMMIT`)
+		expect(t, s, &r, engine.StatusOK, "")
 	})
 
 	t.Run("read-only session", func(t *testing.T) {

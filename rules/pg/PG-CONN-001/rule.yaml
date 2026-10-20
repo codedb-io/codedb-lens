@@ -1,0 +1,26 @@
+id: PG-CONN-001
+engine: pg
+category: connections
+severity: medium
+confidence: hint
+permission: pg_monitor (pg_read_all_stats)
+params:
+  hint_pct: 80        # client connections / max_connections -> hint
+  confirmed_pct: 95
+  idle_min: 50        # at least this many idle connections ...
+  idle_pct: 70        # ... and this share of all connections -> likely no pooler
+title:
+  en: Connections close to the limit, or too many idle ones
+  pt-BR: Conexões perto do limite, ou ociosas demais
+impact:
+  en: When max_connections is reached, new connections fail and the application goes down. Each idle connection still costs memory and slows snapshots.
+  pt-BR: Quando o max_connections é atingido, novas conexões falham e a aplicação para. Cada conexão ociosa ainda custa memória e deixa os snapshots mais lentos.
+next_action:
+  en: Put a connection pooler in front of the database (PgBouncer, RDS Proxy, or the application pool sized correctly) instead of raising max_connections.
+  pt-BR: Coloque um pooler de conexões na frente do banco (PgBouncer, RDS Proxy, ou o pool da aplicação bem dimensionado) em vez de aumentar o max_connections.
+caveat:
+  en: A snapshot shows the connections at this moment. Peaks usually happen at specific hours.
+  pt-BR: Um retrato mostra as conexões neste momento. Os picos costumam acontecer em horários específicos.
+saas_cta:
+  en: codeDB tracks connections over time and alerts before the limit is reached.
+  pt-BR: O codeDB acompanha as conexões ao longo do tempo e alerta antes de o limite ser atingido.

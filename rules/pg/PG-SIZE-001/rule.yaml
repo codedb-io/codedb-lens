@@ -1,0 +1,24 @@
+id: PG-SIZE-001
+engine: pg
+category: capacity
+severity: low
+confidence: hint
+scope: database
+permission: pg_monitor + CONNECT on each database
+params:
+  min_rel_gb: 10   # relations at least this big (table + indexes + TOAST)
+title:
+  en: Large tables that dominate storage
+  pt-BR: Tabelas grandes que dominam o espaço
+impact:
+  en: A few large tables usually drive disk growth, backup time and vacuum duration. Knowing them is the first step to capacity planning.
+  pt-BR: Poucas tabelas grandes costumam puxar o crescimento do disco, o tempo de backup e a duração do vacuum. Conhecê-las é o primeiro passo do planejamento de capacidade.
+next_action:
+  en: For each table, check whether old data can be archived or partitioned by date, and whether its indexes are all used (see the unused index rule).
+  pt-BR: Para cada tabela, veja se dados antigos podem ser arquivados ou particionados por data, e se todos os índices dela são usados (veja a regra de índices não usados).
+caveat:
+  en: Shows size now, not growth. Free disk space isn't visible through SQL.
+  pt-BR: Mostra o tamanho agora, não o crescimento. O espaço livre em disco não é visível por SQL.
+saas_cta:
+  en: codeDB records size every day and projects when each database will outgrow its disk.
+  pt-BR: O codeDB registra o tamanho todo dia e projeta quando cada banco vai estourar o disco.

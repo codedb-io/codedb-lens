@@ -150,12 +150,12 @@ func (r *Report) JSON(w io.Writer) error {
 	return enc.Encode(r)
 }
 
-// Save writes <dir>/<YYYY-MM-DD_HHMM>.html and .json and returns the HTML path.
+// Save writes <dir>/<YYYY-MM-DD_HHMMSS>.html and .json and returns the HTML path.
 func (r *Report) Save(dir string) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
 	}
-	base := filepath.Join(dir, r.GeneratedAt.Format("2006-01-02_1504"))
+	base := filepath.Join(dir, r.GeneratedAt.Format("2006-01-02_150405")) // seconds: two runs in a minute must not overwrite
 	for ext, write := range map[string]func(io.Writer) error{".html": r.HTML, ".json": r.JSON} {
 		f, err := os.Create(base + ext)
 		if err != nil {

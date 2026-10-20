@@ -1,0 +1,25 @@
+id: PG-SLOTS-001
+engine: pg
+category: replication
+severity: high
+confidence: hint
+permission: pg_monitor
+params:
+  retained_mb: 1024          # inactive slot holding at least this much WAL -> hint
+  confirmed_retained_mb: 10240
+  lag_s: 60                  # replica replay lag
+title:
+  en: Replication slots retaining WAL, or replicas lagging
+  pt-BR: Slots de replicação retendo WAL, ou réplicas atrasadas
+impact:
+  en: An inactive slot keeps every WAL file since it stopped, until the disk fills and the primary stops. A lagging replica serves stale data and makes failover lose transactions.
+  pt-BR: Um slot inativo guarda todos os arquivos de WAL desde que parou, até o disco encher e o primário parar. Uma réplica atrasada entrega dados velhos e faz o failover perder transações.
+next_action:
+  en: For a slot nobody uses anymore, drop it with pg_drop_replication_slot('name'). For a lagging replica, check its disk, CPU and network, and long queries on it that delay replay.
+  pt-BR: Para um slot que ninguém usa mais, remova com pg_drop_replication_slot('nome'). Para uma réplica atrasada, verifique disco, CPU e rede dela, e consultas longas que atrasam o replay.
+caveat:
+  en: Checked on the primary only. A slot can be briefly inactive while its consumer reconnects.
+  pt-BR: Verificado só no primário. Um slot pode ficar inativo por pouco tempo enquanto o consumidor reconecta.
+saas_cta:
+  en: codeDB watches WAL retention and replica lag continuously and alerts before the disk fills.
+  pt-BR: O codeDB acompanha a retenção de WAL e o atraso das réplicas continuamente e alerta antes de o disco encher.

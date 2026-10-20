@@ -48,6 +48,11 @@ nav:
           - MSSQL-VERSION-001: rules/mssql-version-001.md
           - MSSQL-WAITS-001: rules/mssql-waits-001.md
       - PostgreSQL:
+          - PG-CONN-001: rules/pg-conn-001.md
+          - PG-LONGTX-001: rules/pg-longtx-001.md
+          - PG-PGSS-001: rules/pg-pgss-001.md
+          - PG-SIZE-001: rules/pg-size-001.md
+          - PG-SLOTS-001: rules/pg-slots-001.md
           - PG-VERSION-001: rules/pg-version-001.md
           - PG-WRAPAROUND-001: rules/pg-wraparound-001.md
 

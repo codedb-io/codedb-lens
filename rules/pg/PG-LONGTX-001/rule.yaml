@@ -1,0 +1,24 @@
+id: PG-LONGTX-001
+engine: pg
+category: concurrency
+severity: high
+confidence: confirmed
+permission: pg_monitor (pg_read_all_stats)
+params:
+  max_tx_s: 300     # transactions open longer than this
+  idle_tx_s: 60     # "idle in transaction" longer than this
+title:
+  en: Long-running or idle-in-transaction sessions
+  pt-BR: Transações longas ou sessões "idle in transaction"
+impact:
+  en: An old open transaction holds back vacuum in the whole cluster (dead rows pile up, tables bloat) and may hold locks that block others.
+  pt-BR: Uma transação antiga aberta segura o vacuum do cluster inteiro (linhas mortas se acumulam, tabelas incham) e pode segurar locks que bloqueiam outros.
+next_action:
+  en: Find the application behind each pid (application_name, client_addr). "idle in transaction" usually means a missing COMMIT. Set idle_in_transaction_session_timeout as a safety net.
+  pt-BR: Encontre a aplicação de cada pid (application_name, client_addr). "idle in transaction" costuma ser um COMMIT esquecido. Configure idle_in_transaction_session_timeout como rede de proteção.
+caveat:
+  en: A snapshot only sees transactions open at the moment of the check.
+  pt-BR: Um retrato só vê as transações abertas no momento da verificação.
+saas_cta:
+  en: codeDB spots forgotten transactions as they happen and alerts before vacuum falls behind.
+  pt-BR: O codeDB detecta transações esquecidas na hora e alerta antes de o vacuum ficar para trás.
