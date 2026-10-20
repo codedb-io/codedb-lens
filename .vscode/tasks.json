@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "build", "type": "shell", "command": "go build -o dist/ ./cmd/codedb-lens", "group": { "kind": "build", "isDefault": true }, "problemMatcher": ["$go"] },
+    { "label": "test", "type": "shell", "command": "go test ./...", "group": { "kind": "test", "isDefault": true }, "problemMatcher": ["$go"] },
+    { "label": "test: integration", "type": "shell", "command": "go test -tags integration ./...", "group": "test", "problemMatcher": ["$go"] },
+    { "label": "db: up", "type": "shell", "command": "docker compose up -d" },
+    { "label": "db: up (full matrix)", "type": "shell", "command": "docker compose --profile matrix up -d" },
+    { "label": "db: down", "type": "shell", "command": "docker compose --profile matrix down" },
+    { "label": "docs: serve", "type": "shell", "command": "mkdocs serve", "isBackground": true },
+    { "label": "icon: generate", "type": "shell", "command": "python assets/icon/generate.py" }
+  ]
+}

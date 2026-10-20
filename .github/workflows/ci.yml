@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - run: go vet ./...
+      - run: go test ./...   # includes catalog validation: both languages, params, IDs
+      - name: Cross-build
+        run: |
+          GOOS=windows GOARCH=amd64 go build -tags desktop,production -o /dev/null ./cmd/codedb-lens
+          GOOS=linux GOARCH=arm64 go build -o /dev/null ./cmd/codedb-lens
+
+  integration:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { engine: mssql, image: "mcr.microsoft.com/mssql/server:2017-latest" }
+          - { engine: mssql, image: "mcr.microsoft.com/mssql/server:2019-latest" }
+          - { engine: mssql, image: "mcr.microsoft.com/mssql/server:2022-latest" }
+          - { engine: mssql, image: "mcr.microsoft.com/mssql/server:2025-latest" }
+          - { engine: pg, image: "postgres:14" }
+          - { engine: pg, image: "postgres:15" }
+          - { engine: pg, image: "postgres:16" }
+          - { engine: pg, image: "postgres:17" }
+          - { engine: pg, image: "postgres:18" }
+    name: integration (${{ matrix.image }})
+    env:
+      LENS_REQUIRE_DB: "1"
+      MSSQL_SA_PASSWORD: Lens_ci_Passw0rd!
+      LENS_MSSQL_SERVER: localhost,1433
+      LENS_PG_DSN: postgres://postgres:lens_ci@localhost:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - name: Start database
+        run: |
+          if [ "${{ matrix.engine }}" = mssql ]; then
+            docker run -d --name db -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$MSSQL_SA_PASSWORD" -e MSSQL_AGENT_ENABLED=true "${{ matrix.image }}"
+          else
+            docker run -d --name db -p 5432:5432 -e POSTGRES_PASSWORD=lens_ci "${{ matrix.image }}" \
+              postgres -c shared_preload_libraries=pg_stat_statements -c track_io_timing=on
+          fi
+          go build -o /tmp/wait ./tools/waitdb && /tmp/wait "${{ matrix.engine }}"
+      - name: Integration tests
+        run: go test -tags integration -count=1 -run "Test$(echo ${{ matrix.engine }} | sed 's/mssql/MSSQL/;s/^pg$/PG/')" -v ./internal/adapter/
+      - if: failure()
+        run: docker logs db | tail -50
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements-docs.txt
+      - run: mkdocs build --strict

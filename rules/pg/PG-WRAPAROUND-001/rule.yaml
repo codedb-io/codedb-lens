@@ -1,0 +1,24 @@
+id: PG-WRAPAROUND-001
+engine: pg
+category: vacuum
+severity: critical
+confidence: hint
+permission: public
+params:
+  hint_ratio: 1.5        # age(datfrozenxid) / autovacuum_freeze_max_age -> hint (autovacuum is falling behind)
+  confirmed_xid_age: 1000000000   # absolute age -> confirmed (wraparound stops writes near 2^31)
+title:
+  en: Transaction ID wraparound risk
+  pt-BR: Risco de wraparound de ID de transação (XID)
+impact:
+  en: Near 2 billion XIDs, PostgreSQL stops accepting writes to protect data. Recovery means a long, blocking VACUUM.
+  pt-BR: Perto de 2 bilhões de XIDs, o PostgreSQL deixa de aceitar escritas para proteger os dados. A recuperação exige um VACUUM longo e bloqueante.
+next_action:
+  en: In the listed databases, find the oldest tables (age(relfrozenxid)) and run VACUUM (FREEZE) on them. Check what blocks autovacuum (long transactions, replication slots, prepared transactions).
+  pt-BR: Nos bancos listados, encontre as tabelas mais antigas (age(relfrozenxid)) e rode VACUUM (FREEZE) nelas. Verifique o que trava o autovacuum (transações longas, slots de replicação, prepared transactions).
+caveat:
+  en: A snapshot shows the current age, not how fast XIDs are consumed. The speed needs history.
+  pt-BR: Um retrato mostra a idade atual, não a velocidade de consumo de XIDs. A velocidade exige histórico.
+saas_cta:
+  en: codeDB tracks XID consumption over time and warns you weeks before wraparound.
+  pt-BR: O codeDB acompanha o consumo de XID ao longo do tempo e avisa semanas antes do wraparound.

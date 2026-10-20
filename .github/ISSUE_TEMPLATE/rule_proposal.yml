@@ -1,0 +1,31 @@
+name: Rule proposal / Proposta de regra
+description: Suggest a new diagnostic rule / Sugerir uma nova regra de diagnóstico
+labels: [rule]
+body:
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Engine
+      options: [SQL Server, PostgreSQL]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What does it detect and why does it matter? / O que detecta e por que importa?
+    validations:
+      required: true
+  - type: textarea
+    id: query
+    attributes:
+      label: Read-only query / Query somente leitura
+      render: sql
+  - type: input
+    id: permission
+    attributes:
+      label: Minimum permission / Permissão mínima
+      placeholder: VIEW SERVER STATE, pg_monitor, ...
+  - type: textarea
+    id: caveats
+    attributes:
+      label: Coverage caveats (versions, cloud, resets) / Ressalvas de cobertura

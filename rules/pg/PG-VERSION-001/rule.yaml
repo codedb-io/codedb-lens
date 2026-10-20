@@ -1,0 +1,20 @@
+id: PG-VERSION-001
+engine: pg
+category: version
+severity: high
+confidence: confirmed
+permission: public
+params:
+  warn_days: 365   # hint when community support ends within this window
+title:
+  en: PostgreSQL version out of support or close to it
+  pt-BR: Versão do PostgreSQL fora de suporte ou perto disso
+impact:
+  en: Out-of-support versions get no security or bug fixes. Major upgrades need planning and testing.
+  pt-BR: Versões fora de suporte não recebem correções de segurança nem de bugs. Upgrades de major exigem planejamento e testes.
+next_action:
+  en: Plan a major upgrade (pg_upgrade, logical replication or your cloud provider's upgrade path).
+  pt-BR: Planeje o upgrade de major (pg_upgrade, replicação lógica ou o caminho de upgrade do seu provedor de nuvem).
+caveat:
+  en: Dates come from the PostgreSQL versioning policy bundled in this Lens version. Cloud providers may offer extended support.
+  pt-BR: As datas vêm da política de versões do PostgreSQL embutida nesta versão do Lens. Provedores de nuvem podem oferecer suporte estendido.

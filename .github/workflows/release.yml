@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest   # Inno Setup is preinstalled; GoReleaser cross-builds Linux from here
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LENS_SIGNING_KEY: ${{ secrets.LENS_SIGNING_KEY }}
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart("v")
+          $exe = (Get-ChildItem dist -Recurse -Filter codedb-lens.exe | Select-Object -First 1).FullName
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\iscc.exe" /DAppVersion=$v "/DSourceExe=$exe" build\windows\installer.iss
+          gh release upload "${{ github.ref_name }}" "dist\codedb-lens_${v}_windows_amd64_setup.exe"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,106 @@
+package adapter
+
+import (
+	"context"
+	"fmt"
+	"net/url"
+	"strconv"
+
+	"github.com/codedb-monitorsql/codedb-lens/internal/engine"
+	"github.com/jackc/pgx/v5"
+)
+
+type PG struct {
+	conn *pgx.Conn
+	info engine.ServerInfo
+}
+
+func pgConfig(c Conn) (*pgx.ConnConfig, error) {
+	dsn := c.DSN
+	if dsn == "" {
+		u := &url.URL{Scheme: "postgres", Host: c.Server, Path: "/" + firstNonEmpty(c.Database, "postgres")}
+		if c.Port > 0 {
+			u.Host = c.Server + ":" + strconv.Itoa(c.Port)
+		}
+		u.User = url.UserPassword(c.User, c.Password)
+		if c.SSLMode != "" {
+			u.RawQuery = "sslmode=" + url.QueryEscape(c.SSLMode)
+		}
+		dsn = u.String()
+	}
+	cfg, err := pgx.ParseConfig(dsn)
+	if err != nil {
+		return nil, fmt.Errorf("invalid PostgreSQL connection settings: %w", err)
+	}
+	if c.DSN != "" && c.Password != "" && cfg.Password == "" {
+		cfg.Password = c.Password
+	}
+	// Low impact and read-only at the session level, whatever the login could do.
+	cfg.RuntimeParams["application_name"] = AppName
+	cfg.RuntimeParams["statement_timeout"] = "10000"
+	cfg.RuntimeParams["lock_timeout"] = "1000"
+	cfg.RuntimeParams["default_transaction_read_only"] = "on"
+	return cfg, nil
+}
+
+func OpenPG(ctx context.Context, c Conn) (*PG, error) {
+	cfg, err := pgConfig(c)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := pgx.ConnectConfig(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	p := &PG{conn: conn, info: engine.ServerInfo{Engine: "pg", Host: cfg.Host}}
+	var num int
+	var start string
+	err = conn.QueryRow(ctx, `SELECT current_setting('server_version'), current_setting('server_version_num')::int,
+		to_char(pg_postmaster_start_time(), 'YYYY-MM-DD HH24:MI:SS')`).Scan(&p.info.Version, &num, &start)
+	if err != nil {
+		conn.Close(ctx)
+		return nil, err
+	}
+	p.info.Major, p.info.StartedAt = num/10000, start
+	p.info.Platform = p.detectPlatform(ctx)
+	return p, nil
+}
+
+func (p *PG) detectPlatform(ctx context.Context) string {
+	var platform string
+	// Managed services leave fingerprints in their settings/roles; default to onprem.
+	_ = p.conn.QueryRow(ctx, `SELECT CASE
+		WHEN EXISTS (SELECT 1 FROM pg_settings WHERE name LIKE 'aurora%') THEN 'aurora'
+		WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'rds_superuser') THEN 'rds'
+		WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'azure_pg_admin') THEN 'azure_flex'
+		ELSE 'onprem' END`).Scan(&platform)
+	return firstNonEmpty(platform, "onprem")
+}
+
+func (p *PG) Info() engine.ServerInfo { return p.info }
+
+func (p *PG) Query(ctx context.Context, q string) ([]string, [][]any, error) {
+	rows, err := p.conn.Query(ctx, q)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+	var cols []string
+	for _, f := range rows.FieldDescriptions() {
+		cols = append(cols, f.Name)
+	}
+	var out [][]any
+	for rows.Next() {
+		vals, err := rows.Values()
+		if err != nil {
+			return nil, nil, err
+		}
+		for i := range vals {
+			vals[i] = normalize(vals[i])
+		}
+		out = append(out, vals)
+	}
+	return cols, out, rows.Err()
+}
+
+func (p *PG) Close() error { return p.conn.Close(context.Background()) }

@@ -1,0 +1,25 @@
+id: MSSQL-BACKUP-001
+engine: mssql
+category: backup
+severity: critical
+confidence: confirmed
+skip_on: [azure_sqldb]
+permission: db_datareader on msdb
+params:
+  full_max_hours: 192   # full or differential older than 8 days
+  log_max_hours: 24     # log backup older than 1 day (FULL / BULK_LOGGED recovery)
+title:
+  en: Databases with missing or old backups
+  pt-BR: Bancos com backup ausente ou antigo
+impact:
+  en: A failure or mistake on these databases may lose more data than you expect, or be unrecoverable.
+  pt-BR: Uma falha ou erro nesses bancos pode perder mais dados do que você espera, ou não ter recuperação.
+next_action:
+  en: Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.
+  pt-BR: Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.
+caveat:
+  en: Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.
+  pt-BR: Baseado no histórico do msdb desta instância. Backups de ferramentas externas sem histórico no msdb não aparecem.
+saas_cta:
+  en: codeDB checks backups continuously and alerts you the moment one is late.
+  pt-BR: O codeDB verifica os backups continuamente e alerta assim que um atrasa.

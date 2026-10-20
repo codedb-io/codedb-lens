@@ -1,0 +1,21 @@
+id: MSSQL-VERSION-001
+engine: mssql
+category: version
+severity: high
+confidence: confirmed
+skip_on: [azure_sqldb, azure_mi]   # versionless services
+permission: public
+params:
+  warn_days: 365   # hint when extended support ends within this window
+title:
+  en: SQL Server version out of support or close to it
+  pt-BR: Versão do SQL Server fora de suporte ou perto disso
+impact:
+  en: Out-of-support versions get no security fixes. Upgrades take months to plan, so the window matters.
+  pt-BR: Versões fora de suporte não recebem correções de segurança. Upgrades levam meses para planejar, então o prazo importa.
+next_action:
+  en: Plan an upgrade to a supported version. Check application compatibility and the compatibility level of each database.
+  pt-BR: Planeje o upgrade para uma versão suportada. Verifique a compatibilidade das aplicações e o compatibility level de cada banco.
+caveat:
+  en: Dates come from the Microsoft lifecycle table bundled in this Lens version. Update Lens to refresh them.
+  pt-BR: As datas vêm da tabela de ciclo de vida da Microsoft embutida nesta versão do Lens. Atualize o Lens para renová-las.

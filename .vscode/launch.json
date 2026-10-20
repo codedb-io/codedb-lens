@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "check: SQL Server 2022 (docker)",
+      "type": "go",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmd/codedb-lens",
+      "args": ["check", "--engine", "mssql", "--server", "localhost,14322", "--auth", "sql", "--user", "sa", "--rules-dir", "${workspaceFolder}/rules", "--out", "${workspaceFolder}/reports", "--no-update-check"],
+      "env": { "CODEDB_LENS_PASSWORD": "Lens_dev_Passw0rd!" }
+    },
+    {
+      "name": "check: PostgreSQL 17 (docker)",
+      "type": "go",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmd/codedb-lens",
+      "args": ["check", "--engine", "pg", "--dsn-env", "PG_DSN", "--rules-dir", "${workspaceFolder}/rules", "--out", "${workspaceFolder}/reports", "--no-update-check"],
+      "env": { "PG_DSN": "postgres://postgres:lens_dev@localhost:15417/postgres?sslmode=disable" }
+    },
+    {
+      "name": "GUI (Windows)",
+      "type": "go",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmd/codedb-lens"
+    }
+  ]
+}

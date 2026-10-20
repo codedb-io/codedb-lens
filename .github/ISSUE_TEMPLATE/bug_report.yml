@@ -1,0 +1,40 @@
+name: Bug report / Relatar problema
+description: Something is wrong or a finding looks incorrect / Algo errado ou um achado parece incorreto
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: codeDB Lens version (`codedb-lens version`)
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Engine
+      options: [SQL Server, PostgreSQL]
+    validations:
+      required: true
+  - type: input
+    id: dbversion
+    attributes:
+      label: Database version and platform / Versão do banco e plataforma
+      placeholder: "SQL Server 2022 CU15 on Linux, RDS PostgreSQL 16.4, ..."
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID (if any) / ID da regra (se houver)
+      placeholder: MSSQL-BACKUP-001
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened and what did you expect? / O que aconteceu e o que esperava?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence from the JSON report (remove sensitive data) / Evidência do JSON (remova dados sensíveis)
+      render: json

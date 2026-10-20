@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="{{.Lang}}" data-lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeDB Lens · {{.Server.Host}} · {{date .GeneratedAt}}</title>
+<link rel="icon" href="{{icon}}">
+<style>{{css}}</style>
+</head>
+<body>
+{{$findings := .Findings}}{{$n := len $findings}}
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <a class="brand" href="{{landing "header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <div class="hero-actions">
+        <a class="chip-link" href="{{landing "header"}}" target="_blank" rel="noopener">{{t "powered"}}</a>
+        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
+      </div>
+    </div>
+    <h1>{{t "report_title"}} — {{.Server.Host}}</h1>
+    <p class="sub"><span>{{engineName .Server.Engine}} {{.Server.Version}}</span><span>{{.Server.Platform}}</span><span>{{date .GeneratedAt}}</span><span>{{t "read_only"}}</span></p>
+  </div>
+</header>
+
+<main>
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">{{t "grade"}}</div>
+    <div class="val"><span class="grade-letter g-{{lower .Score.Letter}}">{{.Score.Letter}}</span>{{printf "%.0f" .Score.Value}}<small>/100</small></div>
+    {{if .Score.Partial}}<span class="badge partial">{{t "partial"}}</span>{{else}}<div class="foot">{{t "grade_help"}}</div>{{end}}
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "coverage"}}</div>
+    <div class="val">{{pct .Score.Coverage}}</div>
+    <div class="bar"><i style="width:{{pct .Score.Coverage}}"></i></div>
+    <div class="foot">{{tf "rules_ran" .Score.Executed .Score.Applies}}</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "findings"}}</div>
+    <div class="val {{if gt (.CountSev "critical" "high") 0}}t-crit{{end}}">{{$n}}</div>
+    <div class="foot">{{tf "crit_high" (.CountSev "critical" "high")}}</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "no_data"}}</div>
+    <div class="val">{{.Count "no_data"}}</div>
+    <div class="foot">{{if gt (.Count "no_data") 0}}{{t "no_data_help"}}{{else}}{{t "no_data_none"}}{{end}}</div>
+  </div>
+  {{if .Server.StartedAt}}<div class="kpi">
+    <div class="lbl">{{t "started"}}</div>
+    <div class="val" style="font-size:var(--fs-xl)">{{.Server.StartedAt}}</div>
+    <div class="foot">{{t "started_help"}}</div>
+  </div>{{end}}
+</section>
+
+{{if .Score.Partial}}<p class="caveat">{{t "partial_help"}}</p>{{end}}
+
+{{if $findings}}
+<h2 class="sec">{{t "attention"}}</h2>
+<div class="attn">
+{{range $findings}}<a class="sev-{{.Rule.Severity}}" href="#{{.Rule.ID}}"><b>{{tx .Rule.Title}}</b><small>{{tx .Rule.NextAction}}</small></a>{{end}}
+</div>
+
+<h2 class="sec">{{t "findings"}} <span class="n">{{$n}}</span></h2>
+{{range $i, $f := $findings}}
+<article class="story" id="{{.Rule.ID}}">
+  <div class="eyebrow">
+    <span class="dot {{.Rule.Severity}}"></span>
+    <span>{{tf "finding_n" (add1 $i) $n}}</span>
+    <span>· {{t (print .Rule.Severity)}}</span>
+    <span class="conf conf-{{.Confidence}}">{{t (print .Confidence)}}</span>
+  </div>
+  <h3>{{tx .Rule.Title}}</h3>
+  <div class="table"><table>
+    <tr>{{range .Columns}}<th>{{.}}</th>{{end}}</tr>
+    {{range .Rows}}<tr>{{range .}}<td>{{str .}}</td>{{end}}</tr>{{end}}
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4>{{t "what_means"}}</h4><p>{{tx .Rule.Impact}}</p></div>
+    <div class="box action"><h4>{{t "recommended"}}</h4><p>{{tx .Rule.NextAction}}</p></div>
+  </div>
+  {{if .Rule.Caveat}}<p class="caveat"><b>{{t "caveat"}}:</b> {{tx .Rule.Caveat}}</p>{{end}}
+  <details><summary>{{t "query"}} · {{t "collected"}} {{date .CollectedAt}} UTC · {{.Duration}}</summary><pre>{{.Rule.SQL}}</pre></details>
+  <footer>
+    <span><code class="rid">{{.Rule.ID}}</code> · <a lang="en" href="{{.Rule.DocURL}}" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="{{docpt .Rule.DocURL}}" target="_blank" rel="noopener">Documentação ↗</a></span>
+    {{if .Rule.SaaSCTA}}<a class="cta" href="{{register .Rule.ID}}" target="_blank" rel="noopener">{{tx .Rule.SaaSCTA}} →</a>{{end}}
+  </footer>
+</article>
+{{end}}
+{{else}}
+<h2 class="sec">{{t "findings"}}</h2>
+<p class="empty">✓ {{t "no_findings"}}</p>
+{{end}}
+
+{{if gt (.Count "no_data") 0}}
+<h2 class="sec">{{t "no_data"}} <span class="n">{{.Count "no_data"}}</span></h2>
+<div class="table nodata"><table>
+  <tr><th>{{t "rule"}}</th><th>{{t "reason"}}</th><th>{{t "permission"}}</th></tr>
+  {{range .Results}}{{if eq .Status "no_data"}}<tr><td><b>{{tx .Rule.Title}}</b><br><code class="rid">{{.Rule.ID}}</code></td><td class="reason">{{.Reason}}</td><td><code>{{.Rule.Permission}}</code></td></tr>{{end}}{{end}}
+</table></div>
+{{end}}
+
+<h2 class="sec">{{t "passed"}} <span class="n">{{.Count "ok"}}</span></h2>
+<ul class="passed">
+{{range .Results}}{{if eq .Status "ok"}}<li>{{tx .Rule.Title}}</li>{{end}}{{end}}
+{{range .Results}}{{if eq .Status "not_applicable"}}<li class="na">{{tx .Rule.Title}} · {{t "not_applicable"}}</li>{{end}}{{end}}
+</ul>
+
+<section class="locked">
+  <div class="blur" aria-hidden="true"><svg viewBox="0 0 600 140" preserveAspectRatio="none"><polyline points="0,110 50,96 100,102 150,70 200,84 250,48 300,66 350,38 400,58 450,30 500,44 550,22 600,34" fill="none" stroke="currentColor" stroke-width="4"/><polyline points="0,124 60,118 120,121 180,104 240,112 300,92 360,101 420,84 480,94 540,76 600,82" fill="none" stroke="#94a3b8" stroke-width="3"/></svg></div>
+  <div class="unlock">
+    <b>{{t "baseline_title"}}</b>
+    <span class="muted">{{t "baseline_locked"}}</span>
+    <a class="cta" href="{{register "baseline"}}" target="_blank" rel="noopener">{{t "saas_try"}} →</a>
+  </div>
+</section>
+</main>
+
+<footer class="bottom">
+  <span>{{tf "generated" .ToolVersion (date .GeneratedAt)}}</span>
+  <span>{{t "saas_pitch"}} <a href="{{landing "footer"}}" target="_blank" rel="noopener">codedb.com.br</a></span>
+</footer>
+<script>
+function toggleLang() {
+  var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
+  h.dataset.lang = l; h.lang = l;
+  try { localStorage.setItem('lens-lang', l); } catch (e) {}
+}
+try { var s = localStorage.getItem('lens-lang'); if (s) { document.documentElement.dataset.lang = s; document.documentElement.lang = s; } } catch (e) {}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "golang.go",
+    "redhat.vscode-yaml",
+    "ms-mssql.mssql",
+    "ckolkman.vscode-postgres",
+    "ms-azuretools.vscode-containers",
+    "editorconfig.editorconfig",
+    "yzhang.markdown-all-in-one"
+  ]
+}

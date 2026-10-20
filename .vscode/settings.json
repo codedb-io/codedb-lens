@@ -1,0 +1,6 @@
+{
+  "go.testFlags": ["-v"],
+  "go.buildTags": "integration",
+  "files.eol": "\n",
+  "[go]": { "editor.formatOnSave": true }
+}

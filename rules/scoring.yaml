@@ -1,0 +1,10 @@
+# Starting point; calibrate with real reports.
+weights: { critical: 10, high: 5, medium: 2, low: 1 }
+hint_credit: 0.5
+partial_below: 0.8
+grades:
+  - { letter: A, min: 90 }
+  - { letter: B, min: 75 }
+  - { letter: C, min: 60 }
+  - { letter: D, min: 40 }
+  - { letter: F, min: 0 }

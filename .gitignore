@@ -1,0 +1,43 @@
+# Go / build output
+/dist/
+/build/bin/
+/site/
+*.exe
+*.test
+*.out
+coverage.*
+
+# Python (asset scripts, MkDocs)
+__pycache__/
+*.py[cod]
+**/.venv/
+**/venv/
+
+# Secrets — this repo is (or will be) PUBLIC
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.minisign
+
+# Locally generated reports contain data from real servers
+*.lens.html
+*.lens.json
+/reports/
+
+# Database dumps
+*.dump
+*.backup
+*.sql.gz
+
+*.log
+graphify-out/
+
+# codeDB SaaS brand references (not part of this repo)
+/img/
+
+# Claude Code — local
+.claude/settings.local.json
+.claude/worktrees/
+/cmd/codedb-lens/rsrc_*.syso

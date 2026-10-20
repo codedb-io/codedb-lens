@@ -1,0 +1,34 @@
+/* codeDB Lens design tokens — shared by the app and the report. Palette from the codeDB SaaS and its PDF reports. */
+:root {
+  /* brand */
+  --navy-950: #070b14; --navy-900: #0a0e17; --navy-800: #0f1a2e; --navy-700: #16233d;
+  --blue-700: #1d4ed8; --blue-600: #2563eb; --blue-500: #3b82f6; --blue-100: #dbeafe; --blue-50: #eaf2ff;
+  --sky-400: #38bdf8; --sky-300: #7dd3fc;
+  --hero: linear-gradient(110deg, #070b14 0%, #0d1a33 55%, #163a8a 100%);
+
+  /* surfaces & text */
+  --bg: #f3f6fb; --surface: #ffffff; --surface-2: #f8fafc; --line: #e3e8f0; --line-strong: #cbd5e1;
+  --text: #0f172a; --text-2: #334155; --muted: #64748b; --on-dark: #e2e8f0; --on-dark-muted: #94a3b8;
+
+  /* semantic (severity / confidence / status) */
+  --crit: #e5484d; --crit-bg: #fdecec; --high: #f08c00; --high-bg: #fff4e5;
+  --med: #d4a106; --med-bg: #fdf8e4; --low: #94a3b8; --low-bg: #f1f5f9;
+  --ok: #16a34a; --ok-bg: #e8f7ee; --info: var(--blue-600); --info-bg: var(--blue-50);
+
+  /* type */
+  --font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
+  --mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --fs-xs: 12px; --fs-sm: 13px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px; --fs-2xl: 28px; --fs-3xl: 40px;
+
+  /* shape & depth */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-md: 0 4px 16px rgb(15 23 42 / 8%);
+  --focus: 0 0 0 3px rgb(37 99 235 / 25%);
+
+  /* spacing */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}

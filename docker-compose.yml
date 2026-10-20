@@ -1,0 +1,24 @@
+# Disposable test databases. Never point these credentials at anything real.
+#   docker compose up -d                    -> SQL Server 2022 + PostgreSQL 17
+#   docker compose --profile matrix up -d   -> full version matrix
+x-mssql: &mssql
+  environment:
+    ACCEPT_EULA: "Y"
+    MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Lens_dev_Passw0rd!}
+    MSSQL_AGENT_ENABLED: "true"
+x-pg: &pg
+  environment:
+    POSTGRES_PASSWORD: ${PG_PASSWORD:-lens_dev}
+  command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "track_io_timing=on"]
+
+services:
+  mssql2017: { <<: *mssql, image: "mcr.microsoft.com/mssql/server:2017-latest", ports: ["14317:1433"], profiles: [matrix] }
+  mssql2019: { <<: *mssql, image: "mcr.microsoft.com/mssql/server:2019-latest", ports: ["14319:1433"], profiles: [matrix] }
+  mssql2022: { <<: *mssql, image: "mcr.microsoft.com/mssql/server:2022-latest", ports: ["14322:1433"] }
+  mssql2025: { <<: *mssql, image: "mcr.microsoft.com/mssql/server:2025-latest", ports: ["14325:1433"], profiles: [matrix] }
+
+  pg14: { <<: *pg, image: "postgres:14", ports: ["15414:5432"], profiles: [matrix] }
+  pg15: { <<: *pg, image: "postgres:15", ports: ["15415:5432"], profiles: [matrix] }
+  pg16: { <<: *pg, image: "postgres:16", ports: ["15416:5432"], profiles: [matrix] }
+  pg17: { <<: *pg, image: "postgres:17", ports: ["15417:5432"] }
+  pg18: { <<: *pg, image: "postgres:18", ports: ["15418:5432"], profiles: [matrix] }

@@ -1,0 +1,76 @@
+version: 2
+project_name: codedb-lens
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./cmd/codedb-lens   # Windows icon + manifest (.syso)
+
+builds:
+  - id: windows
+    main: ./cmd/codedb-lens
+    binary: codedb-lens
+    goos: [windows]
+    goarch: [amd64]
+    tags: [desktop, production]
+    env: [CGO_ENABLED=0]
+    ldflags: ["-s -w -H windowsgui -X main.version={{ .Version }}"]
+  - id: linux
+    main: ./cmd/codedb-lens
+    binary: codedb-lens
+    goos: [linux]
+    goarch: [amd64, arm64]
+    env: [CGO_ENABLED=0]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [LICENSE, README.md, README.pt-BR.md]
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+# Ed25519 signature checked by `codedb-lens update` (public key in internal/update).
+signs:
+  - artifacts: checksum
+    cmd: go
+    args: ["run", "./tools/sign", "${artifact}"]
+    signature: "${artifact}.sig"
+
+changelog:
+  use: github
+  sort: asc
+
+release:
+  draft: true   # review, attach the installer, then publish
+
+# Phase 2 (public launch): uncomment once the repository is public.
+# nfpms:
+#   - package_name: codedb-lens
+#     builds: [linux]
+#     formats: [deb, rpm]
+#     vendor: codeDB
+#     homepage: https://lens.codedb.com.br/
+#     license: Apache-2.0
+#     description: Free, read-only health check for SQL Server and PostgreSQL.
+# dockers_v2:
+#   - images: [ghcr.io/codedb-monitorsql/codedb-lens]
+#     ids: [linux]
+#     platforms: [linux/amd64, linux/arm64]
+# winget:
+#   - name: codeDB Lens
+#     publisher: codeDB
+#     package_identifier: codeDB.Lens
+#     license: Apache-2.0
+#     short_description: Free, read-only health check for SQL Server and PostgreSQL.
+#     repository: { owner: codedb-monitorsql, name: winget-pkgs }
+# chocolateys:
+#   - name: codedb-lens
+#     title: codeDB Lens
+#     authors: codeDB
+#     license_url: https://github.com/codedb-monitorsql/codedb-lens/blob/main/LICENSE

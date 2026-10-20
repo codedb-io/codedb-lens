@@ -1,0 +1,45 @@
+site_name: codeDB Lens
+site_url: https://lens.codedb.com.br/
+repo_url: https://github.com/codedb-monitorsql/codedb-lens
+docs_dir: docs
+
+theme:
+  name: material
+  logo: assets/icon.png
+  favicon: assets/icon.png
+  palette:
+    - scheme: slate
+      primary: blue
+      accent: light blue
+  features: [navigation.sections, content.code.copy]
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+        - locale: pt-BR
+          name: Português (Brasil)
+          nav_translations:
+            Home: Início
+            Permissions: Permissões
+            Privacy: Privacidade
+            Rules: Regras
+
+nav:
+  - Home: index.md
+  - Permissions: permissions.md
+  - Privacy: privacy.md
+  - Rules:
+      - SQL Server:
+          - MSSQL-BACKUP-001: rules/mssql-backup-001.md
+          - MSSQL-VERSION-001: rules/mssql-version-001.md
+      - PostgreSQL:
+          - PG-VERSION-001: rules/pg-version-001.md
+          - PG-WRAPAROUND-001: rules/pg-wraparound-001.md
+
+extra:
+  homepage: https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=header
