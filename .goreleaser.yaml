@@ -41,6 +41,7 @@ signs:
     cmd: go
     args: ["run", "./tools/sign", "${artifact}"]
     signature: "${artifact}.sig"
+    env: ["LENS_SIGNING_KEY={{ .Env.LENS_SIGNING_KEY }}"]   # sign commands only see env listed here
 
 changelog:
   use: github
