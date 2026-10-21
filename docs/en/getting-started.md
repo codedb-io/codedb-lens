@@ -7,8 +7,11 @@ more than that.
 
 ## 2. Install
 
+Download the files from [GitHub Releases](https://github.com/codedb-io/codedb-lens/releases/latest).
+
 - **Windows:** run `codedb-lens_<version>_windows_amd64_setup.exe`. It installs for your user only (no admin) and adds
-  **codeDB Lens** to the Start menu. A portable `.zip` is also available.
+  **codeDB Lens** to the Start menu. A portable `.zip` is also available. The installer is not code-signed yet, so
+  Windows SmartScreen may warn: choose **More info → Run anyway**.
 - **Linux (x64 / arm64):** extract the `.tar.gz` and put `codedb-lens` in your `PATH`.
 
 ## 3. Run

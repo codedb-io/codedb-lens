@@ -51,7 +51,7 @@ Cada regra tem uma [página de documentação](docs/pt-BR/rules/) com o que veri
 
 ## Início rápido
 
-Windows: execute o instalador (ou o `.zip` portátil) e abra o **codeDB Lens** pelo menu Iniciar.
+Baixe em [Releases](https://github.com/codedb-io/codedb-lens/releases/latest). Windows: execute o instalador (ou o `.zip` portátil) e abra o **codeDB Lens** pelo menu Iniciar.
 Escolha o banco, informe o servidor e rode o diagnóstico. Os perfis de conexão ficam salvos; as senhas
 vão para o Gerenciador de Credenciais do Windows.
 

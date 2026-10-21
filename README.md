@@ -51,7 +51,7 @@ Each rule has a [documentation page](docs/en/rules/) with what it checks, why it
 
 ## Quick start
 
-Windows: run the installer (or the portable `.zip`) and open **codeDB Lens** from the Start menu.
+Download from [Releases](https://github.com/codedb-io/codedb-lens/releases/latest). Windows: run the installer (or the portable `.zip`) and open **codeDB Lens** from the Start menu.
 Pick the engine, enter the server and run the diagnosis. Connection profiles are saved; passwords go to
 the Windows Credential Manager.
 
