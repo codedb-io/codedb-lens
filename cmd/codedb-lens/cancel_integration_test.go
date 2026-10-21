@@ -71,7 +71,9 @@ func TestStopMSSQL(t *testing.T) {
 	}
 	checkCancel(t, adapter.Conn{Engine: "mssql", Server: server, User: "sa", Password: pw, TrustServerCert: true},
 		"WAITFOR DELAY '00:00:08'", func() (n int) {
-			_ = admin.QueryRow("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE program_name = @p1", adapter.AppName).Scan(&n)
+			// host_process_id: only our sessions, not those of other test packages running in parallel
+			_ = admin.QueryRow("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE program_name = @p1 AND host_process_id = @p2",
+				adapter.AppName, os.Getpid()).Scan(&n)
 			return n
 		})
 }
