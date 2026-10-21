@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -21,6 +22,7 @@ import (
 	"github.com/codedb-io/codedb-lens/internal/adapter"
 	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/codedb-io/codedb-lens/internal/i18n"
+	"github.com/codedb-io/codedb-lens/internal/license"
 	"github.com/codedb-io/codedb-lens/internal/profile"
 	"github.com/codedb-io/codedb-lens/internal/report"
 	"github.com/codedb-io/codedb-lens/internal/saas"
@@ -237,6 +239,74 @@ func (a *App) ReadReport(path string) (string, error) {
 	}
 	b, err := os.ReadFile(path)
 	return string(b), err
+}
+
+// KeyInfo is the free key state for the sidebar and the activation screen.
+type KeyInfo struct {
+	Valid    bool              `json:"valid"`
+	Expired  bool              `json:"expired"`
+	DaysLeft int               `json:"days_left"`
+	Expires  string            `json:"expires,omitempty"`
+	Instance string            `json:"instance,omitempty"`
+	Consent  map[string]string `json:"consent"` // checkbox labels and notice, versioned in internal/license
+	Privacy  string            `json:"privacy"`
+	Roles    []string          `json:"roles"`
+	Ranges   []string          `json:"ranges"`
+}
+
+func (a *App) LicenseStatus(lang string) KeyInfo {
+	lang = i18n.Normalize(lang)
+	c := license.Consent[lang]
+	k := KeyInfo{Consent: map[string]string{"privacy_ack": c.PrivacyAck, "marketing": c.Marketing, "notice": c.Notice, "sent": c.Sent},
+		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges}
+	l, err := license.Load()
+	k.Expired = errors.Is(err, license.ErrExpired)
+	if err == nil {
+		k.Valid, k.DaysLeft, k.Expires = l.Has(license.FeatureCompare), daysLeft(l), l.Expires().Format("2006-01-02")
+		if b, ok := license.Bound(l); ok {
+			k.Instance = b.Host
+		}
+	}
+	return k
+}
+
+// Register sends the form typed by the user (the only call to the codeDB backend) and saves the key.
+func (a *App) Register(r license.Request) (KeyInfo, error) {
+	r.Lang, r.LensVersion = i18n.Normalize(r.Lang), version
+	l, err := license.Register(a.ctx, r)
+	if err != nil {
+		return KeyInfo{}, registerError(r.Lang, err)
+	}
+	if _, err := license.Save(l.Raw); err != nil {
+		return KeyInfo{}, err
+	}
+	return a.LicenseStatus(r.Lang), nil
+}
+
+// ImportLicense activates a key pasted from the welcome e-mail; no network.
+func (a *App) ImportLicense(token, lang string) (KeyInfo, error) {
+	lang = i18n.Normalize(lang)
+	l, err := license.Save(token)
+	if err != nil {
+		return KeyInfo{}, licenseError(lang, l, err)
+	}
+	return a.LicenseStatus(lang), nil
+}
+
+func (a *App) RemoveLicense() { license.Delete() }
+
+// Compare diffs the two runs (HTML report paths from History) and returns the comparison for the viewer.
+func (a *App) Compare(older, newer, lang string) (RunResult, error) {
+	js := func(p string) string { return strings.TrimSuffix(p, ".html") + ".json" }
+	c, path, err := compareFiles(i18n.Normalize(lang), js(older), js(newer), "")
+	if err != nil {
+		return RunResult{}, err
+	}
+	var b strings.Builder
+	if err := c.HTML(&b); err != nil {
+		return RunResult{}, err
+	}
+	return RunResult{HTML: b.String(), Path: path}, nil
 }
 
 func (a *App) OpenFolder(path string) { _ = exec.Command("explorer", "/select,", path).Start() }

@@ -7,6 +7,7 @@ import "net/url"
 const (
 	Landing  = "https://codedb.com.br/"
 	Register = "https://app.codedb.com.br/auth/register"
+	Privacy  = "https://app.codedb.com.br/privacidade"
 )
 
 // Link adds utm_source=lens, the surface (report, cli, gui, docs) and the campaign (usually a rule ID).

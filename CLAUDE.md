@@ -12,8 +12,9 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 ## Invariantes (não quebrar)
 
 - **Somente leitura** no banco do usuário. Nenhum DDL/DML, nenhum agente obrigatório.
-- **Sem telemetria.** Nenhum dado do banco ou do usuário sai da máquina. Única chamada de rede: checagem
-  de versão ≤ 1×/dia (GET anônimo ao GitHub Releases), desligável (`--no-update-check`, `CODEDB_LENS_NO_UPDATE=1`).
+- **Sem telemetria.** Nenhum dado do banco ou do usuário sai da máquina. Chamadas de rede: checagem
+  de versão ≤ 1×/dia (GET anônimo ao GitHub Releases), desligável (`--no-update-check`, `CODEDB_LENS_NO_UPDATE=1`),
+  e o POST de cadastro da chave grátis (`internal/license`), só por ação explícita do usuário. Licença verificada offline.
 - **Regras são dados** (SQL + YAML), não código. Motor + um adaptador por banco. Trocar o motor
   não pode exigir reescrever regras.
 - Todo achado tem: ID, título, severidade, confiança (Confirmado / Indício / Sem dados),
@@ -60,14 +61,17 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
-Status (2026-10-20): fase 1 com as 12 + 12 regras do MVP, GUI, relatório, update assinado e pipeline de release
-prontos e testados localmente (SQL Server 2017–2025, PostgreSQL 14–18). Falta: repositório no GitHub + secret
-`LENS_SIGNING_KEY`, primeira execução do CI, checklist de serviços gerenciados (`RELEASING.md`) e teste com os 2 clientes.
+Status (2026-10-21): v0.1.0 publicada e aprovada pelos 2 clientes. Fase 2 em andamento: `compare`, chave grátis
+(`register`, `license`) e telas da GUI implementados; cadastro real testado contra a produção.
 
-Cadastro (decidido 2026-10-20): nome e e-mail obrigatórios + empresa opcional, pedidos só ao ativar a chave
-grátis na fase 2 (`compare`/`record`), enviados ao backend do codeDB. O `check` da v0.1 segue sem cadastro.
+Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.com.br/lens/register` (sem staging),
+validação estrita (campo novo entra primeiro no backend). Licença `base64url(payload).base64url(Ed25519 sobre o texto
+do payload)`, kid `2026-1`, 90 dias, `max_instances` 1 (aplicado localmente). Consentimento em dois campos
+(`privacy_ack` obrigatório, `marketing_opt_in` opcional) + `consent_version`; o texto fica em
+`internal/license/consent.go`. `lens-2026-0` = rascunho; o jurídico do codeDB vai aprovar o `lens-2026-1` (com en).
 
-Em aberto: validade da chave (90/30 dias), elegibilidade do Azure Trusted Signing, overhead máximo do `record`.
+Em aberto: texto de consentimento aprovado (`lens-2026-1`), assinatura de código (SignPath Foundation após o repo
+ficar público), overhead máximo do `record`.
 
 ---
 

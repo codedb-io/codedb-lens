@@ -94,8 +94,9 @@ GRANT CONNECT ON DATABASE app TO codedb_lens;
 
 ## Privacy
 
-No telemetry. The only network call is an optional, once-a-day version check against GitHub Releases
-that sends no data (`--no-update-check` or `CODEDB_LENS_NO_UPDATE=1` turns it off). See [SECURITY.md](SECURITY.md).
+No telemetry. Lens makes two kinds of network calls: an optional, once-a-day version check against GitHub Releases
+that sends no data (`--no-update-check` or `CODEDB_LENS_NO_UPDATE=1` turns it off), and, only when you ask for the free
+key, one registration request with the name and e-mail you type. See [SECURITY.md](SECURITY.md).
 
 ## Need continuous monitoring?
 

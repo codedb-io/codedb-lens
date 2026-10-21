@@ -152,24 +152,28 @@ func (r *Report) JSON(w io.Writer) error {
 
 // Save writes <dir>/<YYYY-MM-DD_HHMMSS>.html and .json and returns the HTML path.
 func (r *Report) Save(dir string) (string, error) {
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", err
-	}
 	base := filepath.Join(dir, r.GeneratedAt.Format("2006-01-02_150405")) // seconds: two runs in a minute must not overwrite
-	for ext, write := range map[string]func(io.Writer) error{".html": r.HTML, ".json": r.JSON} {
+	return base + ".html", writeAll(dir, base, map[string]func(io.Writer) error{".html": r.HTML, ".json": r.JSON})
+}
+
+func writeAll(dir, base string, files map[string]func(io.Writer) error) error {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	for ext, write := range files {
 		f, err := os.Create(base + ext)
 		if err != nil {
-			return "", err
+			return err
 		}
 		err = write(f)
 		if cerr := f.Close(); err == nil {
 			err = cerr
 		}
 		if err != nil {
-			return "", err
+			return err
 		}
 	}
-	return base + ".html", nil
+	return nil
 }
 
 // DefaultDir is Documents/codeDB Lens/reports/<profile> on Windows, ~/codedb-lens/reports/<profile> elsewhere.
@@ -217,6 +221,9 @@ func History(dir string, n int) []Summary {
 	for _, f := range files {
 		if len(out) == n {
 			break
+		}
+		if strings.HasPrefix(filepath.Base(f), "compare_") {
+			continue
 		}
 		raw, err := os.ReadFile(f)
 		if err != nil {

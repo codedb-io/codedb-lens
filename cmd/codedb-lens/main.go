@@ -33,6 +33,9 @@ const usage = `codeDB Lens %s — free, read-only health check for SQL Server an
 
 Usage:
   codedb-lens check   --engine mssql|pg [connection flags] [--out DIR] [--lang en|pt-BR]
+  codedb-lens compare [--profile NAME | OLD.json NEW.json]   compare two runs (free key)
+  codedb-lens register  get the free key (sends only the name and e-mail you type, once)
+  codedb-lens license [status|import <key>|reset|remove]
   codedb-lens update    download, verify (Ed25519) and install the latest release
   codedb-lens version
 
@@ -53,6 +56,12 @@ func main() {
 	switch os.Args[1] {
 	case "check":
 		err = check(os.Args[2:])
+	case "compare":
+		err = compareCmd(os.Args[2:])
+	case "register":
+		err = registerCmd(os.Args[2:])
+	case "license":
+		err = licenseCmd(os.Args[2:])
 	case "update":
 		err = selfUpdate()
 	case "version", "--version", "-v":

@@ -14,6 +14,16 @@
 - [ ] Lifecycle tables still correct (`MSSQL-VERSION-001`, `PG-VERSION-001` queries).
 - [ ] Local dry run: `goreleaser release --snapshot --clean --skip=publish,sign`.
 - [ ] Managed-services checklist below, at least for services touched by this release.
+- [ ] Free key: `license.ConsentVersion` matches the consent text in `internal/license/consent.go` and the version
+      agreed with the codeDB backend (a new text needs a new version); `license.Keys` has only production kids.
+- [ ] Free key, against production with a test e-mail: `register` returns a key that `license status` accepts,
+      registering again keeps working, and `compare --profile` produces the HTML. Delete the test record afterwards
+      ("Delete my data" in the e-mail).
+
+## Rotating the license key
+
+The codeDB backend signs free keys. A new signing key gets a new `kid`: add its public key to `license.Keys`, release,
+and only then switch the backend to it. Keep the old kid until the last key it signed has expired (90 days).
 
 ## Managed services (manual, no CI)
 

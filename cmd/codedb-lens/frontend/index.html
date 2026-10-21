@@ -157,6 +157,15 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .vbar { display: flex; gap: var(--s2); align-items: center; padding: var(--s3) var(--s5); background: var(--surface); border-bottom: 1px solid var(--line); }
 .vbar .sp { flex: 1; }
 .view iframe { flex: 1; width: 100%; border: 0; }
+/* free key */
+.keychip { display: flex; gap: var(--s2); align-items: center; width: 100%; padding: 8px 10px; border-radius: var(--r-sm); border: 1px solid rgb(255 255 255 / 18%);
+  background: rgb(255 255 255 / 6%); color: #fff; cursor: pointer; font-size: var(--fs-xs); text-align: left; }
+.keychip:hover { background: rgb(255 255 255 / 12%); }
+.keychip svg { color: var(--sky-300); }
+.consent { display: grid; gap: var(--s3); margin: var(--s4) 0; }
+.consent .check { align-items: flex-start; }
+.consent a { color: var(--blue-600); }
+.notice { font-size: var(--fs-xs); color: var(--muted); margin: 0 0 var(--s4); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -186,6 +195,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <div class="side-foot">
     <div class="upd" id="upd" hidden></div>
     <div class="secure"><svg class="i"><use href="#i-shield"/></svg><div><b data-t="gui_secure_title"></b><span data-t="gui_secure"></span></div></div>
+    <button type="button" class="keychip" id="keychip"><svg class="i"><use href="#i-key"/></svg><span id="keylbl"></span></button>
     <div class="promo mini"><div><b data-t="gui_promo_title"></b></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
     <div class="side-row">
       <a href="#" id="powered" style="color:var(--sky-300);text-decoration:none">Powered by codeDB</a>
@@ -281,6 +291,39 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   </div>
 </div>
 
+<div class="wrap" id="keyview" hidden>
+  <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-key"/></svg></div>
+    <div><h1 data-t="gui_key_title"></h1><p data-t="gui_key_sub"></p></div>
+    <button class="btn" id="keyback" style="margin-left:auto" data-t="gui_back"></button></div>
+  <div class="grid">
+    <form id="kf" autocomplete="off" onsubmit="return false">
+      <div class="card"><div class="sec">
+        <div id="keystatus"></div>
+        <p class="notice" data-t="reg_intro"></p>
+        <div class="fields">
+          <div class="f"><label for="rname"><span data-t="reg_name"></span> <span class="req">*</span></label><div class="ctl"><input id="rname" maxlength="200"></div></div>
+          <div class="f"><label for="remail"><span data-t="reg_email"></span> <span class="req">*</span></label><div class="ctl"><input id="remail" type="email" maxlength="254"></div></div>
+          <div class="f"><label for="rcompany" data-t="reg_company"></label><div class="ctl"><input id="rcompany" maxlength="200"></div></div>
+          <div class="f"><label for="rrole" data-t="reg_role"></label><div class="ctl"><select id="rrole"></select></div></div>
+          <div class="f"><label for="rinst" data-t="reg_instances"></label><div class="ctl"><select id="rinst"></select></div></div>
+        </div>
+        <div class="consent">
+          <label class="check"><input type="checkbox" id="rprivacy"><span><span id="lprivacy"></span> (<a href="#" id="privlink">↗</a>) <span class="req">*</span></span></label>
+          <label class="check"><input type="checkbox" id="rmkt"><span id="lmkt"></span></label>
+        </div>
+        <p class="notice" id="rnotice"></p>
+        <div class="actions"><span class="sp"></span><button type="button" class="btn primary" id="rsend" disabled data-t="gui_key_send"></button></div>
+      </div></div>
+    </form>
+    <div class="rail">
+      <div class="card"><h3><svg class="i"><use href="#i-paste"/></svg><span data-t="gui_key_have"></span></h3>
+        <textarea class="cs" id="rtoken" spellcheck="false" placeholder="eyJ2Ijox…"></textarea>
+        <div class="actions" style="margin-top:var(--s2)"><button type="button" class="btn" id="rimport" data-t="gui_key_import"></button>
+          <span class="sp"></span><button type="button" class="btn ghost" id="rremove" hidden data-t="gui_key_remove"></button></div></div>
+    </div>
+  </div>
+</div>
+
 <div class="wrap run" id="runner" hidden>
   <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-play"/></svg></div><div><h1 id="runtitle"></h1><p id="runsub"></p></div>
     <button class="btn danger" id="stop" style="margin-left:auto" data-t="gui_stop"></button></div>
@@ -307,7 +350,7 @@ const PERMS = {
   mssql: "CREATE LOGIN codedb_lens WITH PASSWORD = '<senha>';\nGRANT VIEW SERVER STATE TO codedb_lens;\nGRANT VIEW ANY DEFINITION TO codedb_lens;\nGRANT CONNECT ANY DATABASE TO codedb_lens;\nUSE msdb;\nCREATE USER codedb_lens FOR LOGIN codedb_lens;\nALTER ROLE db_datareader ADD MEMBER codedb_lens;\nALTER ROLE SQLAgentReaderRole ADD MEMBER codedb_lens;",
   pg: "CREATE ROLE codedb_lens LOGIN PASSWORD '<senha>';\nGRANT pg_monitor TO codedb_lens;\nGRANT CONNECT ON DATABASE app TO codedb_lens;"
 };
-let state, texts = {}, uiLang = 'en', current = null, engine = 'mssql', auth = 'windows', lastPath = '', lastProfile = null, histCache = {};
+let key = {}, state, texts = {}, uiLang = 'en', current = null, engine = 'mssql', auth = 'windows', lastPath = '', lastProfile = null, histCache = {};
 
 const t = k => texts[k] || k;
 const tf = (k, ...a) => a.reduce((s, v) => s.replace(/%[sd]/, v), t(k));
@@ -395,6 +438,47 @@ function renderHistory(p) {
     };
     box.appendChild(b);
   });
+  if (runs.length > 1) {
+    const c = document.createElement('button'); c.type = 'button'; c.className = 'btn'; c.textContent = t('gui_compare');
+    c.onclick = () => compare(p, runs[1].path, runs[0].path);
+    box.appendChild(c);
+  }
+}
+async function compare(p, older, newer) {
+  if (!key.valid) { showKey(); return; }
+  try { const r = await api().Compare(older, newer, uiLang); showReport(r.html, r.path, p); }
+  catch (e) { status('err', String(e)); }
+}
+
+/* ── free key ── */
+async function loadKey() {
+  key = await api().LicenseStatus(uiLang);
+  $('#keylbl').textContent = key.valid ? tf('gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
+  $('#lprivacy').textContent = key.consent.privacy_ack; $('#lmkt').textContent = key.consent.marketing; $('#rnotice').textContent = key.consent.notice;
+  const opts = (list, label) => '<option value=""></option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(label(v)) + '</option>').join('');
+  const r = $('#rrole').value, i = $('#rinst').value;
+  $('#rrole').innerHTML = opts(key.roles, v => t('role_' + v)); $('#rrole').value = r;
+  $('#rinst').innerHTML = opts(key.ranges, v => v === '100+' ? t('range_100+') : v.replace('-', '–')); $('#rinst').value = i;
+  $('#rremove').hidden = !key.valid && !key.expired;
+}
+function keyStatus(kind, msg) { $('#keystatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b></div></div>' : ''; }
+function showKey() {
+  $('#editor').hidden = true; $('#runner').hidden = true; $('#view').hidden = true; $('#keyview').hidden = false;
+  keyStatus(key.valid ? 'ok' : '', key.valid ? tf('gui_key_valid', key.days_left) + ' (' + key.expires + ')' : '');
+}
+function canSend() { $('#rsend').disabled = !($('#rprivacy').checked && $('#rname').value.trim() && $('#remail').value.trim()); }
+async function sendKey() {
+  $('#rsend').disabled = true; keyStatus('info', t('gui_key_sending'));
+  try {
+    await api().Register({ name: $('#rname').value, email: $('#remail').value, company: $('#rcompany').value, role: $('#rrole').value,
+      instances_range: $('#rinst').value, lang: uiLang, privacy_ack: $('#rprivacy').checked, marketing_opt_in: $('#rmkt').checked });
+    await loadKey(); keyStatus('ok', tf('lic_saved', key.expires) + ' ' + key.consent.sent);
+  } catch (e) { keyStatus('err', String(e)); }
+  finally { canSend(); }
+}
+async function importKey() {
+  try { await api().ImportLicense($('#rtoken').value, uiLang); $('#rtoken').value = ''; await loadKey(); keyStatus('ok', tf('lic_saved', key.expires)); }
+  catch (e) { keyStatus('err', String(e)); }
 }
 async function loadRules() {
   const rs = await api().Rules(engine, uiLang) || [];
@@ -515,6 +599,13 @@ $('#dup').onclick = async () => {
     fill(p); $('#name').focus(); $('#name').select();
   } catch (e) { status('err', String(e)); }
 };
+$('#keychip').onclick = showKey;
+$('#keyback').onclick = () => { $('#keyview').hidden = true; $('#editor').hidden = false; };
+['#rname', '#remail', '#rprivacy'].forEach(s => $(s).addEventListener('input', canSend));
+$('#privlink').onclick = e => { e.preventDefault(); api().OpenURL(key.privacy); };
+$('#rsend').onclick = sendKey;
+$('#rimport').onclick = importKey;
+$('#rremove').onclick = async () => { if (await api().Confirm(t('gui_key_remove'), t('gui_key_remove') + '?')) { await api().RemoveLicense(); await loadKey(); keyStatus(); } };
 $('#stop').onclick = () => { $('#stop').disabled = true; api().Cancel(); };
 $('#test').onclick = test;
 $('#run').onclick = () => run();
@@ -522,7 +613,7 @@ $('#f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tag
 $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(PERMS[engine]); $('#copy').textContent = t('gui_copied'); setTimeout(applyTexts, 1500); } catch (e) {} };
 document.querySelectorAll('.promo-cta').forEach(b => b.onclick = () => api().OpenURL(state.landing));
 $('#powered').onclick = e => { e.preventDefault(); api().OpenURL(state.landing); };
-$('#back').onclick = () => { $('#view').hidden = true; $('#runner').hidden = true; $('#editor').hidden = false; status(); };
+$('#back').onclick = () => { $('#view').hidden = true; $('#keyview').hidden = true; $('#runner').hidden = true; $('#editor').hidden = false; status(); };
 $('#again').onclick = () => { $('#view').hidden = true; run(lastProfile); };
 $('#browser').onclick = () => api().OpenReport(lastPath);
 $('#folder').onclick = () => api().OpenFolder(lastPath);
@@ -539,7 +630,7 @@ $('#uilang').onchange = async e => {
   uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts();
   const p = (state.profiles || []).find(x => x.name === current);
   $('#title').textContent = p ? p.name : t('gui_new_title'); $('#subtitle').textContent = p ? t('gui_edit_sub') : t('gui_new_sub');
-  loadRules(); renderList(); renderHistory(p);
+  loadRules(); renderList(); renderHistory(p); loadKey();
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -550,6 +641,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   window.runtime.EventsOn('rule', onRule);
   const last = (state.profiles || []).find(p => p.name === state.last);
   fill(last || null);
+  loadKey();
   loadHistories().then(() => renderHistory(last || null));
   api().UpdateNotice(uiLang).then(m => { if (m) { $('#upd').textContent = m; $('#upd').hidden = false; } });
   if (last) { // validate the last connection on open

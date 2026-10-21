@@ -29,10 +29,12 @@ plugins:
             Privacy: Privacidade
             Rules: Regras
             Getting started: Primeiros passos
+            Compare and free key: Comparação e chave grátis
 
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - Compare and free key: compare.md
   - Permissions: permissions.md
   - Privacy: privacy.md
   - Roadmap: roadmap.md

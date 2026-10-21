@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="{{.Lang}}" data-lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeDB Lens · {{.After.Server.Host}} · {{date .Before.GeneratedAt}} → {{date .After.GeneratedAt}}</title>
+<link rel="icon" href="{{icon}}">
+<style>{{css}}
+.delta { font: 600 var(--fs-md) var(--font); margin-left: var(--s2); }
+.delta.up { color: var(--ok); } .delta.down { color: var(--crit); }
+.arrow { color: var(--muted); margin: 0 var(--s2); }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <a class="brand" href="{{landing "compare_header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <div class="hero-actions">
+        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
+      </div>
+    </div>
+    <h1>{{t "cmp_title"}} — {{.After.Server.Host}}</h1>
+    <p class="sub"><span>{{engineName .After.Server.Engine}} {{.After.Server.Version}}</span><span>{{date .Before.GeneratedAt}} → {{date .After.GeneratedAt}}</span><span>{{t "read_only"}}</span></p>
+  </div>
+</header>
+
+<main>
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">{{t "grade"}}</div>
+    <div class="val"><span class="grade-letter g-{{lower .Before.Score.Letter}}">{{.Before.Score.Letter}}</span><span class="arrow">→</span><span class="grade-letter g-{{lower .After.Score.Letter}}">{{.After.Score.Letter}}</span></div>
+    <div class="foot">{{printf "%.0f" .Before.Score.Value}} → {{printf "%.0f" .After.Score.Value}}<span class="delta {{if gt .Delta 0.0}}up{{else if lt .Delta 0.0}}down{{end}}">{{signed .Delta}}</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "coverage"}}</div>
+    <div class="val">{{pct .Before.Score.Coverage}}<span class="arrow">→</span>{{pct .After.Score.Coverage}}</div>
+    <div class="foot">{{tf "rules_ran" .After.Score.Executed .After.Score.Applies}}</div>
+  </div>
+  <div class="kpi"><div class="lbl">{{t "cmp_new"}}</div><div class="val {{if .New}}t-crit{{end}}">{{len .New}}</div></div>
+  <div class="kpi"><div class="lbl">{{t "cmp_resolved"}}</div><div class="val {{if .Resolved}}t-ok{{end}}">{{len .Resolved}}</div></div>
+  <div class="kpi"><div class="lbl">{{t "cmp_persisting"}}</div><div class="val">{{len .Persisting}}</div></div>
+</section>
+
+{{range .Warnings}}<p class="caveat">{{warn .}}</p>{{end}}
+
+{{if not (or .New .Resolved .Persisting .Changed)}}<p class="empty">✓ {{t "cmp_no_changes"}}</p>{{end}}
+
+{{define "diffs"}}<div class="table"><table>
+  <tr><th>{{t "rule"}}</th><th>{{t "severity"}}</th><th>{{t "cmp_before"}}</th><th>{{t "cmp_after"}}</th><th>{{t "cmp_rows"}}</th></tr>
+  {{range .}}<tr><td><b>{{tx .Rule.Title}}</b><br><code class="rid">{{.Rule.ID}}</code></td><td><span class="dot {{.Rule.Severity}}"></span> {{t (print .Rule.Severity)}}</td><td>{{st .Before}}</td><td>{{st .After}}</td><td>{{.RowsBefore}} → {{.RowsAfter}}</td></tr>{{end}}
+</table></div>{{end}}
+
+{{if .New}}<h2 class="sec">{{t "cmp_new"}} <span class="n">{{len .New}}</span></h2>{{template "diffs" .New}}{{end}}
+{{if .Resolved}}<h2 class="sec">{{t "cmp_resolved"}} <span class="n">{{len .Resolved}}</span></h2>{{template "diffs" .Resolved}}{{end}}
+{{if .Persisting}}<h2 class="sec">{{t "cmp_persisting"}} <span class="n">{{len .Persisting}}</span></h2>{{template "diffs" .Persisting}}{{end}}
+{{if .Changed}}<h2 class="sec">{{t "cmp_changed"}} <span class="n">{{len .Changed}}</span></h2><p class="caveat">{{t "cmp_changed_help"}}</p>{{template "diffs" .Changed}}{{end}}
+
+<section class="locked">
+  <div class="blur" aria-hidden="true"><svg viewBox="0 0 600 140" preserveAspectRatio="none"><polyline points="0,110 50,96 100,102 150,70 200,84 250,48 300,66 350,38 400,58 450,30 500,44 550,22 600,34" fill="none" stroke="currentColor" stroke-width="4"/></svg></div>
+  <div class="unlock">
+    <b>{{t "baseline_title"}}</b>
+    <span class="muted">{{t "baseline_locked"}}</span>
+    <a class="cta" href="{{register "compare"}}" target="_blank" rel="noopener">{{t "saas_try"}} →</a>
+  </div>
+</section>
+</main>
+
+<footer class="bottom">
+  <span>{{tf "cmp_generated" .ToolVersion (date .GeneratedAt)}} · {{base .Before.File}} → {{base .After.File}}</span>
+  <span>{{t "saas_pitch"}} <a href="{{landing "compare_footer"}}" target="_blank" rel="noopener">codedb.com.br</a></span>
+</footer>
+<script>
+function toggleLang() {
+  var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
+  h.dataset.lang = l; h.lang = l;
+  try { localStorage.setItem('lens-lang', l); } catch (e) {}
+}
+try { var s = localStorage.getItem('lens-lang'); if (s) { document.documentElement.dataset.lang = s; document.documentElement.lang = s; } } catch (e) {}
+</script>
+</body>
+</html>
