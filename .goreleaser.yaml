@@ -35,13 +35,7 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
-# Ed25519 signature checked by `codedb-lens update` (public key in internal/update).
-signs:
-  - artifacts: checksum
-    cmd: go
-    args: ["run", "./tools/sign", "${artifact}"]
-    signature: "${artifact}.sig"
-    env: ["LENS_SIGNING_KEY={{ .Env.LENS_SIGNING_KEY }}"]   # sign commands only see env listed here
+# checksums.txt is signed by the release workflow (tools/sign), not here: GoReleaser hides the key from sign commands.
 
 changelog:
   use: github

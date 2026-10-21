@@ -21,7 +21,14 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sign checksums (Ed25519, verified by `codedb-lens update`)
+        shell: pwsh
+        run: |
+          go run ./tools/sign dist/checksums.txt
+          gh release upload "${{ github.ref_name }}" dist/checksums.txt.sig
+        env:
           LENS_SIGNING_KEY: ${{ secrets.LENS_SIGNING_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build installer
         shell: pwsh
         run: |
