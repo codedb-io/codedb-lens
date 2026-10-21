@@ -135,9 +135,12 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .hrow:hover { border-color: var(--line-strong); }
 .hrow small { color: var(--muted); }
 .code { background: var(--navy-900); color: var(--on-dark); border-radius: var(--r-md); padding: var(--s3) var(--s4); font: 12px/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; }
-.promo { background: var(--hero) !important; color: #fff; border: 0 !important; }
-.promo h3 { color: #fff; } .promo p { color: var(--on-dark); font-size: var(--fs-sm); margin: 0 0 var(--s3); }
-.promo .btn { background: #fff; color: var(--navy-900); border: 0; height: 34px; }
+.promo { background: var(--hero); color: #fff; border-radius: var(--r-md); display: flex; gap: var(--s3); align-items: center; padding: var(--s3); }
+.promo > div { flex: 1; min-width: 0; font-size: var(--fs-xs); color: var(--on-dark); }
+.promo b { display: block; color: #fff; font-size: var(--fs-sm); }
+.promo .btn { background: #fff; color: var(--navy-900); border: 0; height: 30px; padding: 0 var(--s3); font-size: var(--fs-xs); }
+.promo.mini { flex-direction: column; align-items: stretch; gap: var(--s2); } .promo.mini .btn { width: 100%; }
+.promo.wide { margin: 0; border-radius: 0; padding: var(--s3) var(--s5); }
 
 /* run view */
 .run { max-width: 760px; }
@@ -183,6 +186,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <div class="side-foot">
     <div class="upd" id="upd" hidden></div>
     <div class="secure"><svg class="i"><use href="#i-shield"/></svg><div><b data-t="gui_secure_title"></b><span data-t="gui_secure"></span></div></div>
+    <div class="promo mini"><div><b data-t="gui_promo_title"></b></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
     <div class="side-row">
       <a href="#" id="powered" style="color:var(--sky-300);text-decoration:none">Powered by codeDB</a>
       <select id="uilang" aria-label="Language"><option value="en">English</option><option value="pt-BR">Português</option></select>
@@ -273,7 +277,6 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
       <div class="card"><h3><svg class="i"><use href="#i-list"/></svg><span data-t="gui_checks"></span></h3><p class="sub" id="checksn"></p><ul class="rules" id="rules"></ul></div>
       <div class="card" id="histcard"><h3><svg class="i"><use href="#i-clock"/></svg><span data-t="gui_history"></span></h3><div class="hist" id="hist"></div></div>
       <div class="card"><h3><svg class="i"><use href="#i-key"/></svg><span data-t="gui_perms"></span><button type="button" class="linkbtn" id="copy" style="margin-left:auto" data-t="gui_copy"></button></h3><div class="code" id="permtext"></div></div>
-      <div class="card promo"><h3 data-t="gui_promo_title"></h3><p data-t="gui_promo"></p><button type="button" class="btn" id="promo" data-t="gui_promo_cta"></button></div>
     </div>
   </div>
 </div>
@@ -294,6 +297,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <button class="btn" id="browser" data-t="gui_open_browser"></button>
     <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg><span data-t="gui_open_folder"></span></button>
   </div>
+  <div class="promo wide"><div><b data-t="gui_promo_title"></b><span data-t="gui_promo"></span></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
   <iframe id="frame" sandbox="allow-scripts allow-same-origin" title="report"></iframe>
 </div>
 
@@ -516,7 +520,7 @@ $('#test').onclick = test;
 $('#run').onclick = () => run();
 $('#f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); e.ctrlKey ? run() : test(); } });
 $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(PERMS[engine]); $('#copy').textContent = t('gui_copied'); setTimeout(applyTexts, 1500); } catch (e) {} };
-$('#promo').onclick = () => api().OpenURL(state.landing);
+document.querySelectorAll('.promo-cta').forEach(b => b.onclick = () => api().OpenURL(state.landing));
 $('#powered').onclick = e => { e.preventDefault(); api().OpenURL(state.landing); };
 $('#back').onclick = () => { $('#view').hidden = true; $('#runner').hidden = true; $('#editor').hidden = false; status(); };
 $('#again').onclick = () => { $('#view').hidden = true; run(lastProfile); };

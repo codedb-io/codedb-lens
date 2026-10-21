@@ -24,5 +24,5 @@ disable it (`ALTER INDEX … DISABLE`) for a while before dropping it.
 
 ## Limitations
 
-- Usage resets on restart. Check the *Started at* card in the report: a few days of uptime is not enough.
+- Usage resets on restart. Check the *Server up since* card in the report: a few days of uptime is not enough.
 - Readable secondaries and replicas keep their own usage; an index unused here may be used there.

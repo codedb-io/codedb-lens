@@ -25,5 +25,5 @@ Observe durante um ciclo completo do negócio (fechamento de mês, relatórios t
 
 ## Limitações
 
-- O uso zera no restart. Veja o cartão *Iniciado em* no relatório: poucos dias no ar não bastam.
+- O uso zera no restart. Veja o cartão *Servidor no ar desde* no relatório: poucos dias no ar não bastam.
 - Secundárias legíveis e réplicas têm uso próprio; um índice sem uso aqui pode ser usado lá.
