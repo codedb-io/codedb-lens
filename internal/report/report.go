@@ -122,8 +122,15 @@ var funcs = template.FuncMap{
 	},
 	"lower": strings.ToLower,
 	"date":  func(t time.Time) string { return t.Format("2006-01-02 15:04") },
-	"css":   func() template.CSS { return template.CSS(Tokens + style) },
-	"add1":  func(i int) int { return i + 1 },
+	// localtime shows a UTC timestamp in this machine's zone, like the report date; older reports kept the raw text.
+	"localtime": func(s string) string {
+		if t, err := time.Parse(time.RFC3339, s); err == nil {
+			return t.Local().Format("2006-01-02 15:04:05")
+		}
+		return s
+	},
+	"css":  func() template.CSS { return template.CSS(Tokens + style) },
+	"add1": func(i int) int { return i + 1 },
 	// Evidence columns named "meaning@en" / "meaning@pt-BR" show only in their language.
 	"colname": func(c string) string { name, _, _ := strings.Cut(c, "@"); return name },
 	"collang": func(c string) template.HTMLAttr {

@@ -43,6 +43,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Errors now exit with code 2 (was 1), so 1 can mean "findings" in pipelines.
 
 ### Fixed
+- "Server up since" was the server's clock time, hours off when the server runs in another time zone (e.g. UTC
+  containers). It is now stored in UTC and shown in local time.
+- The app opens reports in its own language, and new runs from the app default to it.
+- Singular counts: "1 finding", "1 critical or high" (and pt-BR "1 achado", "1 crítico ou alto").
 - Negative rule parameters no longer turn into SQL comments (`--1`).
 - Two runs in the same minute no longer overwrite each other's report.
 - Rule texts containing ": " are quoted so the YAML loads.

@@ -96,8 +96,9 @@ func (m *MSSQL) detect(ctx context.Context) error {
 		}
 	}
 	var start sql.NullString
-	// Needs VIEW SERVER STATE; uptime is a caveat, not a requirement.
-	if m.conn.QueryRowContext(ctx, `SELECT CONVERT(varchar(19), sqlserver_start_time, 120) FROM sys.dm_os_sys_info`).Scan(&start) == nil {
+	// Needs VIEW SERVER STATE; uptime is a caveat, not a requirement. UTC: the server clock may be in another zone.
+	if m.conn.QueryRowContext(ctx, `SELECT CONVERT(varchar(19), DATEADD(second, DATEDIFF(second, GETDATE(), GETUTCDATE()), sqlserver_start_time), 126) + 'Z'
+		FROM sys.dm_os_sys_info`).Scan(&start) == nil {
 		m.info.StartedAt = start.String
 	}
 	return nil

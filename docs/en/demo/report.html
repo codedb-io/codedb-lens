@@ -198,12 +198,12 @@ tr:last-child td { border-bottom: 0; }
 <a class="sev-critical" href="#MSSQL-BACKUP-001"><b><span lang="en">Databases with missing or old backups</span><span lang="pt-BR">Bancos com backup ausente ou antigo</span></b><small><span lang="en">Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.</span><span lang="pt-BR">Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.</span></small></a><a class="sev-high" href="#MSSQL-CHECKDB-001"><b><span lang="en">Databases without a recent clean DBCC CHECKDB</span><span lang="pt-BR">Bancos sem DBCC CHECKDB recente e sem erros</span></b><small><span lang="en">Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.</span><span lang="pt-BR">Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.</span></small></a><a class="sev-high" href="#MSSQL-WAITS-001"><b><span lang="en">The instance spends a lot of time waiting on one resource</span><span lang="pt-BR">A instância passa muito tempo esperando por um recurso</span></b><small><span lang="en">Start with the top row. The meaning column says which resource to look at; the rule&#39;s documentation page lists the usual causes for each wait.</span><span lang="pt-BR">Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.</span></small></a><a class="sev-medium" href="#MSSQL-CONFIG-001"><b><span lang="en">Instance settings left at defaults that hurt performance</span><span lang="pt-BR">Configurações da instância no padrão que prejudicam o desempenho</span></b><small><span lang="en">Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.</span><span lang="pt-BR">Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.</span></small></a><a class="sev-medium" href="#MSSQL-MISSINGIDX-001"><b><span lang="en">High-impact missing indexes</span><span lang="pt-BR">Índices ausentes de alto impacto</span></b><small><span lang="en">Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.</span><span lang="pt-BR">Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.</span></small></a>
 </div>
 
-<h2 class="sec"><span lang="en">Findings</span><span lang="pt-BR">Achados</span> <span class="n">5</span></h2>
+<h2 class="sec"><span lang="en">Findings</span><span lang="pt-BR">Achados</span> <span class="n">3</span></h2>
 
 <article class="story" id="MSSQL-BACKUP-001">
   <div class="eyebrow">
     <span class="dot critical"></span>
-    <span><span lang="en">Finding 1 of 5</span><span lang="pt-BR">Achado 1 de 5</span></span>
+    <span><span lang="en">Finding 1 of 3</span><span lang="pt-BR">Achado 1 de 3</span></span>
     <span>· <span lang="en">Critical</span><span lang="pt-BR">Crítica</span></span>
     <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span>
   </div>
@@ -261,7 +261,7 @@ ORDER BY d.name;
 <article class="story" id="MSSQL-CHECKDB-001">
   <div class="eyebrow">
     <span class="dot high"></span>
-    <span><span lang="en">Finding 2 of 5</span><span lang="pt-BR">Achado 2 de 5</span></span>
+    <span><span lang="en">Finding 2 of 3</span><span lang="pt-BR">Achado 2 de 3</span></span>
     <span>· <span lang="en">High</span><span lang="pt-BR">Alta</span></span>
     <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span>
   </div>
@@ -297,7 +297,7 @@ ORDER BY d.name;
 <article class="story" id="MSSQL-WAITS-001">
   <div class="eyebrow">
     <span class="dot high"></span>
-    <span><span lang="en">Finding 3 of 5</span><span lang="pt-BR">Achado 3 de 5</span></span>
+    <span><span lang="en">Finding 3 of 3</span><span lang="pt-BR">Achado 3 de 3</span></span>
     <span>· <span lang="en">High</span><span lang="pt-BR">Alta</span></span>
     <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
   </div>
@@ -360,7 +360,7 @@ ORDER BY c.ms DESC;
 <article class="story" id="MSSQL-CONFIG-001">
   <div class="eyebrow">
     <span class="dot medium"></span>
-    <span><span lang="en">Finding 4 of 5</span><span lang="pt-BR">Achado 4 de 5</span></span>
+    <span><span lang="en">Finding 4 of 3</span><span lang="pt-BR">Achado 4 de 3</span></span>
     <span>· <span lang="en">Medium</span><span lang="pt-BR">Média</span></span>
     <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
   </div>
@@ -399,7 +399,7 @@ FROM c WHERE c.name = &#39;optimize for ad hoc workloads&#39; AND c.v = 0;
 <article class="story" id="MSSQL-MISSINGIDX-001">
   <div class="eyebrow">
     <span class="dot medium"></span>
-    <span><span lang="en">Finding 5 of 5</span><span lang="pt-BR">Achado 5 de 5</span></span>
+    <span><span lang="en">Finding 5 of 3</span><span lang="pt-BR">Achado 5 de 3</span></span>
     <span>· <span lang="en">Medium</span><span lang="pt-BR">Média</span></span>
     <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
   </div>

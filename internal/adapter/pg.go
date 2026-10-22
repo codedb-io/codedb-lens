@@ -58,7 +58,7 @@ func OpenPG(ctx context.Context, c Conn) (*PG, error) {
 	var num int
 	var start string
 	err = conn.QueryRow(ctx, `SELECT current_setting('server_version'), current_setting('server_version_num')::int,
-		to_char(pg_postmaster_start_time(), 'YYYY-MM-DD HH24:MI:SS')`).Scan(&p.info.Version, &num, &start)
+		to_char(pg_postmaster_start_time() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`).Scan(&p.info.Version, &num, &start)
 	if err != nil {
 		conn.Close(ctx)
 		return nil, err

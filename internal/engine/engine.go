@@ -68,7 +68,7 @@ type ServerInfo struct {
 	Major     int    `json:"major"`
 	Platform  string `json:"platform"` // onprem, azure_sqldb, azure_mi, rds, aurora, azure_flex ...
 	Host      string `json:"host"`
-	StartedAt string `json:"started_at,omitempty"` // stats reset on restart: a caveat for usage-based rules
+	StartedAt string `json:"started_at,omitempty"` // RFC 3339 UTC (local server time before v0.5); stats reset on restart
 }
 
 // Adapter runs one read-only query and returns rows as ordered column/value pairs.

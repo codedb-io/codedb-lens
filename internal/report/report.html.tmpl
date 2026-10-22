@@ -39,7 +39,7 @@
   <div class="kpi">
     <div class="lbl">{{t "findings"}}</div>
     <div class="val {{if gt (.CountSev "critical" "high") 0}}t-crit{{end}}">{{$n}}</div>
-    <div class="foot">{{tf "crit_high" (.CountSev "critical" "high")}}</div>
+    <div class="foot">{{$n := .CountSev "critical" "high"}}{{if eq $n 1}}{{tf "crit_high_1" $n}}{{else}}{{tf "crit_high" $n}}{{end}}</div>
   </div>
   <div class="kpi">
     <div class="lbl">{{t "no_data"}}</div>
@@ -48,7 +48,7 @@
   </div>
   {{if .Server.StartedAt}}<div class="kpi">
     <div class="lbl">{{t "started"}}</div>
-    <div class="val" style="font-size:var(--fs-xl)">{{.Server.StartedAt}}</div>
+    <div class="val" style="font-size:var(--fs-xl)">{{localtime .Server.StartedAt}}</div>
     <div class="foot">{{t "started_help"}}</div>
   </div>{{end}}
 </section>
