@@ -61,8 +61,9 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
-Status (2026-10-21): v0.1.0 publicada e aprovada pelos 2 clientes. Fase 2 em andamento: `compare`, chave grátis
-(`register`, `license`) e telas da GUI implementados; cadastro real testado contra a produção.
+Status (2026-10-22): fase 2 concluída. Repo público, v0.5.1 publicada (`.deb`/`.rpm`, imagem pública
+`ghcr.io/codedb-io/codedb-lens`), docs em `https://lens.codedb.com.br/` (GitHub Pages, workflow `docs.yml`),
+página `https://app.codedb.com.br/lens` no ar. Próximo marco: v0.6 (resumo executivo, `--redact`, `verify`, CU/minor).
 
 Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.com.br/lens/register` (sem staging) e
 `POST /lens/renew` (2026-10-22; chave atual, mesmo vencida; janela −14 a +30 dias do vencimento),
