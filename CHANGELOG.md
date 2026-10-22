@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-22
+
 ### Added
 - Documentation site at https://lens.codedb.com.br/ (GitHub Pages), so the "Documentation" links in reports resolve.
 - Linux `.deb` and `.rpm` packages, and a container image `ghcr.io/codedb-io/codedb-lens` (amd64, arm64).
