@@ -105,6 +105,17 @@ pede a chave grátis, um pedido de cadastro com o nome e o e-mail que você digi
 O Lens mostra um retrato do momento. O [**codeDB**](https://codedb.com.br/?utm_source=lens&utm_medium=github&utm_campaign=readme)
 monitora suas instâncias SQL Server e PostgreSQL 24 horas por dia, com histórico, baseline e alertas no Teams, Slack e e-mail.
 
+## Política de assinatura de código
+
+Assinatura de código gratuita por [SignPath.io](https://about.signpath.io), certificado da
+[SignPath Foundation](https://signpath.org).
+
+- Os binários e o instalador do Windows são gerados pelo GitHub Actions a partir deste repositório e só são assinados em releases com tag.
+- Commits e revisões: [membros da organização codedb-io](https://github.com/orgs/codedb-io/people).
+- Aprovador de cada pedido de assinatura: o mantenedor do projeto ([@josivanl](https://github.com/josivanl)).
+- Privacidade: este programa não transfere informações para outros sistemas em rede, a menos que o usuário, ou quem o
+  instala ou opera, peça explicitamente (veja [Privacidade](#privacidade)).
+
 ## Como contribuir
 
 Veja o [CONTRIBUTING.md](CONTRIBUTING.md). Novas regras são especialmente bem-vindas.

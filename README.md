@@ -105,6 +105,17 @@ key, one registration request with the name and e-mail you type (or, when renewi
 Lens shows a snapshot. [**codeDB**](https://codedb.com.br/?utm_source=lens&utm_medium=github&utm_campaign=readme)
 watches your SQL Server and PostgreSQL instances around the clock, with history, baselines and alerts on Teams, Slack and e-mail.
 
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+[SignPath Foundation](https://signpath.org).
+
+- Windows binaries and the installer are built by GitHub Actions from this repository and signed only from tagged releases.
+- Committers and reviewers: [members of the codedb-io organization](https://github.com/orgs/codedb-io/people).
+- Approver of each signing request: the project maintainer ([@josivanl](https://github.com/josivanl)).
+- Privacy: this program does not transfer any information to other networked systems unless specifically requested by
+  the user or the person installing or operating it (see [Privacy](#privacy)).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). New rules are especially welcome.
