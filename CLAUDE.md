@@ -5,7 +5,7 @@ Ferramenta gratuita de diagnóstico para SQL Server e PostgreSQL. É o lead magn
 Um binário `codedb-lens` (engine por `--engine mssql|pg`); "for SQL Server" e "for PostgreSQL" são
 páginas de docs/marketing. Windows (GUI + CLI) e Linux (CLI).
 Repo: github.com/codedb-io/codedb-lens (privado até a v0.5, escrito como público, em inglês).
-Plano detalhado: `C:\Users\DESKTOP\.claude\plans\c-users-desktop-downloads-proposta-fina-logical-cloud.md`.
+Plano detalhado: `planos/01-plano-inicial.md`. Handoffs de sessão em `handoff/` (o mais recente primeiro). Ambas as pastas são locais, fora do git.
 
 Proposta completa, matriz de validação e análise: https://claude.ai/code/artifact/8dc89e78-12ee-4ac4-b670-5f07795a99c4
 
