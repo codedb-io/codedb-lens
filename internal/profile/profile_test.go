@@ -24,3 +24,16 @@ func TestPasswordNeverSerialized(t *testing.T) {
 		t.Fatalf("Delete: %+v", f)
 	}
 }
+
+// Windows' credential store and report folders ignore case, so "Prod" and "prod" must be one profile.
+func TestNamesIgnoreCase(t *testing.T) {
+	f := File{}
+	f.Put(Profile{Name: "Prod"})
+	if _, ok := f.Get("prod"); !ok {
+		t.Fatal("Get must match names case-insensitively")
+	}
+	f.Put(Profile{Name: "prod"})
+	if len(f.Profiles) != 1 || f.Profiles[0].Name != "prod" {
+		t.Fatalf("Put must replace, not duplicate: %+v", f.Profiles)
+	}
+}

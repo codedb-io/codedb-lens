@@ -460,7 +460,7 @@ async function compare(p, older, newer) {
 /* ── free key ── */
 async function loadKey() {
   key = await api().LicenseStatus(uiLang);
-  $('#keylbl').textContent = key.valid ? tf('gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
+  $('#keylbl').textContent = key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
   $('#lprivacy').textContent = key.consent.privacy_ack; $('#lmkt').textContent = key.consent.marketing; $('#rnotice').textContent = key.consent.notice;
   const opts = (list, label) => '<option value=""></option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(label(v)) + '</option>').join('');
   const r = $('#rrole').value, i = $('#rinst').value;
@@ -472,7 +472,7 @@ async function loadKey() {
 function keyStatus(kind, msg) { $('#keystatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b></div></div>' : ''; }
 function showKey() {
   $('#editor').hidden = true; $('#runner').hidden = true; $('#view').hidden = true; $('#keyview').hidden = false;
-  keyStatus(key.valid ? 'ok' : '', key.valid ? tf('gui_key_valid', key.days_left) + ' (' + key.expires + ')' : '');
+  keyStatus(key.valid ? 'ok' : '', key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) + ' (' + key.expires + ')' : '');
 }
 function canSend() { $('#rsend').disabled = !($('#rprivacy').checked && $('#rname').value.trim() && $('#remail').value.trim()); }
 async function sendKey() {

@@ -105,7 +105,7 @@ func (a *App) SaveProfile(p profile.Profile, password, old, lang string) error {
 	if err != nil {
 		return err
 	}
-	if p.Name != old {
+	if !strings.EqualFold(p.Name, old) {
 		if _, taken := f.Get(p.Name); taken {
 			return fmt.Errorf(i18n.T(i18n.Normalize(lang), "gui_name_taken"), p.Name)
 		}
@@ -121,6 +121,9 @@ func (a *App) SaveProfile(p profile.Profile, password, old, lang string) error {
 	}
 	f.Put(p)
 	if err := f.Save(); err != nil {
+		if old != "" && old != p.Name && password != "" {
+			_ = profile.SetPassword(old, password) // Delete(old) already dropped it; the file still has old
+		}
 		return err
 	}
 	if password != "" {

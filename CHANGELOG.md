@@ -5,6 +5,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- Documentation site at https://lens.codedb.com.br/ (GitHub Pages), so the "Documentation" links in reports resolve.
+- Linux `.deb` and `.rpm` packages, and a container image `ghcr.io/codedb-io/codedb-lens` (amd64, arm64).
+
+### Fixed
+- Free key validity in the singular: "1 day left" / "falta 1 dia".
+- GUI profiles: names that differ only in case are the same profile (Windows credential store and report folders
+  ignore case); a failed rename no longer drops the saved password.
+
 ## [0.5.0] - 2026-10-22
 
 ### Added

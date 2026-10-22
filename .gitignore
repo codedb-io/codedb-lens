@@ -41,3 +41,4 @@ graphify-out/
 .claude/settings.local.json
 .claude/worktrees/
 /cmd/codedb-lens/rsrc_*.syso
+/bin/

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/zalando/go-keyring"
 
@@ -70,7 +71,7 @@ func (f File) Save() error {
 
 func (f File) Get(name string) (Profile, bool) {
 	for _, p := range f.Profiles {
-		if p.Name == name {
+		if strings.EqualFold(p.Name, name) { // Credential Manager and NTFS ignore case
 			return p, true
 		}
 	}
@@ -80,7 +81,7 @@ func (f File) Get(name string) (Profile, bool) {
 // Put adds or replaces a profile and marks it as last used.
 func (f *File) Put(p Profile) {
 	for i := range f.Profiles {
-		if f.Profiles[i].Name == p.Name {
+		if strings.EqualFold(f.Profiles[i].Name, p.Name) {
 			f.Profiles[i] = p
 			f.Last = p.Name
 			return

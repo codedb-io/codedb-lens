@@ -258,7 +258,11 @@ func licenseCmd(args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf(i18n.T(lang, "lic_status")+"\n", l.Expires().Format("2006-01-02"), daysLeft(l),
+		key := "lic_status"
+		if daysLeft(l) == 1 {
+			key = "lic_status_1"
+		}
+		fmt.Printf(i18n.T(lang, key)+"\n", l.Expires().Format("2006-01-02"), daysLeft(l),
 			strings.Join(l.Features, ", "))
 		if b, ok := license.Bound(l); ok {
 			fmt.Printf(i18n.T(lang, "lic_bound")+"\n", b.Host, b.Engine)
