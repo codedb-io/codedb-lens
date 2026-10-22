@@ -3,7 +3,6 @@ engine: mssql
 category: performance
 severity: high
 confidence: hint
-skip_on: [azure_sqldb]
 permission: VIEW SERVER STATE (2022+ VIEW SERVER PERFORMANCE STATE)
 params:
   min_share_pct: 20          # wait category share of all meaningful waits

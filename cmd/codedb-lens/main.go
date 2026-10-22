@@ -303,8 +303,14 @@ func readPassword(o *checkOpts) error {
 
 func printSummary(r *report.Report, lang, path string) {
 	s := r.Score
-	fmt.Printf("\n  %s: %s (%.0f/100)   %s: %.0f%%", i18n.T(lang, "grade"), s.Letter, s.Value, i18n.T(lang, "coverage"), s.Coverage*100)
-	if s.Partial {
+	grade := fmt.Sprintf("%s (%.0f/100)", s.Letter, s.Value)
+	if s.Limited {
+		grade = s.Letter
+	}
+	fmt.Printf("\n  %s: %s   %s: %.0f%%", i18n.T(lang, "grade"), grade, i18n.T(lang, "coverage"), s.Coverage*100)
+	if s.Limited {
+		fmt.Printf("\n  "+i18n.T(lang, "limited_help"), s.Applies, s.Rules, r.Server.Platform)
+	} else if s.Partial {
 		fmt.Printf("  [%s]", i18n.T(lang, "partial"))
 	}
 	fmt.Printf("\n  %s: %d   %s: %d   %s: %d\n\n", i18n.T(lang, "findings"), r.Count(engine.StatusFinding),

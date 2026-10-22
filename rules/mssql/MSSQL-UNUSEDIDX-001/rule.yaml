@@ -4,7 +4,6 @@ category: indexes
 severity: low
 confidence: hint
 scope: database
-skip_on: [azure_sqldb]
 permission: VIEW SERVER STATE + VIEW ANY DEFINITION + CONNECT ANY DATABASE
 params:
   min_writes: 1000   # unused index must cost at least this many writes since restart

@@ -91,7 +91,7 @@ GRANT CONNECT ON DATABASE app TO codedb_lens;
 
 | Engine | Supported | Best-effort |
 |---|---|---|
-| SQL Server | 2017, 2019, 2022, 2025 (Windows and Linux), Azure SQL Managed Instance, Amazon RDS | 2016 and older |
+| SQL Server | 2017, 2019, 2022, 2025 (Windows and Linux), Azure SQL Managed Instance, Amazon RDS | 2016 and older; Azure SQL Database (6 of 12 rules apply, see [permissions](docs/en/permissions.md#azure-sql-database)) |
 | PostgreSQL | 15, 16, 17, 18, Amazon RDS, Aurora, Azure Flexible Server | 14 |
 
 ## Privacy

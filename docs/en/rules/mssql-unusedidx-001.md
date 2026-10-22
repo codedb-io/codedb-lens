@@ -2,7 +2,7 @@
 
 | Severity | Confidence | Permission | Applies to |
 |---|---|---|---|
-| Low | Hint | `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + `CONNECT ANY DATABASE` | SQL Server 2017+, Azure SQL MI, RDS |
+| Low | Hint | `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + `CONNECT ANY DATABASE` | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## What it checks
 
@@ -12,6 +12,8 @@ Runs **in each user database** the login can open. For nonclustered indexes that
 - **Duplicate:** same key columns, in the same order, and the same filter as another index on the table.
 
 Databases the login can't open are listed as skipped, and if none can be read the rule reports *No data*.
+
+On Azure SQL Database only the connected database is checked (no `USE` there); usage counters also reset when Azure moves the database.
 
 ## Why it matters
 

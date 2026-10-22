@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"path"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -59,6 +60,8 @@ type Rule struct {
 	SaaSCTA    Text               `yaml:"saas_cta" json:"saas_cta,omitempty"`
 	DocURL     string             `json:"doc_url"`
 	SQL        string             `yaml:"-" json:"query"`
+	// Variants: query.<platform>.sql replaces query.sql on that platform (e.g. azure_sqldb, where server DMVs differ).
+	Variants map[string]string `yaml:"-" json:"-"`
 }
 
 // ServerInfo is what an adapter learns about the target before rules run.
@@ -127,6 +130,27 @@ func LoadCatalog(fsys fs.FS, engine string) ([]*Rule, error) {
 			return nil, err
 		}
 		r.SQL = string(q)
+		entries, err := fs.ReadDir(fsys, base)
+		if err != nil {
+			return nil, err
+		}
+		for _, e := range entries {
+			platform, ok := strings.CutPrefix(e.Name(), "query.") // query.sql itself leaves "sql", no ".sql" suffix
+			if !ok {
+				continue
+			}
+			if platform, ok = strings.CutSuffix(platform, ".sql"); !ok {
+				continue
+			}
+			v, err := fs.ReadFile(fsys, path.Join(base, e.Name()))
+			if err != nil {
+				return nil, err
+			}
+			if r.Variants == nil {
+				r.Variants = map[string]string{}
+			}
+			r.Variants[platform] = string(v)
+		}
 		r.DocURL = "https://lens.codedb.com.br/rules/" + strings.ToLower(r.ID) + "/"
 		if err := r.Validate(engine, d.Name()); err != nil {
 			return nil, err
@@ -169,9 +193,16 @@ func (r *Rule) Validate(engine, dir string) error {
 			}
 		}
 	}
-	for _, m := range placeholder.FindAllStringSubmatch(r.SQL, -1) {
-		if _, ok := r.Params[m[1]]; !ok {
-			errs = append(errs, fmt.Errorf("query uses undefined param %q", m[1]))
+	for _, q := range r.Queries() {
+		for _, m := range placeholder.FindAllStringSubmatch(q, -1) {
+			if _, ok := r.Params[m[1]]; !ok {
+				errs = append(errs, fmt.Errorf("query uses undefined param %q", m[1]))
+			}
+		}
+	}
+	for p := range r.Variants {
+		if slices.Contains(r.SkipOn, p) {
+			errs = append(errs, fmt.Errorf("query.%s.sql exists but skip_on lists %s", p, p))
 		}
 	}
 	if err := errors.Join(errs...); err != nil {
@@ -197,6 +228,26 @@ func (r *Rule) Render() string {
 		name := placeholder.FindStringSubmatch(s)[1]
 		return "(" + strconv.FormatFloat(r.Params[name], 'f', -1, 64) + ")" // parens: -1 must not become a -- comment
 	})
+}
+
+// Queries returns query.sql and every platform variant, for validation.
+func (r *Rule) Queries() []string {
+	qs := []string{r.SQL}
+	for _, v := range r.Variants {
+		qs = append(qs, v)
+	}
+	return qs
+}
+
+// on returns the rule as it runs on platform: a copy with the variant query, so the report shows what ran.
+func (r *Rule) on(platform string) *Rule {
+	v, ok := r.Variants[platform]
+	if !ok {
+		return r
+	}
+	c := *r
+	c.SQL = v
+	return &c
 }
 
 func (r *Rule) applies(info ServerInfo) (bool, string) {
@@ -235,6 +286,7 @@ func Run(ctx context.Context, a Adapter, rules []*Rule, progress func(i, total i
 }
 
 func runOne(ctx context.Context, a Adapter, info ServerInfo, r *Rule) Result {
+	r = r.on(info.Platform)
 	res := Result{Rule: r, CollectedAt: time.Now().UTC()}
 	if ok, why := r.applies(info); !ok {
 		res.Status, res.Reason = StatusNotApplies, why

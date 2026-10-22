@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -13,10 +14,15 @@ import (
 )
 
 type MSSQL struct {
-	db   *sql.DB
-	conn *sql.Conn // one session for the whole run: sequential and cheap
-	info engine.ServerInfo
+	db     *sql.DB
+	conn   *sql.Conn // one session for the whole run: sequential and cheap
+	info   engine.ServerInfo
+	azure  bool   // Azure SQL Database: one database per connection, no USE
+	dbName string // connected database (Azure SQL Database only)
 }
+
+// ErrAzureMaster: on Azure SQL Database every DMV is scoped to the connected database, so master says nothing.
+var ErrAzureMaster = errors.New("Azure SQL Database: set the initial database to the database you want to diagnose, not master")
 
 func mssqlURL(c Conn) string {
 	host, instance, port := c.Server, "", c.Port
@@ -85,7 +91,13 @@ func (m *MSSQL) detect(ctx context.Context) error {
 	}
 	switch edition {
 	case 5:
-		m.info.Platform = "azure_sqldb"
+		m.info.Platform, m.azure = "azure_sqldb", true
+		if err := m.conn.QueryRowContext(ctx, `SELECT DB_NAME()`).Scan(&m.dbName); err != nil {
+			return err
+		}
+		if strings.EqualFold(m.dbName, "master") {
+			return ErrAzureMaster
+		}
 	case 8:
 		m.info.Platform = "azure_mi"
 	default:
@@ -156,6 +168,9 @@ func firstNonEmpty(s ...string) string {
 
 // Databases: online user databases, split by whether this login can open them (HAS_DBACCESS).
 func (m *MSSQL) Databases(ctx context.Context) (open, noAccess []string, err error) {
+	if m.azure { // other databases on the logical server need their own connection (and profile)
+		return []string{m.dbName}, nil, nil
+	}
 	rows, err := m.conn.QueryContext(ctx, `SELECT name, HAS_DBACCESS(name) FROM sys.databases
 		WHERE database_id > 4 AND state_desc = 'ONLINE' AND source_database_id IS NULL ORDER BY name`)
 	if err != nil {
@@ -179,6 +194,9 @@ func (m *MSSQL) Databases(ctx context.Context) (open, noAccess []string, err err
 
 // QueryDB switches the session to db (USE is a context switch, not a write), runs q, and switches back.
 func (m *MSSQL) QueryDB(ctx context.Context, db, q string) ([]string, [][]any, error) {
+	if m.azure {
+		return m.Query(ctx, q) // Databases returned only the connected one
+	}
 	if _, err := m.conn.ExecContext(ctx, "USE "+quoteName(db)); err != nil {
 		return nil, nil, err
 	}

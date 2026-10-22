@@ -2,7 +2,7 @@
 
 | Severidade | Confiança | Permissão | Aplica-se a |
 |---|---|---|---|
-| Baixa | Indício | `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + `CONNECT ANY DATABASE` | SQL Server 2017+, Azure SQL MI, RDS |
+| Baixa | Indício | `VIEW SERVER STATE` + `VIEW ANY DEFINITION` + `CONNECT ANY DATABASE` | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## O que verifica
 
@@ -13,6 +13,8 @@ nem constraint unique:
 - **Duplicado:** mesmas colunas de chave, na mesma ordem, e o mesmo filtro de outro índice da tabela.
 
 Bancos que o login não consegue abrir aparecem como ignorados; se nenhum puder ser lido, a regra fica *Sem dados*.
+
+No Azure SQL Database só o banco conectado é verificado (lá não existe `USE`); os contadores de uso também zeram quando o Azure move o banco.
 
 ## Por que importa
 

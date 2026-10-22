@@ -13,7 +13,9 @@ type Scoring struct {
 	Weights      map[Severity]float64 `yaml:"weights"`
 	Grades       []Grade              `yaml:"grades"` // highest first
 	PartialBelow float64              `yaml:"partial_below"`
-	HintCredit   float64              `yaml:"hint_credit"`
+	// MinApplicable: below this share of the catalog applying to the platform, there is no grade (letter "?").
+	MinApplicable float64 `yaml:"min_applicable"`
+	HintCredit    float64 `yaml:"hint_credit"`
 }
 
 type Grade struct {
@@ -28,6 +30,8 @@ type Score struct {
 	Partial  bool    `json:"partial"`
 	Executed int     `json:"executed"`
 	Applies  int     `json:"applicable"`
+	Rules    int     `json:"rules,omitempty"`   // catalog size for the engine, applicable or not
+	Limited  bool    `json:"limited,omitempty"` // too few rules apply to this platform for a grade
 }
 
 // CatalogVersion fingerprints the rules of one engine plus scoring.yaml: any change to a rule's
@@ -64,6 +68,7 @@ func LoadScoring(fsys fs.FS) (Scoring, error) {
 func (s Scoring) Compute(results []Result) Score {
 	var sum, total float64
 	var sc Score
+	sc.Rules = len(results)
 	for _, r := range results {
 		if r.Status == StatusNotApplies {
 			continue
@@ -96,7 +101,8 @@ func (s Scoring) Compute(results []Result) Score {
 			break
 		}
 	}
-	if sc.Executed == 0 {
+	sc.Limited = float64(sc.Applies) < s.MinApplicable*float64(sc.Rules)
+	if sc.Executed == 0 || sc.Limited {
 		sc.Letter = "?"
 	}
 	return sc

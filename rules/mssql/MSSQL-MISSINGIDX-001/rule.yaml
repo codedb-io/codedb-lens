@@ -3,7 +3,6 @@ engine: mssql
 category: indexes
 severity: medium
 confidence: hint
-skip_on: [azure_sqldb]
 permission: VIEW SERVER STATE
 params:
   min_improvement: 100000   # avg_total_user_cost * avg_user_impact * (seeks + scans)

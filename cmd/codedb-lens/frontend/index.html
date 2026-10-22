@@ -439,7 +439,7 @@ function renderHistory(p) {
   runs.forEach(r => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'hrow';
     b.innerHTML = '<span class="gbadge g-' + esc(r.letter) + '">' + esc(r.letter) + '</span><span>' + esc(new Date(r.when).toLocaleString(uiLang)) +
-      '<br><small>' + esc(tf(r.findings === 1 ? 'gui_findings_1' : 'gui_findings_n', r.findings)) + ' · ' + Math.round(r.coverage * 100) + '%</small></span><small>' + Math.round(r.value) + '</small>';
+      '<br><small>' + esc(tf(r.findings === 1 ? 'gui_findings_1' : 'gui_findings_n', r.findings)) + ' · ' + Math.round(r.coverage * 100) + '%</small></span><small>' + (r.letter === '?' ? '' : Math.round(r.value)) + '</small>';
     b.onclick = async () => {
       try { showReport(await api().ReadReport(r.path), r.path, p); } catch (e) { status('err', String(e)); }
     };
@@ -508,6 +508,7 @@ async function loadRules() {
 /* ── feedback ── */
 function friendly(err) {
   const m = String(err).toLowerCase();
+  if (/azure sql database: set the initial database/.test(m)) return t('gui_err_azure_master');
   if (/login failed|password authentication failed|authentication failed|28p01|18456/.test(m)) return t('gui_err_login');
   if (/certificate|x509|tls/.test(m)) return t('gui_err_cert');
   if (/does not exist|cannot open database|3d000|4060/.test(m)) return t('gui_err_db');

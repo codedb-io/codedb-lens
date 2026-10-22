@@ -2,7 +2,7 @@
   "tool": "codeDB Lens",
   "tool_version": "0.5.0",
   "generated_at": "2026-10-22T09:30:00Z",
-  "catalog_version": "18dbd2173059",
+  "catalog_version": "96acafc9f92b",
   "duration": "14s",
   "lang": "en",
   "server": {
@@ -18,7 +18,8 @@
     "coverage": 0.8333333333333334,
     "partial": false,
     "executed": 10,
-    "applicable": 12
+    "applicable": 12,
+    "rules": 12
   },
   "results": [
     {
@@ -454,8 +455,8 @@
           "pt-BR": "Um volume ou log cheio interrompe todas as escritas nos bancos afetados. Normalmente acontece na pior hora possível."
         },
         "next_action": {
-          "en": "Volumes: free space or grow the disk. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica).",
-          "pt-BR": "Volumes: libere espaço ou aumente o disco. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
+          "en": "Volumes: free space or grow the disk. Azure SQL Database (kind database): raise the max size or the service tier, or free space. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica).",
+          "pt-BR": "Volumes: libere espaço ou aumente o disco. Azure SQL Database (tipo database): aumente o tamanho máximo ou o nível de serviço, ou libere espaço. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
         },
         "caveat": {
           "en": "A snapshot shows how full things are now, not how fast they grow. Only volumes that hold database files are checked.",

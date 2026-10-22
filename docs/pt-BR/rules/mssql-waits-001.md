@@ -2,13 +2,15 @@
 
 | Severidade | Confiança | Permissão | Aplica-se a |
 |---|---|---|---|
-| Alta | Indício · Confirmado para `THREADPOOL` / `RESOURCE_SEMAPHORE` | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS |
+| Alta | Indício · Confirmado para `THREADPOOL` / `RESOURCE_SEMAPHORE` | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## O que verifica
 
 `sys.dm_os_wait_stats`, contando só esperas com significado claro (esperas ociosas e de segundo plano nunca entram),
 agrupadas pelo que significam. Uma categoria aparece quando representa pelo menos 20% dessas esperas (`min_share_pct`)
 **e** a instância esperou por ela pelo menos 5 minutos por hora no ar (`min_wait_s_per_hour: 300`).
+
+No Azure SQL Database lê `sys.dm_db_wait_stats` (só este banco) e também conta o limite de escrita de log do nível de serviço (`*LOG_RATE_GOVERNOR`): se ele domina, o nível é pequeno para a carga de escrita.
 
 ## O que cada espera costuma significar
 

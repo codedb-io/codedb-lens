@@ -2,13 +2,15 @@
 
 | Severidade | Confiança | Permissão | Aplica-se a |
 |---|---|---|---|
-| Média | Indício (sempre) | `VIEW SERVER STATE` | SQL Server 2017+, Azure SQL MI, RDS |
+| Média | Indício (sempre) | `VIEW SERVER STATE` | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## O que verifica
 
 As DMVs de índices ausentes (`sys.dm_db_missing_index_*`) dos bancos de usuário. Uma sugestão aparece quando o otimizador
 estima pelo menos 50% de melhora (`min_impact_pct`) e o benefício ponderado
 `avg_total_user_cost × avg_user_impact × (seeks + scans)` é de pelo menos 100.000 (`min_improvement`). Top 20.
+
+No Azure SQL Database só o banco conectado é verificado.
 
 ## Por que importa
 

@@ -11,7 +11,7 @@ Cada regra termina em um de quatro estados:
 | **OK** | A regra rodou e não encontrou nada | Crédito total |
 | **Achado** | A regra rodou e retornou linhas | Sem crédito (*Confirmado*) ou meio crédito (*Indício*) |
 | **Sem dados** | Falta de permissão, timeout, erro ou recurso indisponível; o motivo aparece no relatório | Fica fora da nota e reduz a cobertura |
-| **Não se aplica** | A regra não vale para esta versão ou plataforma (ex.: regra do SQL Agent no Azure SQL Database) | Fica fora das duas |
+| **Não se aplica** | A regra não vale para esta versão ou plataforma (ex.: regra do SQL Agent no Azure SQL Database) | Fica fora das duas (veja *Sem nota* abaixo) |
 
 *Sem dados* nunca conta como OK. Uma regra que não rodou não melhora a nota.
 
@@ -41,7 +41,8 @@ crédito = 1 para OK, 0,5 para achado Indício, 0 para achado Confirmado
 | D | 40 ou mais |
 | F | abaixo de 40 |
 
-Se nenhuma regra pôde rodar, a nota é **?**.
+Se nenhuma regra pôde rodar, a nota é **?**. Também é **?** (*Sem nota*) quando menos da metade das regras do catálogo
+se aplica à plataforma: uma nota sobre duas ou três verificações pareceria melhor do que é. Os achados continuam aparecendo.
 
 ## Cobertura
 

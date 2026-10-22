@@ -3,7 +3,6 @@ engine: mssql
 category: performance
 severity: medium
 confidence: hint
-skip_on: [azure_sqldb]
 permission: VIEW SERVER STATE
 params:
   dominant_pct: 40      # one query using at least this share of the CPU in the plan cache

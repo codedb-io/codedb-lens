@@ -2,13 +2,15 @@
 
 | Severity | Confidence | Permission | Applies to |
 |---|---|---|---|
-| High | Hint · Confirmed for `THREADPOOL` / `RESOURCE_SEMAPHORE` | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS |
+| High | Hint · Confirmed for `THREADPOOL` / `RESOURCE_SEMAPHORE` | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## What it checks
 
 `sys.dm_os_wait_stats`, counting only waits with a clear meaning (idle and background waits are never counted), grouped
 by what they mean. A category is reported when it is at least 20% of those waits (`min_share_pct`) **and** the instance
 spent at least 5 minutes waiting on it per hour of uptime (`min_wait_s_per_hour: 300`).
+
+On Azure SQL Database it reads `sys.dm_db_wait_stats` (this database only) and also counts the service tier's log write limit (`*LOG_RATE_GOVERNOR`): if it dominates, the tier is too small for the write load.
 
 ## What each wait usually means
 

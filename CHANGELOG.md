@@ -6,6 +6,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ## [Unreleased]
 
 ### Added
+- Azure SQL Database: waits, top queries, missing and unused indexes and space against the database max size now run
+  (6 of 12 rules; the rest are managed by Azure). Rules can ship `query.<platform>.sql` for platform-specific DMVs.
+  Connecting to `master` stops with a clear message, since every DMV there is about `master`.
+- No grade (**?**) when fewer than half of the rules apply to the platform, instead of a grade over one or two checks.
 - `check --fail-on <severity>` and `--min-coverage <pct>` for CI and scheduled jobs. Exit codes: 0 ok, 1 findings,
   2 error, 3 coverage below the minimum.
 - Reports record the rule catalog fingerprint (`catalog_version`) and the run duration; `compare` uses the fingerprint
@@ -44,6 +48,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Errors now exit with code 2 (was 1), so 1 can mean "findings" in pipelines.
 
 ### Fixed
+- Azure SQL Database reported grade A with 100% coverage after running a single rule.
+- "Findings N" and "Finding i of N" in the report counted only critical and high findings.
 - "Server up since" was the server's clock time, hours off when the server runs in another time zone (e.g. UTC
   containers). It is now stored in UTC and shown in local time.
 - The app opens reports in its own language, and new runs from the app default to it.

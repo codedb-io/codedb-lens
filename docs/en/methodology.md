@@ -11,7 +11,7 @@ Each rule ends in one of four states:
 | **OK** | The rule ran and found nothing | Full credit |
 | **Finding** | The rule ran and returned rows | No credit (*Confirmed*) or half credit (*Hint*) |
 | **No data** | Missing permission, timeout, error or unsupported feature; the reason is in the report | Left out of the grade, lowers the coverage |
-| **Not applicable** | The rule doesn't apply to this version or platform (e.g. a SQL Agent rule on Azure SQL Database) | Left out of both |
+| **Not applicable** | The rule doesn't apply to this version or platform (e.g. a SQL Agent rule on Azure SQL Database) | Left out of both (see *No grade* below) |
 
 *No data* is never counted as OK. A rule that couldn't run can't improve the grade.
 
@@ -41,7 +41,8 @@ credit = 1 for OK, 0.5 for a Hint finding, 0 for a Confirmed finding
 | D | 40 or more |
 | F | below 40 |
 
-If no rule could run, the grade is **?**.
+If no rule could run, the grade is **?**. It is also **?** (*No grade*) when fewer than half of the catalog's rules
+apply to the platform: a grade over two or three checks would look better than it is. The findings still show.
 
 ## Coverage
 

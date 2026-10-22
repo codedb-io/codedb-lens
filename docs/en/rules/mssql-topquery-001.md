@@ -2,13 +2,15 @@
 
 | Severity | Confidence | Permission | Applies to |
 |---|---|---|---|
-| Medium | Hint | `VIEW SERVER STATE` | SQL Server 2017+, Azure SQL MI, RDS |
+| Medium | Hint | `VIEW SERVER STATE` | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## What it checks
 
 `sys.dm_exec_query_stats` grouped by `query_hash`. Reported when the most expensive query uses at least 40% of the CPU
 recorded in the plan cache (`dominant_pct`) and the cache holds at least 60 s of CPU (`min_total_cpu_s`). The evidence
 lists the top 5 with share, executions, average CPU, duration and reads.
+
+On Azure SQL Database the plan cache covers only the connected database.
 
 ## Why it matters
 

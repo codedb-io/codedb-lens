@@ -2,13 +2,15 @@
 
 | Severidade | Confiança | Permissão | Aplica-se a |
 |---|---|---|---|
-| Alta | Indício · Confirmado abaixo de 5% livre / acima de 90% de log usado | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS |
+| Alta | Indício · Confirmado abaixo de 5% livre / acima de 90% de log usado | `VIEW SERVER STATE` (2022+: `VIEW SERVER PERFORMANCE STATE`) | SQL Server 2017+, Azure SQL MI, RDS, Azure SQL Database |
 
 ## O que verifica
 
 - **Volumes** com arquivos de banco (`sys.dm_os_volume_stats`) com menos de 15% livre (`volume_hint_pct`).
 - **Logs de transações** com mais de 75% usado (`log_hint_pct`, log ativo ÷ tamanho do log via `sys.dm_db_log_stats`) cujo `log_reuse_wait_desc`
   indica algo impedindo a reutilização (qualquer valor diferente de `NOTHING` ou `CHECKPOINT`).
+
+No Azure SQL Database não há volumes: verifica o espaço usado contra o tamanho máximo do banco (`DATABASEPROPERTYEX(..., 'MaxSizeInBytes')`, mesmos limites de 15% / 5%) e o log do banco conectado. Hyperscale não tem tamanho máximo e fica de fora.
 
 ## Por que importa
 

@@ -27,8 +27,10 @@ func TestCatalogIsValid(t *testing.T) {
 			t.Fatalf("no %s rules", e)
 		}
 		for _, r := range rs {
-			if w := writeKeyword(r.SQL); w != "" {
-				t.Errorf("%s: query.sql uses %q; rules must be read-only SELECTs", r.ID, w)
+			for _, q := range r.Queries() {
+				if w := writeKeyword(q); w != "" {
+					t.Errorf("%s: a query uses %q; rules must be read-only SELECTs", r.ID, w)
+				}
 			}
 			// every rule documents itself in both languages
 			for _, l := range engine.Languages {
@@ -158,6 +160,21 @@ func TestRunStopsWhenCancelled(t *testing.T) {
 	}
 }
 
+func TestPlatformVariant(t *testing.T) {
+	a := fake{info: engine.ServerInfo{Platform: "azure_sqldb"}, resp: map[string]func(context.Context) ([]string, [][]any, error){
+		"azure": func(context.Context) ([]string, [][]any, error) { return []string{"x"}, [][]any{{1}}, nil },
+	}}
+	r := rule("V", engine.Low, "server")
+	r.Variants = map[string]string{"azure_sqldb": "azure"}
+	res := engine.Run(context.Background(), a, []*engine.Rule{r}, nil)[0]
+	if res.Status != engine.StatusFinding || res.Rule.SQL != "azure" {
+		t.Fatalf("variant not used: %+v", res)
+	}
+	if r.SQL != "server" {
+		t.Errorf("catalog rule modified: %q", r.SQL)
+	}
+}
+
 func TestDatabaseScope(t *testing.T) {
 	a := fake{resp: map[string]func(context.Context) ([]string, [][]any, error){
 		"idx": func(context.Context) ([]string, [][]any, error) { return []string{"index"}, [][]any{{"ix1"}}, nil },
@@ -178,5 +195,27 @@ func TestRenderOnlyNumbers(t *testing.T) {
 	r.Params = map[string]float64{"n": 1.5}
 	if got := r.Render(); got != "SELECT (1.5) , (1.5)" {
 		t.Errorf("Render = %q", got)
+	}
+}
+
+// Azure SQL Database before v0.5: 1 of 12 rules applied and the report said A, 100%. Too few rules = no grade.
+func TestLimitedGrade(t *testing.T) {
+	sc, _ := engine.LoadScoring(rules.FS)
+	res := func(applicable int) []engine.Result {
+		var out []engine.Result
+		for i := 0; i < 12; i++ {
+			st := engine.StatusNotApplies
+			if i < applicable {
+				st = engine.StatusOK
+			}
+			out = append(out, engine.Result{Rule: rule("R", engine.High, ""), Status: st})
+		}
+		return out
+	}
+	if s := sc.Compute(res(1)); s.Letter != "?" || !s.Limited || s.Rules != 12 {
+		t.Errorf("1 of 12 applicable: %+v", s)
+	}
+	if s := sc.Compute(res(6)); s.Letter != "A" || s.Limited {
+		t.Errorf("6 of 12 applicable: %+v", s)
 	}
 }

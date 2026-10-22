@@ -29,6 +29,11 @@ Rules live in `rules/<engine>/<RULE-ID>/` as `rule.yaml` + `query.sql`. Copy an 
 ID (`MSSQL-<AREA>-NNN` / `PG-<AREA>-NNN`), add a fixture in `testdata/fixtures/<engine>/` and a page in
 `docs/en/rules/` and `docs/pt-BR/rules/`. Use `--rules-dir ./rules` to try it without recompiling.
 
+When a platform needs a different query (Azure SQL Database has database-scoped DMVs, for example), add
+`query.<platform>.sql` next to `query.sql` with the same columns and params; Lens runs it on that platform and the
+report shows the query that actually ran. Platforms: `onprem`, `azure_sqldb`, `azure_mi`, `rds` (SQL Server);
+`onprem`, `rds`, `aurora`, `azure_flex` (PostgreSQL).
+
 ## Pull requests
 
 - One rule or one change per PR.

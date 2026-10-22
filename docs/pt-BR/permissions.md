@@ -19,6 +19,22 @@ ALTER ROLE SQLAgentReaderRole ADD MEMBER codedb_lens;
 No SQL Server 2022 em diante, `VIEW SERVER PERFORMANCE STATE` e `VIEW SERVER SECURITY STATE` são as
 alternativas granulares ao `VIEW SERVER STATE`.
 
+## Azure SQL Database
+
+Não há login de servidor para conceder: crie um usuário no banco que quer diagnosticar e conecte nesse banco
+(preencha **Banco inicial**; no `master` o Lens para com um aviso, porque ali toda DMV fala só do `master`).
+
+```sql
+-- rode no banco do usuário
+CREATE USER codedb_lens WITH PASSWORD = '<senha forte>';
+GRANT VIEW DATABASE STATE TO codedb_lens;
+GRANT VIEW DEFINITION TO codedb_lens;
+```
+
+Só 6 das 12 regras de SQL Server se aplicam: bloqueios, esperas, top queries, índices ausentes e sem uso, e espaço em
+relação ao tamanho máximo do banco. Backups, CHECKDB, SQL Agent, versão, configurações da instância e TempDB são
+gerenciados pelo Azure e aparecem como *Não se aplica*. Cada banco do servidor lógico é diagnosticado com a sua conexão.
+
 ## PostgreSQL
 
 ```sql
