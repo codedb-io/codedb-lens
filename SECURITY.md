@@ -16,7 +16,9 @@ We aim to acknowledge reports within 3 business days.
   for a newer version. Disable it with `--no-update-check` or `CODEDB_LENS_NO_UPDATE=1`.
 - **Free key registration, only on request.** `codedb-lens register` sends the name and e-mail the user types, once, to
   `https://api.codedb.com.br/lens/register`. The returned key is an Ed25519-signed token verified offline against public
-  keys embedded in the binary (`internal/license`); Lens never calls the backend to validate it.
+  keys embedded in the binary (`internal/license`); Lens never calls the backend to validate it. `codedb-lens license
+  renew`, also only on request, sends the current key, the Lens version and the consent version to
+  `https://api.codedb.com.br/lens/renew`.
 - **Signed updates.** `codedb-lens update` only installs a binary whose SHA-256 matches `checksums.txt`
   and whose `checksums.txt` carries a valid Ed25519 signature from the key embedded in the binary.
 - **Passwords** are never accepted as command-line arguments and are never written to disk in plain text.

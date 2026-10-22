@@ -1,5 +1,5 @@
 // Package license verifies the free key offline (Ed25519, per kid), stores it and enforces the local instance limit.
-// The only network call is Register, made when the user asks for a key.
+// The only network calls are Register and Renew, made when the user asks for a key or a renewal.
 package license
 
 import (
@@ -28,7 +28,7 @@ var Keys = map[string]string{
 }
 
 const (
-	Endpoint = "https://api.codedb.com.br/lens/register"
+	API = "https://api.codedb.com.br/lens" // + /register, /renew
 	// ConsentVersion names the consent text shown before registering (see consent.go). The backend stores it.
 	ConsentVersion = "lens-2026-0"
 	FeatureCompare = "compare"
@@ -44,6 +44,12 @@ var (
 	ErrNotYetValid = errors.New("license: issued in the future (check the computer clock)")
 	ErrNone        = errors.New("license: none saved")
 	ErrUnavailable = errors.New("registration service unavailable, try again later")
+	// Renew: the backend no longer has the registration (deleted, or more than 30 days after expiry); register again.
+	ErrRenewGone = errors.New("license: registration not found, register again")
+	// Renew: the consent text changed since the last acceptance; ask again and send privacyAck.
+	ErrConsentRequired = errors.New("license: consent required")
+	// Renew: the backend refused the key (signature or kid).
+	ErrRenewRejected = errors.New("license: key refused by the server")
 )
 
 type License struct {
@@ -78,6 +84,7 @@ func Parse(token string, keys map[string]string, now time.Time) (*License, error
 	if !ed25519.Verify(pub, []byte(p), sig) {
 		return nil, ErrSignature
 	}
+	l.Raw = token // kept on an expired key too: Renew sends it
 	switch {
 	case l.V != 1:
 		return nil, ErrVersion
@@ -86,7 +93,6 @@ func Parse(token string, keys map[string]string, now time.Time) (*License, error
 	case now.Unix() >= l.Exp:
 		return &l, ErrExpired // returned so callers can say when it expired
 	}
-	l.Raw = token
 	return &l, nil
 }
 
@@ -301,9 +307,45 @@ func (e *RateLimitedError) Error() string {
 	return "too many registrations; try again in " + e.RetryAfter.Round(time.Minute).String()
 }
 
-var endpoint = Endpoint // tests point this at httptest
+var api = API // tests point this at httptest
 
 var timeNow = time.Now // tests fix the clock
+
+// TooEarlyError: renewal opens 14 days before the key expires.
+type TooEarlyError struct{ From time.Time }
+
+func (e *TooEarlyError) Error() string { return "renewal opens on " + e.From.Format("2006-01-02") }
+
+type response struct {
+	License   string `json:"license"`
+	Message   string `json:"message"`
+	RenewFrom string `json:"renew_from"`
+}
+
+// post sends body to api+path; 429 and network/5xx errors are mapped here, the rest is left to the caller.
+func post(ctx context.Context, path, lensVersion string, body any) (int, response, error) {
+	var out response
+	raw, _ := json.Marshal(body)
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, api+path, bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "codeDB Lens/"+lensVersion)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return 0, out, fmt.Errorf("%w (%v)", ErrUnavailable, err)
+	}
+	defer resp.Body.Close()
+	_ = json.NewDecoder(http.MaxBytesReader(nil, resp.Body, 64<<10)).Decode(&out)
+	switch {
+	case resp.StatusCode == http.StatusTooManyRequests:
+		secs, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
+		return 0, out, &RateLimitedError{RetryAfter: time.Duration(max(secs, 60)) * time.Second}
+	case resp.StatusCode >= 500:
+		return 0, out, fmt.Errorf("%w (HTTP %d)", ErrUnavailable, resp.StatusCode)
+	}
+	return resp.StatusCode, out, nil
+}
 
 // Register sends the form and returns the verified license (not yet saved).
 func Register(ctx context.Context, r Request) (*License, error) {
@@ -312,33 +354,50 @@ func Register(ctx context.Context, r Request) (*License, error) {
 	if err := r.Validate(); err != nil {
 		return nil, err
 	}
-	body, _ := json.Marshal(r)
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
-	defer cancel()
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "codeDB Lens/"+r.LensVersion)
-	resp, err := http.DefaultClient.Do(req)
+	status, out, err := post(ctx, "/register", r.LensVersion, r)
 	if err != nil {
-		return nil, fmt.Errorf("%w (%v)", ErrUnavailable, err)
+		return nil, err
 	}
-	defer resp.Body.Close()
-	var out struct {
-		License string `json:"license"`
-		Message string `json:"message"`
-	}
-	_ = json.NewDecoder(http.MaxBytesReader(nil, resp.Body, 64<<10)).Decode(&out)
-	switch resp.StatusCode {
+	switch status {
 	case http.StatusOK:
 		return Parse(out.License, Keys, timeNow())
 	case http.StatusBadRequest, http.StatusRequestEntityTooLarge:
 		// message is "<text>: field, field"; it names fields only, never values
 		_, fields, _ := strings.Cut(out.Message, ":")
 		return nil, &InvalidError{Fields: strings.Split(strings.ReplaceAll(strings.TrimSpace(fields), " ", ""), ",")}
-	case http.StatusTooManyRequests:
-		secs, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
-		return nil, &RateLimitedError{RetryAfter: time.Duration(max(secs, 60)) * time.Second}
-	default:
-		return nil, fmt.Errorf("%w (HTTP %d)", ErrUnavailable, resp.StatusCode)
 	}
+	return nil, fmt.Errorf("%w (HTTP %d)", ErrUnavailable, status)
+}
+
+// Renew trades the current key (expired is fine) for a new 90-day one with the same sub. It sends only the key,
+// the Lens version and the consent version; privacyAck is needed only after ErrConsentRequired.
+func Renew(ctx context.Context, l *License, lensVersion string, privacyAck bool) (*License, error) {
+	body := map[string]any{"license": l.Raw, "lens_version": lensVersion, "consent_version": ConsentVersion}
+	if privacyAck {
+		body["privacy_ack"] = true
+	}
+	status, out, err := post(ctx, "/renew", lensVersion, body)
+	if err != nil {
+		return nil, err
+	}
+	switch status {
+	case http.StatusOK:
+		return Parse(out.License, Keys, timeNow())
+	case http.StatusBadRequest:
+		return nil, ErrRenewRejected
+	case http.StatusNotFound:
+		return nil, ErrRenewGone
+	case http.StatusConflict:
+		from, _ := time.Parse(time.RFC3339, out.RenewFrom)
+		return nil, &TooEarlyError{From: from}
+	case http.StatusPreconditionFailed:
+		return nil, ErrConsentRequired
+	}
+	return nil, fmt.Errorf("%w (HTTP %d)", ErrUnavailable, status)
+}
+
+// RenewOpen reports whether renewal is offered: from 14 days before expiry to 30 days after (the backend's window).
+func RenewOpen(l *License, now time.Time) bool {
+	exp := l.Expires()
+	return now.After(exp.Add(-14*24*time.Hour)) && now.Before(exp.Add(30*24*time.Hour))
 }

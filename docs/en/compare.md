@@ -6,7 +6,9 @@ connect to the database or to the internet.
 
 ## Get the free key
 
-`compare` needs a free key, valid for 90 days. Renewing it is free: register again with the same e-mail.
+`compare` needs a free key, valid for 90 days. Renewing it is free and needs no form: from 14 days before the key
+expires until 30 days after, run `codedb-lens license renew` or click **Renew key** in the app. After that window,
+register again.
 
 - **App:** click **Get the free key** at the bottom of the sidebar.
 - **Command line:**
@@ -21,7 +23,7 @@ The key is also sent to your e-mail. On a computer without internet access, acti
 
 ### What is sent, and when
 
-Registering is the **only** time Lens talks to codeDB, and it happens only when you ask for the key. Lens sends one
+Registering and renewing are the **only** times Lens talks to codeDB, and they happen only when you ask. Lens sends one
 request to `https://api.codedb.com.br/lens/register` with:
 
 | Field | Required |
@@ -32,6 +34,10 @@ request to `https://api.codedb.com.br/lens/register` with:
 | Privacy Policy agreement | yes |
 | Whether you want news and sales contact | no, unchecked by default |
 | Version of the consent text you saw | yes |
+
+Renewing sends only the current key, the Lens version and the consent version to
+`https://api.codedb.com.br/lens/renew`; if the Privacy Policy changed since you registered, Lens asks you to accept
+it again first.
 
 Nothing about your databases, servers, reports or usage is sent. Sales contact only happens if you check that
 option **and** confirm it by e-mail.

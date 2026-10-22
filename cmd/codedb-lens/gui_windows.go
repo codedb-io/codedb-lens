@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -243,15 +244,18 @@ func (a *App) ReadReport(path string) (string, error) {
 
 // KeyInfo is the free key state for the sidebar and the activation screen.
 type KeyInfo struct {
-	Valid    bool              `json:"valid"`
-	Expired  bool              `json:"expired"`
-	DaysLeft int               `json:"days_left"`
-	Expires  string            `json:"expires,omitempty"`
-	Instance string            `json:"instance,omitempty"`
-	Consent  map[string]string `json:"consent"` // checkbox labels and notice, versioned in internal/license
-	Privacy  string            `json:"privacy"`
-	Roles    []string          `json:"roles"`
-	Ranges   []string          `json:"ranges"`
+	Valid    bool `json:"valid"`
+	Expired  bool `json:"expired"`
+	CanRenew bool `json:"can_renew"`
+	// ConsentRequired: a renewal was refused until the current Privacy Policy is accepted again.
+	ConsentRequired bool              `json:"consent_required,omitempty"`
+	DaysLeft        int               `json:"days_left"`
+	Expires         string            `json:"expires,omitempty"`
+	Instance        string            `json:"instance,omitempty"`
+	Consent         map[string]string `json:"consent"` // checkbox labels and notice, versioned in internal/license
+	Privacy         string            `json:"privacy"`
+	Roles           []string          `json:"roles"`
+	Ranges          []string          `json:"ranges"`
 }
 
 func (a *App) LicenseStatus(lang string) KeyInfo {
@@ -261,6 +265,7 @@ func (a *App) LicenseStatus(lang string) KeyInfo {
 		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges}
 	l, err := license.Load()
 	k.Expired = errors.Is(err, license.ErrExpired)
+	k.CanRenew = l != nil && license.RenewOpen(l, time.Now())
 	if err == nil {
 		k.Valid, k.DaysLeft, k.Expires = l.Has(license.FeatureCompare), daysLeft(l), l.Expires().Format("2006-01-02")
 		if b, ok := license.Bound(l); ok {
@@ -281,6 +286,26 @@ func (a *App) Register(r license.Request) (KeyInfo, error) {
 		return KeyInfo{}, err
 	}
 	return a.LicenseStatus(r.Lang), nil
+}
+
+// RenewLicense trades the saved key for a new one. ConsentRequired (no error) asks the page to show the privacy checkbox.
+func (a *App) RenewLicense(lang string, privacyAck bool) (KeyInfo, error) {
+	lang = i18n.Normalize(lang)
+	l, err := license.Load()
+	if err != nil && !errors.Is(err, license.ErrExpired) {
+		return KeyInfo{}, licenseError(lang, l, err)
+	}
+	n, err := license.Renew(a.ctx, l, version, privacyAck)
+	if errors.Is(err, license.ErrConsentRequired) {
+		return KeyInfo{ConsentRequired: true}, nil // the page shows the checkbox and calls again
+	}
+	if err != nil {
+		return KeyInfo{}, renewError(lang, err)
+	}
+	if _, err := license.Save(n.Raw); err != nil {
+		return KeyInfo{}, err
+	}
+	return a.LicenseStatus(lang), nil
 }
 
 // ImportLicense activates a key pasted from the welcome e-mail; no network.

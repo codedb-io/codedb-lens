@@ -316,6 +316,10 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
       </div></div>
     </form>
     <div class="rail">
+      <div class="card" id="renewcard" hidden><h3><svg class="i"><use href="#i-key"/></svg><span data-t="gui_key_renew"></span></h3>
+        <p class="notice" data-t="lic_renew_sent"></p>
+        <label class="check" id="renewack" hidden><input type="checkbox" id="rrenewack"><span><span id="lrenewack"></span> (<a href="#" id="privlink2">↗</a>)</span></label>
+        <div class="actions" style="margin-top:var(--s2)"><span class="sp"></span><button type="button" class="btn primary" id="rrenew" data-t="gui_key_renew"></button></div></div>
       <div class="card"><h3><svg class="i"><use href="#i-paste"/></svg><span data-t="gui_key_have"></span></h3>
         <textarea class="cs" id="rtoken" spellcheck="false" placeholder="eyJ2Ijox…"></textarea>
         <div class="actions" style="margin-top:var(--s2)"><button type="button" class="btn" id="rimport" data-t="gui_key_import"></button>
@@ -460,6 +464,7 @@ async function loadKey() {
   $('#rrole').innerHTML = opts(key.roles, v => t('role_' + v)); $('#rrole').value = r;
   $('#rinst').innerHTML = opts(key.ranges, v => v === '100+' ? t('range_100+') : v.replace('-', '–')); $('#rinst').value = i;
   $('#rremove').hidden = !key.valid && !key.expired;
+  $('#renewcard').hidden = !key.can_renew; $('#lrenewack').textContent = key.consent.privacy_ack;
 }
 function keyStatus(kind, msg) { $('#keystatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b></div></div>' : ''; }
 function showKey() {
@@ -475,6 +480,17 @@ async function sendKey() {
     await loadKey(); keyStatus('ok', tf('lic_saved', key.expires) + ' ' + key.consent.sent);
   } catch (e) { keyStatus('err', String(e)); }
   finally { canSend(); }
+}
+async function renewKey() {
+  const ack = !$('#renewack').hidden;
+  if (ack && !$('#rrenewack').checked) { keyStatus('err', t('lic_renew_consent')); return; }
+  $('#rrenew').disabled = true; keyStatus('info', t('gui_key_sending'));
+  try {
+    const r = await api().RenewLicense(uiLang, ack);
+    if (r.consent_required) { $('#renewack').hidden = false; keyStatus('err', t('lic_renew_consent')); return; }
+    $('#renewack').hidden = true; await loadKey(); keyStatus('ok', tf('lic_renewed', key.expires));
+  } catch (e) { keyStatus('err', String(e)); }
+  finally { $('#rrenew').disabled = false; }
 }
 async function importKey() {
   try { await api().ImportLicense($('#rtoken').value, uiLang); $('#rtoken').value = ''; await loadKey(); keyStatus('ok', tf('lic_saved', key.expires)); }
@@ -603,8 +619,10 @@ $('#keychip').onclick = showKey;
 $('#keyback').onclick = () => { $('#keyview').hidden = true; $('#editor').hidden = false; };
 ['#rname', '#remail', '#rprivacy'].forEach(s => $(s).addEventListener('input', canSend));
 $('#privlink').onclick = e => { e.preventDefault(); api().OpenURL(key.privacy); };
+$('#privlink2').onclick = $('#privlink').onclick;
 $('#rsend').onclick = sendKey;
 $('#rimport').onclick = importKey;
+$('#rrenew').onclick = renewKey;
 $('#rremove').onclick = async () => { if (await api().Confirm(t('gui_key_remove'), t('gui_key_remove') + '?')) { await api().RemoveLicense(); await loadKey(); keyStatus(); } };
 $('#stop').onclick = () => { $('#stop').disabled = true; api().Cancel(); };
 $('#test').onclick = test;

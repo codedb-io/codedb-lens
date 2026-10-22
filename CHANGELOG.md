@@ -10,7 +10,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   side and warnings when coverage, Lens version or the rule catalog changed. HTML (en/pt-BR) and JSON. App: **Compare
   with previous** in the history.
 - Free key: `codedb-lens register` and **Get the free key** in the app (name and e-mail, sent once, only on request);
-  Ed25519 license verified offline; `codedb-lens license [status|import|reset|remove]`; one instance per key.
+  Ed25519 license verified offline; `codedb-lens license [status|import|renew|reset|remove]`; one instance per key.
+  Renewing needs no form (**Renew key** in the app), from 14 days before expiry to 30 days after.
 - Repository scaffolding, bilingual README, security policy, icon and development environment.
 - `check` engine: data-only rule catalog (YAML + SQL), A–F grade with coverage seal, Confirmed / Hint / No data.
 - SQL Server and PostgreSQL adapters with read-only, low-impact sessions.

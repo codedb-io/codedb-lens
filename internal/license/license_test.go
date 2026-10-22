@@ -161,8 +161,8 @@ func TestRegister(t *testing.T) {
 	}))
 	defer srv.Close()
 	isolate(t)
-	endpoint = srv.URL
-	defer func() { endpoint = Endpoint }()
+	api = srv.URL
+	defer func() { api = API }()
 	Keys["test-1"] = testKeys["test-1"]
 	defer delete(Keys, "test-1")
 
@@ -224,5 +224,61 @@ func TestSaveLoad(t *testing.T) {
 	Delete()
 	if _, err := Load(); !errors.Is(err, ErrNone) {
 		t.Errorf("after delete: %v", err)
+	}
+}
+
+func TestRenew(t *testing.T) {
+	var got map[string]any
+	status, body := 200, ""
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = nil
+		_ = json.NewDecoder(r.Body).Decode(&got)
+		if r.URL.Path != "/renew" {
+			t.Errorf("path %s", r.URL.Path)
+		}
+		w.WriteHeader(status)
+		_, _ = w.Write([]byte(body))
+	}))
+	defer srv.Close()
+	api = srv.URL
+	defer func() { api = API }()
+	Keys["test-1"] = testKeys["test-1"]
+	defer delete(Keys, "test-1")
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = time.Now }()
+	old, err := Parse(sampleExpired, testKeys, now)
+	if !errors.Is(err, ErrExpired) {
+		t.Fatal(err)
+	}
+
+	body = `{"license":"` + sampleValid + `","expires_at":"2027-01-19T00:00:00Z"}`
+	l, err := Renew(context.Background(), old, "0.5.0", false)
+	if err != nil || l.Sub != old.Sub {
+		t.Fatalf("200: %v", err)
+	}
+	if len(got) != 3 || got["license"] != sampleExpired || got["consent_version"] != ConsentVersion {
+		t.Errorf("body without privacy_ack: %v", got)
+	}
+	_, _ = Renew(context.Background(), old, "0.5.0", true)
+	if got["privacy_ack"] != true {
+		t.Errorf("privacy_ack not sent: %v", got)
+	}
+	status, body = 409, `{"error":"too_early","renew_from":"2027-01-05T12:00:00Z"}`
+	var early *TooEarlyError
+	if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.As(err, &early) || early.From.Day() != 5 {
+		t.Errorf("409: %v", err)
+	}
+	for code, want := range map[int]error{400: ErrRenewRejected, 404: ErrRenewGone, 412: ErrConsentRequired, 503: ErrUnavailable} {
+		status, body = code, `{"error":"x"}`
+		if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.Is(err, want) {
+			t.Errorf("%d: %v", code, err)
+		}
+	}
+
+	exp := old.Expires()
+	for d, want := range map[int]bool{-15: false, -13: true, 29: true, 31: false} {
+		if RenewOpen(old, exp.Add(time.Duration(d)*24*time.Hour)) != want {
+			t.Errorf("RenewOpen at %+d days: want %v", d, want)
+		}
 	}
 }

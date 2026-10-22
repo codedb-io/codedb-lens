@@ -14,7 +14,7 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 - **Somente leitura** no banco do usuário. Nenhum DDL/DML, nenhum agente obrigatório.
 - **Sem telemetria.** Nenhum dado do banco ou do usuário sai da máquina. Chamadas de rede: checagem
   de versão ≤ 1×/dia (GET anônimo ao GitHub Releases), desligável (`--no-update-check`, `CODEDB_LENS_NO_UPDATE=1`),
-  e o POST de cadastro da chave grátis (`internal/license`), só por ação explícita do usuário. Licença verificada offline.
+  e os POSTs de cadastro e renovação da chave grátis (`internal/license`), só por ação explícita do usuário. Licença verificada offline.
 - **Regras são dados** (SQL + YAML), não código. Motor + um adaptador por banco. Trocar o motor
   não pode exigir reescrever regras.
 - Todo achado tem: ID, título, severidade, confiança (Confirmado / Indício / Sem dados),
@@ -64,7 +64,8 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 Status (2026-10-21): v0.1.0 publicada e aprovada pelos 2 clientes. Fase 2 em andamento: `compare`, chave grátis
 (`register`, `license`) e telas da GUI implementados; cadastro real testado contra a produção.
 
-Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.com.br/lens/register` (sem staging),
+Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.com.br/lens/register` (sem staging) e
+`POST /lens/renew` (2026-10-22; chave atual, mesmo vencida; janela −14 a +30 dias do vencimento),
 validação estrita (campo novo entra primeiro no backend). Licença `base64url(payload).base64url(Ed25519 sobre o texto
 do payload)`, kid `2026-1`, 90 dias, `max_instances` 1 (aplicado localmente). Consentimento em dois campos
 (`privacy_ack` obrigatório, `marketing_opt_in` opcional) + `consent_version`; o texto fica em

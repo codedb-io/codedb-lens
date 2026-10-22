@@ -6,8 +6,9 @@ conecta ao banco nem à internet.
 
 ## Obter a chave grátis
 
-O `compare` precisa de uma chave grátis, válida por 90 dias. Renovar é grátis: basta se cadastrar de novo com o mesmo
-e-mail.
+O `compare` precisa de uma chave grátis, válida por 90 dias. Renovar é grátis e não exige formulário: de 14 dias antes
+de a chave vencer até 30 dias depois, rode `codedb-lens license renew` ou clique em **Renovar chave** no aplicativo.
+Depois desse prazo, cadastre-se de novo.
 
 - **Aplicativo:** clique em **Ativar chave grátis**, no rodapé da barra lateral.
 - **Linha de comando:**
@@ -22,7 +23,7 @@ A chave também chega por e-mail. Num computador sem acesso à internet, ative a
 
 ### O que é enviado, e quando
 
-O cadastro é o **único** momento em que o Lens fala com o codeDB, e só acontece quando você pede a chave. O Lens envia
+O cadastro e a renovação são os **únicos** momentos em que o Lens fala com o codeDB, e só acontecem quando você pede. O Lens envia
 um pedido a `https://api.codedb.com.br/lens/register` com:
 
 | Campo | Obrigatório |
@@ -33,6 +34,10 @@ um pedido a `https://api.codedb.com.br/lens/register` com:
 | Concordância com a Política de Privacidade | sim |
 | Se você quer novidades e contato comercial | não, desmarcado por padrão |
 | Versão do texto de consentimento exibido | sim |
+
+A renovação envia só a chave atual, a versão do Lens e a versão do consentimento a
+`https://api.codedb.com.br/lens/renew`. Se a Política de Privacidade mudou desde o cadastro, o Lens pede o aceite de
+novo antes.
 
 Nada sobre seus bancos, servidores, relatórios ou uso é enviado. O contato comercial só acontece se você marcar essa
 opção **e** confirmar pelo e-mail.

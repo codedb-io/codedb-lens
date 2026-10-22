@@ -96,7 +96,7 @@ GRANT CONNECT ON DATABASE app TO codedb_lens;
 
 Sem telemetria. O Lens faz dois tipos de chamada de rede: uma verificação de versão opcional, no máximo uma vez por
 dia, ao GitHub Releases, sem enviar dados (`--no-update-check` ou `CODEDB_LENS_NO_UPDATE=1` desliga), e, só quando você
-pede a chave grátis, um pedido de cadastro com o nome e o e-mail que você digitar. Veja o [SECURITY.md](SECURITY.md).
+pede a chave grátis, um pedido de cadastro com o nome e o e-mail que você digitar (ou, ao renovar, só a chave atual). Veja o [SECURITY.md](SECURITY.md).
 
 ## Precisa de monitoramento contínuo?
 

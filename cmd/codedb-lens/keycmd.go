@@ -265,6 +265,9 @@ func licenseCmd(args []string) error {
 		} else {
 			fmt.Println(i18n.T(lang, "lic_unbound"))
 		}
+		if license.RenewOpen(l, time.Now()) {
+			fmt.Println(i18n.T(lang, "lic_renew_hint"))
+		}
 	case "reset":
 		l, err := validLicense(lang)
 		if err != nil {
@@ -277,13 +280,61 @@ func licenseCmd(args []string) error {
 			return err
 		}
 		fmt.Println(i18n.T(lang, "lic_reset_ok"))
+	case "renew":
+		return renewCmd(lang, args[1:])
 	case "remove":
 		license.Delete()
 		fmt.Println(i18n.T(lang, "lic_removed"))
 	default:
-		return errors.New("usage: codedb-lens license [status|import <key>|reset|remove]")
+		return errors.New("usage: codedb-lens license [status|import <key>|renew [--accept-privacy]|reset|remove]")
 	}
 	return nil
+}
+
+// renewCmd trades the saved key (expired is fine) for a new one; asks again for consent only if the backend says so.
+func renewCmd(lang string, args []string) error {
+	fs := flag.NewFlagSet("license renew", flag.ExitOnError)
+	ack := fs.Bool("accept-privacy", false, "accept the current Privacy Policy, if it changed since you registered")
+	_ = fs.Parse(args)
+	l, err := license.Load()
+	if err != nil && !errors.Is(err, license.ErrExpired) {
+		return licenseError(lang, l, err)
+	}
+	fmt.Fprintln(os.Stderr, i18n.T(lang, "lic_renew_sent"))
+	n, err := license.Renew(context.Background(), l, version, *ack)
+	if errors.Is(err, license.ErrConsentRequired) && !*ack && term.IsTerminal(int(os.Stdin.Fd())) {
+		fmt.Fprintf(os.Stderr, "\n%s\n%s\n%s%s", i18n.T(lang, "lic_renew_consent"),
+			fmt.Sprintf(i18n.T(lang, "reg_privacy_link"), saas.Privacy), license.Consent[lang].PrivacyAck, i18n.T(lang, "reg_yn"))
+		s, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+		if s = strings.ToLower(strings.TrimSpace(s)); !strings.HasPrefix(s, "y") && !strings.HasPrefix(s, "s") {
+			return errors.New(i18n.T(lang, "reg_not_sent"))
+		}
+		n, err = license.Renew(context.Background(), l, version, true)
+	}
+	if err != nil {
+		return renewError(lang, err)
+	}
+	if _, err := license.Save(n.Raw); err != nil {
+		return err
+	}
+	fmt.Printf(i18n.T(lang, "lic_renewed")+"\n", n.Expires().Format("2006-01-02"))
+	return nil
+}
+
+// renewError words renewal failures for the user (CLI and GUI).
+func renewError(lang string, err error) error {
+	var early *license.TooEarlyError
+	switch {
+	case errors.As(err, &early):
+		return fmt.Errorf(i18n.T(lang, "lic_renew_early"), early.From.Format("2006-01-02"))
+	case errors.Is(err, license.ErrRenewGone):
+		return errors.New(i18n.T(lang, "lic_renew_gone"))
+	case errors.Is(err, license.ErrRenewRejected):
+		return errors.New(i18n.T(lang, "lic_renew_rejected"))
+	case errors.Is(err, license.ErrConsentRequired):
+		return errors.New(i18n.T(lang, "lic_renew_consent"))
+	}
+	return registerError(lang, err)
 }
 
 func daysLeft(l *license.License) int { return int(time.Until(l.Expires()).Hours() / 24) }
