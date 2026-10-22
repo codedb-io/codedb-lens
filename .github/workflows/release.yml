@@ -35,6 +35,6 @@ jobs:
           $v = "${{ github.ref_name }}".TrimStart("v")
           $exe = (Get-ChildItem dist -Recurse -Filter codedb-lens.exe | Select-Object -First 1).FullName
           & "${env:ProgramFiles(x86)}\Inno Setup 6\iscc.exe" /DAppVersion=$v "/DSourceExe=$exe" build\windows\installer.iss
-          gh release upload "${{ github.ref_name }}" "dist\codedb-lens_${v}_windows_amd64_setup.exe"
+          gh release upload "${{ github.ref_name }}" dist\codedb-lens_windows_amd64_setup.exe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -119,12 +119,13 @@ func Command() string {
 // Managed is true when a package manager owns the binary and Apply must not touch it.
 func Managed() bool { return Command() != "codedb-lens update" }
 
-func assetName(tag string) string {
+// assetName has no version since v0.5, so releases/latest/download/<name> is a stable link.
+func assetName() string {
 	ext := ".tar.gz"
 	if runtime.GOOS == "windows" {
 		ext = ".zip"
 	}
-	return fmt.Sprintf("codedb-lens_%s_%s_%s%s", strings.TrimPrefix(tag, "v"), runtime.GOOS, runtime.GOARCH, ext)
+	return fmt.Sprintf("codedb-lens_%s_%s%s", runtime.GOOS, runtime.GOARCH, ext)
 }
 
 func download(ctx context.Context, url string) ([]byte, error) {
@@ -174,7 +175,7 @@ func Apply(ctx context.Context, current string) (string, error) {
 	for _, a := range r.Assets {
 		urls[a.Name] = a.URL
 	}
-	name := assetName(r.Tag)
+	name := assetName()
 	for _, n := range []string{name, "checksums.txt", "checksums.txt.sig"} {
 		if urls[n] == "" {
 			return "", fmt.Errorf("release %s has no %s", r.Tag, n)

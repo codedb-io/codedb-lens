@@ -10,12 +10,12 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> · Português (Brasil)
+  <a href="https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github">Site</a> · <a href="README.md">English</a> · Português (Brasil)
 </p>
 
 ---
 
-> **Status:** em desenvolvimento (v0.1, modo `check`). Ainda sem release.
+> **v0.5:** `check` e `compare`. Capturas de tela, perguntas frequentes e downloads no [site](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
 
 O codeDB Lens conecta na sua instância com um login **somente leitura**, executa um catálogo de regras
 baseadas em evidências e gera um relatório HTML autônomo + JSON com **nota de A a F** e **selo de
@@ -51,7 +51,9 @@ Cada regra tem uma [página de documentação](docs/pt-BR/rules/) com o que veri
 
 ## Início rápido
 
-Baixe em [Releases](https://github.com/codedb-io/codedb-lens/releases/latest). Windows: execute o instalador (ou o `.zip` portátil) e abra o **codeDB Lens** pelo menu Iniciar.
+Baixe: [instalador Windows](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64_setup.exe) · [.zip portátil Windows](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64.zip) ·
+[Linux x64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_amd64.tar.gz) · [Linux arm64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_arm64.tar.gz) ·
+[todas as releases](https://github.com/codedb-io/codedb-lens/releases). No Windows, abra o **codeDB Lens** pelo menu Iniciar.
 Escolha o banco, informe o servidor e rode o diagnóstico. Os perfis de conexão ficam salvos; as senhas
 vão para o Gerenciador de Credenciais do Windows.
 

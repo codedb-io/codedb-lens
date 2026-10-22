@@ -10,7 +10,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   2 error, 3 coverage below the minimum.
 - Reports record the rule catalog fingerprint (`catalog_version`) and the run duration; `compare` uses the fingerprint
   to warn when the catalog changed.
-- Docs: how the grade is calculated, CI usage, and a sample report from synthetic data (`go run ./tools/demo`).
+- Docs: how the grade is calculated, CI usage, and a sample report and comparison from synthetic data
+  (`go run ./tools/demo`).
 - Catalog test rejects rule queries with write or session-changing keywords.
 - `compare`: new, resolved and still-open findings between two runs of the same instance, with grade and coverage side by
   side and warnings when coverage, Lens version or the rule catalog changed. HTML (en/pt-BR) and JSON. App: **Compare
@@ -36,6 +37,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Docs: getting started and roadmap pages; RELEASING.md with the managed-services checklist.
 
 ### Changed
+- Release files have no version in their names (`codedb-lens_windows_amd64.zip`, `codedb-lens_windows_amd64_setup.exe`,
+  `codedb-lens_linux_<arch>.tar.gz`), so `releases/latest/download/<file>` links stay valid. `codedb-lens update`
+  looks for the new names.
 - Errors now exit with code 2 (was 1), so 1 can mean "findings" in pipelines.
 
 ### Fixed

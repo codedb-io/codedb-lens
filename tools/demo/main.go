@@ -49,6 +49,20 @@ var demo = map[string]fake{
 	"MSSQL-UNUSEDIDX-001": {status: engine.StatusNoData, reason: "skipped databases (no access): archive"},
 }
 
+// older is the run a week before: one finding since resolved, one not there yet, one rule that ran then and not now.
+func older() map[string]fake {
+	m := map[string]fake{}
+	for id, f := range demo {
+		m[id] = f
+	}
+	delete(m, "MSSQL-MISSINGIDX-001") // new in the latest run
+	delete(m, "MSSQL-AGENT-001")      // OK then, no data now: "changed", never "resolved"
+	m["MSSQL-TOPQUERY-001"] = fake{status: engine.StatusFinding,
+		cols: []string{"cpu_pct", "executions", "avg_cpu_ms", "avg_duration_ms", "avg_reads", "database", "query"},
+		rows: [][]any{{78.2, 1204331, 41.6, 55.0, 18220, "sales", "SELECT o.id, o.total FROM dbo.orders o WHERE o.status = @p0 ORDER BY o.order_date DESC"}}}
+	return m
+}
+
 func main() {
 	catalog, err := engine.LoadCatalog(rules.FS, "mssql")
 	check(err)
@@ -56,30 +70,38 @@ func main() {
 	check(err)
 	version, err := engine.CatalogVersion(rules.FS, "mssql")
 	check(err)
-
-	at := time.Date(2026, 10, 22, 9, 30, 0, 0, time.UTC)
-	var results []engine.Result
-	for _, r := range catalog {
-		f, ok := demo[r.ID]
-		if !ok {
-			f.status = engine.StatusOK
-		}
-		if f.conf == "" && f.status == engine.StatusFinding {
-			f.conf = engine.Confirmed
-		}
-		results = append(results, engine.Result{Rule: r, Status: f.status, Confidence: f.conf, Columns: f.cols,
-			Rows: f.rows, Reason: f.reason, Duration: "120ms", CollectedAt: at})
-	}
 	info := engine.ServerInfo{Engine: "mssql", Version: "16.0.4135.4", Major: 16, Platform: "onprem", Host: "sql-demo-01"}
 
-	for _, lang := range engine.Languages {
+	run := func(m map[string]fake, at time.Time, lang string) *report.Report {
+		var results []engine.Result
+		for _, r := range catalog {
+			f, ok := m[r.ID]
+			if !ok {
+				f.status = engine.StatusOK
+			}
+			if f.conf == "" && f.status == engine.StatusFinding {
+				f.conf = engine.Confirmed
+			}
+			results = append(results, engine.Result{Rule: r, Status: f.status, Confidence: f.conf, Columns: f.cols,
+				Rows: f.rows, Reason: f.reason, Duration: "120ms", CollectedAt: at})
+		}
 		rep := report.New("0.5.0", lang, info, scoring.Compute(results), results)
 		rep.GeneratedAt, rep.CatalogVersion, rep.Duration = at, version, "14s"
+		return rep
+	}
+
+	at := time.Date(2026, 10, 22, 9, 30, 0, 0, time.UTC)
+	for _, lang := range engine.Languages {
+		before, after := run(older(), at.AddDate(0, 0, -7), lang), run(demo, at, lang)
 		dir := filepath.Join("docs", lang, "demo")
 		check(os.MkdirAll(dir, 0o755))
-		write(filepath.Join(dir, "report.html"), rep.HTML)
+		write(filepath.Join(dir, "report.html"), after.HTML)
+		cmp, err := report.Compare("0.5.0", lang, before, after, "2026-10-15_093000.json", "2026-10-22_093000.json")
+		check(err)
+		cmp.GeneratedAt = at
+		write(filepath.Join(dir, "compare.html"), cmp.HTML)
 		if lang == "en" {
-			write(filepath.Join(dir, "report.json"), rep.JSON)
+			write(filepath.Join(dir, "report.json"), after.JSON)
 		}
 	}
 }
