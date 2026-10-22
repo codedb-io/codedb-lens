@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-22
+
 ### Added
 - Azure SQL Database: waits, top queries, missing and unused indexes and space against the database max size now run
   (6 of 12 rules; the rest are managed by Azure). Rules can ship `query.<platform>.sql` for platform-specific DMVs.
