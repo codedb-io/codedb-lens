@@ -69,9 +69,9 @@ Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.
 validação estrita (campo novo entra primeiro no backend). Licença `base64url(payload).base64url(Ed25519 sobre o texto
 do payload)`, kid `2026-1`, 90 dias, `max_instances` 1 (aplicado localmente). Consentimento em dois campos
 (`privacy_ack` obrigatório, `marketing_opt_in` opcional) + `consent_version`; o texto fica em
-`internal/license/consent.go`. `lens-2026-0` = rascunho; o jurídico do codeDB vai aprovar o `lens-2026-1` (com en).
+`internal/license/consent.go`, versão `lens-2026-1` (aprovada pelo jurídico em 2026-10-22, igual ao rascunho `lens-2026-0`).
 
-Em aberto: texto de consentimento aprovado (`lens-2026-1`), assinatura de código (SignPath Foundation após o repo
+Em aberto: assinatura de código (SignPath Foundation após o repo
 ficar público), overhead máximo do `record`.
 
 ---

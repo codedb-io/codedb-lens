@@ -30,7 +30,7 @@ var Keys = map[string]string{
 const (
 	API = "https://api.codedb.com.br/lens" // + /register, /renew
 	// ConsentVersion names the consent text shown before registering (see consent.go). The backend stores it.
-	ConsentVersion = "lens-2026-0"
+	ConsentVersion = "lens-2026-1"
 	FeatureCompare = "compare"
 	clockSkew      = 24 * time.Hour
 )

@@ -37,6 +37,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Docs: getting started and roadmap pages; RELEASING.md with the managed-services checklist.
 
 ### Changed
+- Free key consent text approved as version `lens-2026-1` (same wording as the draft).
 - Release files have no version in their names (`codedb-lens_windows_amd64.zip`, `codedb-lens_windows_amd64_setup.exe`,
   `codedb-lens_linux_<arch>.tar.gz`), so `releases/latest/download/<file>` links stay valid. `codedb-lens update`
   looks for the new names.
