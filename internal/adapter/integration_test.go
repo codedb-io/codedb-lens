@@ -80,16 +80,32 @@ func TestMSSQL(t *testing.T) {
 	t.Run("MSSQL-BACKUP-001", func(t *testing.T) {
 		exec(t, `EXEC msdb.dbo.sp_delete_database_backuphistory @database_name = 'lens_fixture'`)
 		expect(t, s, rs["MSSQL-BACKUP-001"], engine.StatusFinding, engine.Confirmed)
-		exec(t, `DECLARE @n sysname, @sql nvarchar(400);
-			DECLARE c CURSOR LOCAL FOR SELECT name FROM sys.databases WHERE database_id <> 2 AND state_desc = 'ONLINE';
-			OPEN c; FETCH c INTO @n;
-			WHILE @@FETCH_STATUS = 0 BEGIN
-				SET @sql = N'BACKUP DATABASE ' + QUOTENAME(@n) + N' TO DISK = ''NUL''';
-				EXEC (@sql);
-				IF DATABASEPROPERTYEX(@n, 'Recovery') <> 'SIMPLE' AND @n <> 'model'
-					BEGIN SET @sql = N'BACKUP LOG ' + QUOTENAME(@n) + N' TO DISK = ''NUL'''; EXEC (@sql); END
-				FETCH c INTO @n;
-			END`)
+		// The list is read once and each database backed up from Go. A T-SQL cursor over sys.databases once
+		// stopped after master and model on a freshly started container, with no error (CI, SQL Server 2019).
+		rows, err := m.conn.QueryContext(ctx, `SELECT QUOTENAME(name), CASE WHEN recovery_model_desc <> 'SIMPLE' AND name <> 'model' THEN 1 ELSE 0 END
+			FROM sys.databases WHERE database_id <> 2 AND state_desc = 'ONLINE'`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		type db struct {
+			name string
+			log  bool
+		}
+		var dbs []db
+		for rows.Next() {
+			var d db
+			if err := rows.Scan(&d.name, &d.log); err != nil {
+				t.Fatal(err)
+			}
+			dbs = append(dbs, d)
+		}
+		rows.Close()
+		for _, d := range dbs {
+			exec(t, "BACKUP DATABASE "+d.name+" TO DISK = 'NUL'")
+			if d.log {
+				exec(t, "BACKUP LOG "+d.name+" TO DISK = 'NUL'")
+			}
+		}
 		expect(t, s, rs["MSSQL-BACKUP-001"], engine.StatusOK, "")
 	})
 
