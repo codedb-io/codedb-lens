@@ -48,3 +48,30 @@ Useful flags: `--lang en|pt-BR`, `--out <folder>`, `--trust-server-cert` (self-s
 Reports are saved as HTML and JSON in `Documents\codeDB Lens\reports\<profile>` (Windows) or
 `~/codedb-lens/reports/<profile>` (Linux). See [how to read the grade and coverage](index.md#how-to-read-the-report).
 Each finding links to its rule page with the reasoning, the limits and what to do next.
+
+## 5. Use it in CI or a scheduled job
+
+`check` exits with a code a pipeline can act on. By default findings never fail the run; set a policy:
+
+| Code | Meaning |
+|---|---|
+| `0` | Run finished and the policy passed |
+| `1` | A finding at or above `--fail-on` (`critical`, `high`, `medium`, `low`) |
+| `2` | Error: connection, configuration or execution. Never reported as a database finding |
+| `3` | Coverage below `--min-coverage` (percentage) |
+
+A finding wins over low coverage. The JSON report is next to the HTML, with the same name.
+
+```yaml
+# GitHub Actions
+- name: codeDB Lens
+  env:
+    CODEDB_LENS_PASSWORD: ${{ secrets.LENS_PASSWORD }}
+    CODEDB_LENS_NO_UPDATE: "1"
+  run: >
+    codedb-lens check --engine pg --server db.internal --user codedb_lens
+    --out lens-report --fail-on high --min-coverage 80
+```
+
+Running Lens on a schedule to keep an eye on production? That is what [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=ci)
+does around the clock, with history and alerts.

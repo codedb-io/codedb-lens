@@ -33,6 +33,7 @@ const usage = `codeDB Lens %s — free, read-only health check for SQL Server an
 
 Usage:
   codedb-lens check   --engine mssql|pg [connection flags] [--out DIR] [--lang en|pt-BR]
+                      [--fail-on SEVERITY] [--min-coverage PCT]
   codedb-lens compare [--profile NAME | OLD.json NEW.json]   compare two runs (free key)
   codedb-lens register  get the free key (sends only the name and e-mail you type, once)
   codedb-lens license [status|import <key>|reset|remove]
@@ -41,6 +42,7 @@ Usage:
 
 Run "codedb-lens check -h" for all flags.
 Passwords are read from CODEDB_LENS_PASSWORD or prompted; never pass them as arguments.
+Exit codes: 0 ok, 1 findings at or above --fail-on, 2 error, 3 coverage below --min-coverage.
 `
 
 func main() {
@@ -53,9 +55,10 @@ func main() {
 	}
 	attachConsole()
 	var err error
+	code := 0
 	switch os.Args[1] {
 	case "check":
-		err = check(os.Args[2:])
+		code, err = check(os.Args[2:])
 	case "compare":
 		err = compareCmd(os.Args[2:])
 	case "register":
@@ -74,8 +77,34 @@ func main() {
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
+	os.Exit(code)
+}
+
+// Exit codes are a public contract (CI pipelines depend on them): never renumber.
+const (
+	exitFindings = 1
+	exitError    = 2
+	exitCoverage = 3
+)
+
+var severityRank = map[engine.Severity]int{engine.Low: 1, engine.Medium: 2, engine.High: 3, engine.Critical: 4}
+
+// exitCode applies the CI policy. A finding at or above failOn wins over low coverage:
+// a confirmed problem is more actionable than an incomplete run.
+func exitCode(r *report.Report, failOn engine.Severity, minCoverage float64) int {
+	if min := severityRank[failOn]; min > 0 {
+		for _, x := range r.Results {
+			if x.Status == engine.StatusFinding && severityRank[x.Rule.Severity] >= min {
+				return exitFindings
+			}
+		}
+	}
+	if r.Score.Coverage*100 < minCoverage {
+		return exitCoverage
+	}
+	return 0
 }
 
 type checkOpts struct {
@@ -87,7 +116,7 @@ type checkOpts struct {
 	profile  string
 }
 
-func check(args []string) error {
+func check(args []string) (int, error) {
 	var o checkOpts
 	fs := flag.NewFlagSet("check", flag.ExitOnError)
 	fs.StringVar(&o.conn.Engine, "engine", "", "mssql or pg (required)")
@@ -105,16 +134,21 @@ func check(args []string) error {
 	fs.StringVar(&o.profile, "profile", "", "use a saved profile (connection flags are ignored)")
 	save := fs.String("save", "", "save these connection settings as a profile with this name")
 	noUpdate := fs.Bool("no-update-check", false, "skip the daily version check")
+	failOn := fs.String("fail-on", "", "exit 1 if a finding has this severity or higher: critical, high, medium, low")
+	minCoverage := fs.Float64("min-coverage", 0, "exit 3 if coverage is below this percentage (0-100)")
 	_ = fs.Parse(args)
+	if *failOn != "" && severityRank[engine.Severity(*failOn)] == 0 {
+		return 0, fmt.Errorf("--fail-on must be critical, high, medium or low, not %q", *failOn)
+	}
 
 	profiles, err := profile.Load()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if o.profile != "" {
 		p, ok := profiles.Get(o.profile)
 		if !ok {
-			return fmt.Errorf("profile %q not found", o.profile)
+			return 0, fmt.Errorf("profile %q not found", o.profile)
 		}
 		o.conn, o.lang, o.out = p.Conn, firstNonEmpty(o.lang, p.Lang), firstNonEmpty(o.out, p.OutDir)
 		if pw, err := profile.Password(p.Name); err == nil {
@@ -123,24 +157,24 @@ func check(args []string) error {
 	}
 	o.lang = i18n.Normalize(firstNonEmpty(o.lang, i18n.Detect()))
 	if o.conn.Engine == "" {
-		return errors.New("--engine is required (mssql or pg)")
+		return 0, errors.New("--engine is required (mssql or pg)")
 	}
 	if o.dsnEnv != "" {
 		o.conn.DSN = os.Getenv(o.dsnEnv)
 		if o.conn.DSN == "" {
-			return fmt.Errorf("environment variable %s is empty", o.dsnEnv)
+			return 0, fmt.Errorf("environment variable %s is empty", o.dsnEnv)
 		}
 	}
 	if o.conn.Password == "" {
 		if err := readPassword(&o); err != nil {
-			return err
+			return 0, err
 		}
 	}
 	if *save != "" {
 		o.profile = *save
 		profiles.Put(profile.Profile{Name: *save, Conn: o.conn, Lang: o.lang, OutDir: o.out})
 		if err := profiles.Save(); err != nil {
-			return err
+			return 0, err
 		}
 		if o.conn.Password != "" {
 			if err := profile.SetPassword(*save, o.conn.Password); err != nil {
@@ -163,11 +197,11 @@ func check(args []string) error {
 	}()
 	rep, err := Diagnose(ctx, o.conn, o.lang, o.rulesDir, func(msg string) { fmt.Fprintln(os.Stderr, msg) }, nil)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	path, err := rep.Save(firstNonEmpty(o.out, report.DefaultDir(firstNonEmpty(o.profile, o.conn.Server))))
 	if err != nil {
-		return err
+		return 0, err
 	}
 	printSummary(rep, o.lang, path)
 	select {
@@ -177,7 +211,7 @@ func check(args []string) error {
 		}
 	case <-time.After(time.Second):
 	}
-	return nil
+	return exitCode(rep, engine.Severity(*failOn), *minCoverage), nil
 }
 
 func selfUpdate() error {
@@ -210,6 +244,11 @@ func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log fu
 	if err != nil {
 		return nil, err
 	}
+	catVersion, err := engine.CatalogVersion(catalog, c.Engine)
+	if err != nil {
+		return nil, err
+	}
+	start := time.Now()
 	log(fmt.Sprintf(i18n.T(lang, "connecting"), c.Server))
 	sess, err := adapter.Open(ctx, c)
 	if err != nil {
@@ -232,7 +271,9 @@ func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log fu
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return report.New(version, lang, info, scoring.Compute(results), results), nil
+	rep := report.New(version, lang, info, scoring.Compute(results), results)
+	rep.CatalogVersion, rep.Duration = catVersion, time.Since(start).Round(time.Second).String()
+	return rep, nil
 }
 
 func readPassword(o *checkOpts) error {

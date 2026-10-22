@@ -118,7 +118,7 @@
 </main>
 
 <footer class="bottom">
-  <span>{{tf "generated" .ToolVersion (date .GeneratedAt)}}</span>
+  <span>{{tf "generated" .ToolVersion (date .GeneratedAt)}}{{with .CatalogVersion}} · {{t "catalog"}} {{.}}{{end}}{{with .Duration}} · {{.}}{{end}}</span>
   <span>{{t "saas_pitch"}} <a href="{{landing "footer"}}" target="_blank" rel="noopener">codedb.com.br</a></span>
 </footer>
 <script>

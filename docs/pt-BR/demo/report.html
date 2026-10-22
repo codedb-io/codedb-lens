@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="pt-BR" data-lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeDB Lens · sql-demo-01 · 2026-10-22 09:30</title>
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAlg0lEQVR42u2deZRdV3Xmf/uce&#43;&#43;bqurVJJXmwZYt2XgAAh4QsY2xTZhCIIGEMSGEJAzJSjo0HVjpDg0hARbdHSBNCN00ZiWkO5AEm5kYbGyMAQ84Np4HjSVLNQ&#43;v3nCHc07/ce8bqlRVqpJKJsaptd6SVHrvvvu&#43;fc4&#43;e3/72/sJK/p5tYYvmua/&#43;jbu3ZYorhDc5Q4uFNw2kF7AR1jjH1n2v&#43;RkX3sy79v8lSNGmAY55HD3KCc3i2&#43;&#43;O7Xv&#43;4eWwuxk71Dg1ap5oe7NP/9SEftm59yVSlQfCA4HzgGOJxV8QOSnAH7HL0QkvQkHDjvlkBudk89WDn33ax1GsCk4q79LBViAno17r0bzPhH1PBCcNYDNLiyS3s1awy8n/G/5qYGf7QNaq09AKVEe4HDO3uase9/s4VtuWIjlCu802z5DF5TKfvdHQX4XBOeSJuhq3mufVit/ydc5cBYQUZ7COZzjUzOh/y5Gbqgu5ZJkKfB7tlyyC6f/QZR&#43;trOJTS0tek0/788E&#43;Is90ZnUEL7CmR9bE/7q7PAPH1vMCAtfqQFT2nLpedrpb4mSTc6aGPDX/PM&#43;lcF3mUsX1b4pZ9uevn2jsSjtO2ePKKteNHX4pvubGHf6&#43;eznTxVgyttftEM79U0RNjmbJP8O/gLgRaHyRXRXGd3di9fdi9dVRneVUYUS4nltA4HvbJIIarMV&#43;63y9hftSMH/U7XQAAIPCFCwjWP/LMrb7FySgHj/Dn77yFX5Il5PBrQfIEqnN6cU4vltw5S6sujIAeI5Gyei/c02Gv9noJBhLU2Xk/35gCl2D30cU3&#43;5QyXiFb1Fo6enqdvRpW5UPt96koiglCBKIUqlYGcrXzwf5Qe4JE6DReUrF00nLprc7Oe7&#43;&#43;LGD76aYe&#43;k6ZO6ujZc5rTc7JxNAE/l16GC3uxgf3q7HV3qRoJ8M8hBKUUSx8SNBs45RMALcni5HM7a9vWMxVQr2MYUJhwHJBHRHja5fG56&#43;BZAe1k8q6ziI9LxsW1jFGyIyq3Lok6zxhZ4aoCvgjwS5Frgi1LU5&#43;Yor1vPGS&#43;4gtLgELOzsxz5yb1M7d&#43;HXyxmrxXQHo4qpjHa9OYCDifqI8ClzR1AsWfjNSJ8yzlnOtwSOIvoHKqwDvGK2Raza2CIp0qoKXjdZVA6C3oUYbXKhS&#43;8ipf&#43;zm/Su76f0MJsAiPTIT&#43;&#43;/noe&#43;sLfpu7H1LHhJM5GmMoMLo5BCYARUdo686La5OF/0QB&#43;rvQREbUnQ7gdGYkCl&#43;DiCtgE0QGooCMRlCcBfFnwePJCTfGDzO&#43;DysDfvXcvb3n/ezi/v8A6F1OvG&#43;bqCcYpys&#43;&#43;gHqsGfvhNxBqOGsQ8cBZXBy1nIuICM4V4sbsF1Whf8tm5&#43;SFzlmZH5YCkjENIth4hqR6GNsYA5ekOZlIhzFOlVgTRCtE6Sy6UGmu7yzOWlyaWWYcTPN56kTb5ZSSLPH81hOttQSFPM9/w5tY50G/xKwreGzt8vC1RnAkMxGbfuGXKGzZhA1DRDTg0uu03087ZwWRqwoDWzd5YpOrREnZOWfnr/6Fd6MAhw0nsdEsyu9Ggm5E59uJyLK7QhYHXSQNIGyCCSOcTVBKUJ6H9gKU7yGicM5hTYJNIpIkxtksJtcByvOzSCQ11FrRC6J1K&#43;KJGw2Gzt5N96atzFYNUY/GWEfNOCIHBsEkCVIo0PWMS6jtexCVK&#43;CchWyxuOYKSndBrzh3lecsV2SLyC1/g9JcFqkhommIZxFdSI3hFUB5HcbodFOyAHcBUZgkxkZ1lBaKvYN0bdxJ16ZdFNfvIChvwCuUUX4BEY2zBps0SOqzRJVRGmOHqY7sY&#43;7YPmoTI8SNCPFyaD&#43;HZDvn1LgdN2&#43;hOGfxSt1EojhQjTBoAgVH6qkR6gZCC5FzSKmcvk3zMsfvUgeCOHmBJ86d79pPXx78Tjtl28slVUxSBeWjvALilRBdQJTGIW2qOuPwRBQmauCSkOLAetadcyUD5&#43;yltOUCvJ6NoBTWpWyKM2CbL828oSdQEOgVEGcxtQkao48w9ehtTDz4AyrHDuKcRueKHYY4hfNbVHYGCJXRYaaqIbGnmJu1iKT3VzMwZ6BqHHUjxONHOkAXcIYFG1NciuP5UugZGhNkMHVWp8JItRMRlI/SecQrpC5KBYj2MXGEi6r0bj2TLc/7RfrPuxq/dxOJAROBS2KcM22Gt/UBXFZ3aOY7LvudQpSH8ny0B64&#43;SWX/9zl2x/VMPHov1im8XCGLzRfWK9yCzyctZj11&#43;gkS&#43;Kich03qYCOS&#43;hyXfuAzbL/oEqRSRXk&#43;iYO6gUqUUJGAWmWWx97zKySzUyktAbgowlSmOndCtpzcuBR7NoRAcOKVv5qt67LP5xDlgQpIGjV6Nu3izF/4bQZ/7hVIvkzcABuH6fNEdeyYDjrF0QK//XvXYW/XOqQRHy&#43;XQxFSffxmDt/8OSb2P4TOlVBapYaQRaIpZ9NVamOciXAmBNMArdDd5WzzakzYoLT9LJ79/s9Q7O/D1CKMtYQWGl6eWGD4E3/M1M3Xo0o9YE0awFTnsI3qPFeUIRVJsWeDW6ric6ohnyiNTWJcUmPH5a/hjFe8F69/J2HVpku&#43;WVZo2SsD32Yr3toO8KVjG3eAOM9ADmvSWELni2hbYeKuv&#43;fAjX9H1AjxcgWsiVpgYxOcjbI/kzTZXMBo6p5&#43;xEsTMVEKU69S2HY2W9/0RxR3PxuCIkkc03jicUa/&#43;Elmb78BVexun4POYWYm57vC9jGPFMsb3OlIdkRrkkaNfFcX57/xgwxe/HrCOtgoRJRkq729WZw12U1rxAtQWubjbNslD5NYXBJhTZJhpdrXw2VRlQE8glKB&#43;OjtPPKFdzG5/378YjfOJAsOWTXfFXVsN/EDdE9/m&#43;dRChPWwTlyW3fh9w1hqzOEhx/DNKqoUndWLEyv66oVTMfqX1jFWsQAawG&#43;R1ybpXfzTp75tk&#43;T3/YcwtkwjX6QJk6ki9wgIuggh3jpxoimj1GfOEg49QRxdQqbRCgvQOe78buHyPdtIShvQufzqUEaDaxJMkN0HkkOawxevhudHGP/P/0&#43;R&#43;68Ab/U2&#43;ZsTni0OVShhCr2tFeBpHG/jUKcSVJCLpdPAw&#43;bUf1K4cI6pjLbDiBbcWGHGeYbYG1WflyrMLjrPJ71jr9FyjuIqw1Epzx5042kAAheIcAmjtn9dzF2zzeYfOR71Ecfx9SmMXE9NZdzWc6gEO3jFcrk&#43;rfRs/Ni&#43;s&#43;9hp4znodX7CKpN7BJnEVgbZdmjUF0nlzOcOi63&#43;fgrV/EL/a1wVqxEbrnFWSaRXnXGXpLWh63YR1TnV3U7cz799oYoO3z4/ocg2eey7P/4Au4wiZMo5HmB861Vr4zBl3I44xl7K7rOHTjp5ne9yM8F9PT20e5b4CunjLHRsaYnJxCa91KsJxzYNOEzCYhon1KG85h/UWvZ/3FbyDo6ieuzjU5xo7dZrB4FIqaQ9e9k4O3/mNmhGTFRhA/hyqWEC/IoHQZm9axvo3B1qvYsL6k21nEAGtx4CqSsEHP&#43;g08993XIz1nHAe&#43;sxZB8IoBkw98n8evez/jD9xMV3c3G7Zsp7e3jyDwMElCkiQMH3niOAN0howiafZr4jo2qlPcsIctV72L9c99PTaJMHGbDkjTEYvFp5C37Pt/v8ETd38Hv1hexU7I3toL0oKM1i2GAGNwSYyNo3Q3rAD8zAAb3SkTXCI4a/E8uPhdXyS/cy/xXNvtpG7AojwfxLH/&#43;j9j39f/O1o5Nu84i3UD/WitqFarTM/MUqlUaDRCkiRBKbWiZElEYeMaJqoxeOGr2Pmq/0bQs4GkNttiM2kezipPIBM8&#43;JlfZnp4X0eusFI&#43;yS1Cu7iOXIIVgX&#43;KBui4vNIktWme&#43;eYPseGFb6cxvRB8gw7yxLVJHvjfb&#43;Xoj6&#43;jb/02tm3bRqmYp1avMzIyyvT0DEmSZNUm1RI9HZ88LW&#43;IuDpBYf3ZnP2Gz1La&#43;myS2jQiXtsF2hiV68WN38pPPv06kkQQJeDcyngsWZVvWPY52s93v&#43;9UwY9rs2x57tWc&#43;eoP0aiYlBjLfqyx6CBHNDvKPR/7Zcbuv5H1W89i5/at5AKfsbFxDhw6zNxcDaU12vPar29lvLYZO6UgK9VmRGXBKnQWne8mrowwcc91dG97DoX1uzFhLXVZ2dlgwxr&#43;wG7yfoPx&#43;29CB4UlDLB68GWF4J/kDpD5JJW1&#43;IHmkvd8HW/9&#43;dgwakUGzlqU1piwyr/&#43;5SuYeOQHrNt8Btu3bkQp4cgTI4yOTSAYMCEmiVpZp9IB4uUQ3WZDnU3S&#43;D9Owz&#43;cQ7SPCvIoP8iiK5PZycPGNZRfZM9br6e0&#43;ZmYRiXlsLLkzVkhn4t55NpXMrn/odQVzUuYTg781WwT71SKGiKKpDHDrmveSWHL&#43;TRmQkSreXG&#43;aM2D176dyUduo7x&#43;K1s3D6GU4vDwUUaOHkYRo4uDFDacT2njMygOnUWubzNBzyBeVw8ql0f5GpTD2QibVImrE4Qzx6iP7GPuwE&#43;YO/gAjbEjiNJ4pe6UmrAxyi9iwjke&#43;/xvcM7vfhOv2I&#43;LI5yo7P4SYvrYfPk7mT74tgUO7uTczmqf7J30RUWwSUxpYIjNl/82Ud1lGW471PS78uz/6sc5dscXyZWH2LxhHUEQMHzkKEePPE554wWsv/CN9O56Afl1O9D5IuIr0BYRC9qCcogHogXxFCrQ4AsSpMy4s45o&#43;ijTD3yfI9/6WybuvAmdL6ZZqE3Q&#43;S4a449x4Lo/4qw3/B2WqENYpUnqFYo7X8zA2Rcx&#43;tCd&#43;PliWms4zSt/lWfAIvGr0iT1WXZc8VrWXfxrJPUIlMrcsEXnAiqHH&#43;TBz/4WTnzWrxtkw4YhJqemOXTgUTZe&#43;CZ2/9LnKO&#43;8DFXoAhdjkjrW1HEmxLkYXJy5hIybdgnWRlkOEGGjCOcS/O4y5T3ns/nFr8Ur9zFx&#43;3daxRScRQdd1IbvJujfQdf2i7FRtV17cgnO6yGfg4n7vg46v4CmOH3gc1wJchXbyVmLXygydNGvksR0kDrNc06x/yt/QVKbRXkBjbDB1NQ0w8OH8fJ9bN37XkTniKujuDhsGbX1ENWW/nU82uVI3T4fkphodo64WuPM17&#43;N8rnPxdSrrcPcOYsKChy96aPElVFEBW0djyiSxhzFHVfSvfFMbBy2D/bT5HZWYYAlkgdRmKhG3xkXpmFemGQF/PQQ1PmA6Ud&#43;xNg9X0UXexEss7MVHn1sH3EUISqgOjsJJCgvdxK15ePjceX5aK2pTlYxotpRU7YLlF&#43;kMfYI43f9PTrfhbMmc5cCNsYGG&#43;jbfQUuaWSGX9toZ6krqJMtoDsTs&#43;68F4AfgE3AZZGPS8&#43;CJ269Fhs3stCPVmwvIojAzPQkE6NPEDaqgEMpjcpWvshSCoi2Kk1Epa/RHiJCEoVMj44wPjKSRULzTJDuAr/AxN3/l6Q2nWXobZsnsaH7zBfg5YJFqeO1dDsrOISXbwtyzuLn85R37c3cT5uQUn6O&#43;tgxJu//NjrXlVa4Fs2ZFLVqlVpjhqCQJ1dMH34&#43;QOc8tO8hTrJClmpV3JwDEyfYxGBdgrERYVwnSiIsBr&#43;7e3GlRGaA&#43;siDVPbfRnn3i0jqM1lpVbBRg2DwGRT7N1EZH0H5/jKJ2dpwZ8iiBjiRbkcwcUzX4EYKQ3uwsWsJUZ216Lxi&#43;tFbaUwfOSHjmMpKNHEcE1ciqrUKyhOULyhfozyF8gXJwlCUBS1YDGiwYmlYhx8oCnkPpfXyty&#43;CszEzj95Aec9LMllh6sKciSG/jtKG3cyOHEKCYBGFxRp2pciiZ4CswOkJLokoDe1EFwexJu6oX6R/mX7k1qyaLsu77&#43;wvqXtKXVCaxAnGGJIkIYpiojAkiiLiJP2dA6wT8oHPb&#43;7dznO29xEa2&#43;pTWZrQdIiXo3r4DpLGbKo/alU7HZYchaHdzf6K0wT&#43;/N4qtRrFWrMZzNmE4rodoFVa92xK58XDhIa5I/ehvGC&#43;sHeJdsPjD1Q6/PziDyWCdY5STvPC3X2cM1QisS7zPG5psZZzKB0QTh0injmCqGyVuzZtEvTtTOvH7nS4neMb27yTkQsKkO/f1IIrpXrTAnw8N0k4dQTRPo7FuRVno0ys5Kd/d6uTHVrn8LQwWY1595ceppYY8sphHfh&#43;DheFSxjBgfIw4SzR9DBB/y5wjbb6zVi80hDKm38Qr7XbWRCGyurPGSV4pYFUTNBpBaWJq5PztvdiANhohtn7Ppmq4PL9qeYUlx7YzdpwU&#43;V23MOmxXprUM4wPhcSofC7evFKPYx97bPUHvlXVK7Yrs0uOMOciYnnRjLBV7vw76xB5cpoL1iZwu4k3c6KqYildnJawy3NA986hxYwYQ2bRKkBFtsBNkbnBwlH72TkG6&#43;ha8&#43;vUdi6F7&#43;8CZUvgAbR6YEr2cErnqS/9xTKV&#43;BrlK8RX9AuIZkbY/reG5n8zueJRg8SDG4kmjiWajIX8yXOYhqzrehNml7IOkTnUyo9jjvY01OPdlbNBS3jRlM5hWoSWu2ynMxTN3iLGEBah2HPeb9DffjbTN/1l8zc/Vf4vTsJ1p1DMHAGXnkjXlc/qtCNCoJ2FORirKlh69MklRHi8YPUhx8gHH4EU5shv3U3G173H5m6&#43;Uu4keGsdOiWyORNW84i83vAmrnL6XI7JzaALB&#43;GOhw2TQBaKyhbQIj2l179rUQiQZRP9543UtxxNfHUg0STD1I/eAvVh7&#43;S1mlFUml3sw/LZTohm6SuRRQqXyIY3ELPs66kcMb5BBu2Ir6Hi6MFdYJF7kIH88Ve2UJyNunw/3IS2fmK5ygsbgBZQXOEcw4TVtq0c/M&#43;jUPnulB&#43;HhM3WvXYxY1gcPEcOlfG23oZhe2X41yISyrYuIKLKtikCjaVK4pWiO&#43;jc0VUsTtrhuvGej46F6DEYsM6ilyrHrHkR1Eane9Npe&#43;ZI0rVkAob13FJp/tZe7ezpAFW3JniHFFlvN0fninXrInxiv14xT7M1GHw9PJTEjLK2MVxWhLUGp3vQZf6Ea3AE5RWaaigs5BBHE65lK7Gsnnzeiqzs8zNVdPzQZZnZ9IiUQ6veyPOmLb/zzgu25jEJBGiiktNF1hTXk6dXFuQojF5ZF4Skyo/ErximXz/tlSfs3wLyjxDNNUFadUrxMU1XFTFhnMdjyo2quHiBknYoFDM8/yrX8BZz9iDManAq&#43;VWlvgcziboQh9Bz&#43;ZUB9rU5luXKjvmjqbuVeS0uZ3jDbAa8LN4vza6D5eEaUtZa2yFRXmKrq3PSlN7WYbrU37HeAWOk5y0jLLoQ9CeR61a59YbvstjDz6SSlesaSmSZUkSMSQ3sAuvawM2idraVAdKHOHkvk5VyWkFP43oVzl1xOEQL6A2dohk9miacLn2arYGymf9fBqBHAduKutz8RzR&#43;N1pL4GX6zjvOkbfnEAklRJzhsP79jMzPY0OcuiuXhqHHiY6dhDxj39/EYUzEaVtlyJeIZPCN/evIK5OfeShrNTmTjv4IMvlAcuk855PY3qM&#43;rH7KJ61gyS2Wc&#43;YwoQh3dsvorBuF&#43;HEAcTPLfgwaTJW2/8VkrlhClv2pv44sqhiAdEOJxZkiTE7ImkxxktzAd/TOBcTz4xSu&#43;NOKvfcnB6i&#43;ngQnTWooIueM6/CJSGCasvdVYCrP0F19DHEC5bI4tcW/JOjo7NQNIljph&#43;9he49LyMlRF0mto3wu8sMXvByDn3rw/hBEeeSRV1QOHoH4djd&#43;D1bKV/6KqJj46hcD6pYRgUFJPBSIaySLNZ1OBNjowYuqmFqk0STw0QjB4jGDmHrc&#43;nrFgEfUdhwjtKOvRQ2PjM9S7LwzVmLyuWJhu&#43;mMT2G8ruW4bHWDvwlDCAr00l6eSYeuIXNV02DKqadkwiCwoYJ6y9&#43;I0dv&#43;0zarr9oSOdQuR6S6THWvel1bH77f&#43;Dgh/6Eo5//MEH/JlA&#43;4uVSUs/zwCQ4kzZQ2KiBixu4JEr9vsok7YWuNEdYjEYWwTnDwDN/PSPhaq0zyjnB04aJfTemfFAgK/BApw7&#43;6unojuqSDvLMHnmUuf23pFUka7NYWkiiOsUNuxi6&#43;E0k9el2gXxeIuSRVCYpX3wNQ6/9Q8wUDL78rfi967FRDVOfxsyN0Dj6EPUDdxKOPEZSGSWZm8DFqfBVggKq0IUEhRTMpeSFSmPCCl3bnkfP7peSNGZbJdT09M1B7QDTj9&#43;G&#43;IUVVMROFvxla8Kru6KIYBLLyO3/gBaDc6olghVRmEbI5hf8AYX1Z2HDWnuyiAgojUsivK4yW975YcTzsFFCftsZdD/nSky9isoVsFFI3&#43;WvZOd7/xfB0DZMtZLWkJXXjrA6O1qWipqsRUQxdNl7QPkpwFkIbY3FyxWo7fsatYljaC84wQF8KitflmJDV3/FtPjexeh9N1Efvj3tiW1VvwSThPg969nxig9hbYwNa9iwgQ3ruKhBMjfNxt94L90X7qFy922MffnT6C4YuPLVabQSx&#43;hSL1vf8WGGfvUt7P7Lr9F3&#43;SswtVlcVM&#43;ud&#43;KHixok1XEGL/09SjsuwzRm08O3xf34eGaEsXv&#43;EVH5E/j&#43;tXE78/6n1Lv5pNXRojzi2gxbLnkZZ77uczQqtawhuSNFloCKu5e4WEWSbFhURl2X9jwHVQx4&#43;J0vJjx2mPM&#43;/2MwlofeeTVzD93O0CvfwY7/9DGS6Qr&#43;QDem7pi79/s4l6xwRmCaTbuGw584B2w6O89ltWZnE/zSII0HPsa&#43;r30QnetdsoZ9am5H1kqauDCrNHiFHo7d9U2GnvN18me8jLg&#43;m3JALu17xUT0FJ9NcrbCdUNG/adVPwVHP/sJKvd8H/F8Zn7wbdb94svpe/7LmXvodgZf8uuoPBz9/EcQUWz&#43;7f9M7/Oev2LnapO03hLfGZPEs6Db4OMsThWQyj2M/Oha0MtRD2u/8k/RAPNrRIlV7PvqBznvbZeApCo3h2oRdcnsLOq&#43;AmOPfpHRH12LV&#43;hHlGDjiLmf/BDdVcbMzTD5nX9g8BdeTs9F1zCw7z5K5z2L&#43;v6jTHzz80Rjw1Tu&#43;R5&#43;3yDO2GU&#43;W3rGmNoEXWdczsB578DOxIiv2uDjMMZSLOdpPHYXs0/sI&#43;jZsES3zOkD/yQNIMdFRF6uyNSBBznyL&#43;9nyy9&#43;nPpM3D4jHYincWHMwMaXUyvewxM3fxTBRwVFVC6dNaELXVTu&#43;i7Vhx&#43;nePb5bHn7h1C&#43;MPWdLxCPP0HQv5Hqg3eRTlKTRWsNaZNcgjE1es96GeX1v4arpprSNvhND6gp5qvoPa9nw2WHGL3tE3jFgXZTNyejjlv9jw7yPe879ZEvqfRv6vE76R4coLj9UpJGrSNSkZSu8DT9F7yU0tbnUjt6D0ltDOUFiPIQzyOZHscfGKLnossRXcDU6hz6&#43;Luw1TRsFD9A5wqpHL35yBVQ&#43;RIqyOFcA69YZuML38emF38UlSukdPaCFlZroXdAYxJHHMb0nn01Nq5T2X8L2i&#43;eYi1mdUHNKgxwgikGAiiPyYduYmDHuQTrzm81RbQ7Ix0mrFPaeAH9578ScNSPPkBSHU8B9nySmQkGrnodXjnP1E1fZuxLf4MulbNa8XzVRFpIjzCNGXCOnrNfytaX/RXl3a/ANmbSvi3pAJ/0MuV&#43;jSho1B1KHC4OKZ99TcsIKiidWi1g7XfAykZIKKUxiWHqwX9hcNcFeP3nkIS1rIrWVkOaqIb2i/Se8xJ6z3kJOt9FPHuMpDFF49hj5DftpLBjFwc/&#43;ockU6OZxMV10NV1bFTFJiFecYDec17Bxqv/nHWX/B4634dpTKcFd5nvdprgaw/qVUuq3c0MmTQon3UNNqkzt/9mdK60SkLu5AywgjB0dfM7RGlMFJLvKrLn9Z8gt/0lhJXplM/pJL&#43;sw1qD8osoP09cGWXu8J1UHvsujalHMbZG/cA96VwRm4p/lfJRuW6C8lby68&#43;ltPUSilsuIujdgTMJJqy0O9RbpGqH2&#43;nXKA9qlQz8ztpBlpypXA9P3PgBxn70P/EKA8uEpWugmJATGuAkJ00pjYljfF84&#43;5X/he4L30qjWgcTtqYftxaXtVhnEBWg/CIojQ2rxJVRbNLANCppbUEplFdA5/vQxQGUV0g74eNaNvCDtkK7pfOyGGPRWlEe8HCuY&#43;W7Nr0&#43;T9nnQOW6OXrjBxi7/a/Rxf6W&#43;GytwQdZzgCnNMg6Le8ZA6bGtp9/HRuu/BNitZ6kNpMNLFHzmrdTaUuqBxLRWcFGzaMcnLM4Y9JKlm3Wc1WL1WyDb9MuF12gUPIpdRkac3WiSJYBvy1ZcdlOOHbTBxi7/ZNZdGTWzgAd45mWOAPWYpB1WuITnWPysTuo7vs2PesGya8/F0suW7W2FTW4bB5/ytFnRXubpGAnMdbEWWOeSQEXlT63IyRtzpdD5QlKXajqvzJx6/ux&#43;e3o7u24pNZS5DtYBHyXGRNsEtKz6xpcXGfuwPdQfumUop3FwF/CAGs5RTz9lDooUpsaY/zeL2Om7qN7cD1B306cFLBJCrRkxnAt5UV7eomTtq6y&#43;f&#43;0Bjc1h/opxC8SFAp40T5m7/4Ywzf8BROP3kFl/61079xL0LMFG9dbu&#43;948GmNxgFwSYPuM9MQtXrwe6iguGCY1KmBv8ghvNbgLygHOkgaFXLFPIPnXsHAM19DftPzsP4AJjIkcQQmm5rV6R4AyXoD2jSTAqVRXg7teShXwUz9hNmHrmPivm9QmxxDBV0oP8CEFfyuIc54zefIr9tNUp9BlLcE&#43;MzjspwDFfQwcsufMX7HX6/iYF4KniUNcPrAX3hAW2MwURXP03RvPpu&#43;s55P1/a9&#43;P17kPwQTuWxVmfRS8coNCRTaVvENSCaJJ5&#43;lPoTdzC773tUDt9HVKshfgntN2lnl75nVMXrGmLna64lP7gHU585bojIkhO5suLR6M0fZPyOT6EL/RmZdfIrv8MAW9ypYSonyaRmAEcNnAnRgU&#43;&#43;PEhhcDv5/u0EPRvxSoNpeVBpnElwcZ2kMUVcOUY4eYjGxEEaMyPEjQaIj/LzKK1bwB8fHtfwu9az81euJbduD6be0aq0KPjNMDb9R7oTPsjEnZ9Ke45XMuRDTkhHb3FPNvjzyLxs/LuzLjtoo&#43;xMSBs30vxB2q7COZwTRDQyb2aoO2ElS5SHiav4pfXs&#43;OVryQ/uJml0uiM3P4ylY8ROlljooIfR732Q8bv&#43;Bi/fv7w7khXVA7a4kw0114QblwWKh46JI61&#43;6s75o01ysjVJcXXqhZY7Kq1n&#43;6s6jaCPX/kLOKTmAtC5HkZv/XMm7/oUKr&#43;EO5KV4TQ/CnoSV/7Sl3Hz9EEyr3PGrVw7tBSl7BzKy5E0pqk8fgNd25&#43;P3705jY5aFVrXbmFdEJGlIWpE186rsHGd&#43;uFbEb/A8c3dskouaMUr/3SCf/p7so43wrcpdRihNXeu5YqkYwe0FdMuCenaeRUmnKX&#43;xI/SycGtiS6yltLE0&#43;x2nmzwO2vaQYmkOsqhL72ZcPxhdL4Ha&#43;N5G64F/rzv70kvasIKg5f&#43;MYWNP4eLq/O/1GfFBjjNBYd/i&#43;DPV8qViKujHLruzTTGH0bnylmPAPNVFx0HcbPc6myC6Bw95742FZ&#43;J4jTNingquR1ZVRmxuRPi6hiHr3sLjfGHUblyOti147jplCq61vhthTUNcgPnoHI9mTht9QaIfrbczupf3umODl//FsLxh1o7od1BwzyDtA9ql3UF&#43;SdDU0TKOWZOclLGU9LtLKfwUEEJUx1l&#43;Mu/RTj&#43;MCrowdpk6fwAB&#43;KRVMew0VxrovzKpowIDmaUCIfbHc5PD7ez1Lt3ngnDX/ktwomH0UFPqkk9Dvzs&#43;V6e6sGb2lNWVjrmRQRxHFbAvTKvyX&#43;N3I7823Y7S/Y/tNzRGEe&#43;mhmhMJhSITbBOZNSECbBK6yjfuSHzD78BVTQvUJFdVOmICByr/aL5V6BXzp1&#43;ddTz&#43;0sr/7OYcNp5g58m6BvF7mB3YifR1Qu/aIKnad26LuMfPfd2GgO0f4K3Y80SUUR4X9IoX/LZnHcL0j55LuSf4bAX9BT4Exa7ixtv4LC5kvR&#43;QFMfYLakR9QO3xzpvTOrbyfIE3txMG0cd4zBKDUt&#43;WfRPQrXapK0qfkdniyfD6nF/zO7kUHNp5LQVY6rRErnTK1wgr5qBYXkohojbP/VBl//NVeahL5G4FXPRmO99&#43;az19JMwqS1oibDePSGlBlVhj0yMLQX0TJp1tyKoBS79bvi5JLjvs2vaeb21n9V/ut5n2NiNLO2R/OjT/&#43;vM6vjrAC7155PvDTiHbkyQdf1hT8Dmztu5vnbTNz0FFj9oCf7x4S0RdnObV6Wq98WevvrXSJUp5nnf1kdXzfXze/xbYJsgV0tcQfOWfvFlEekKzVFPGnM/jSPng958zd1Xz4rgx8y7wKBDiGh&#43;uJVa9yzh1JR5V0GmH1boc1mKv5VF/5Dpco0R7YI5HyXsXwcL1zPlunm7GADmcOHgD3IhzD6U5w8UkX3p9K0c7pcTtxuvLtsE14UTjy8IHO1b8YHW0AXZ06fH9iuczh7hDl&#43;dkLzL/7/JVHO4BVyvNx7g6l48uqU4/f3/T7nU/US4wx0SacmYx7i5/3E9UnIheJKIU4O09PuPx3kT7d3E7z264RUVrS8ZKfrPi114fHjowtBv6J3lU1L1jq33YVyPtEZC/tL8i0C74uVZ5mK7/zW0olHXzS6su61Vr5r9XJR7&#43;9EMvV3nUzUTMAxb7tLxHFb&#43;K4UoS&#43;bNZUlh0e/yVlP9tuR9oymnRRTgncCOr/VMYf/XqHh7EsP7ZqRT/ztk&#43;&#43;d8d2pczl4tRl4C5wwvb0G2YlePLBZ01Uyqtc/BGoaeCgCPcCN&#43;vY3DI9feDgUpgt9fP/Abr&#43;JFxCmfFiAAAAAElFTkSuQmCC">
+<style>/* codeDB Lens design tokens — shared by the app and the report. Palette from the codeDB SaaS and its PDF reports. */
+:root {
+  /* brand */
+  --navy-950: #070b14; --navy-900: #0a0e17; --navy-800: #0f1a2e; --navy-700: #16233d;
+  --blue-700: #1d4ed8; --blue-600: #2563eb; --blue-500: #3b82f6; --blue-100: #dbeafe; --blue-50: #eaf2ff;
+  --sky-400: #38bdf8; --sky-300: #7dd3fc;
+  --hero: linear-gradient(110deg, #070b14 0%, #0d1a33 55%, #163a8a 100%);
+
+  /* surfaces & text */
+  --bg: #f3f6fb; --surface: #ffffff; --surface-2: #f8fafc; --line: #e3e8f0; --line-strong: #cbd5e1;
+  --text: #0f172a; --text-2: #334155; --muted: #64748b; --on-dark: #e2e8f0; --on-dark-muted: #94a3b8;
+
+  /* semantic (severity / confidence / status) */
+  --crit: #e5484d; --crit-bg: #fdecec; --high: #f08c00; --high-bg: #fff4e5;
+  --med: #d4a106; --med-bg: #fdf8e4; --low: #94a3b8; --low-bg: #f1f5f9;
+  --ok: #16a34a; --ok-bg: #e8f7ee; --info: var(--blue-600); --info-bg: var(--blue-50);
+
+  /* type */
+  --font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
+  --mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --fs-xs: 12px; --fs-sm: 13px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px; --fs-2xl: 28px; --fs-3xl: 40px;
+
+  /* shape & depth */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-md: 0 4px 16px rgb(15 23 42 / 8%);
+  --focus: 0 0 0 3px rgb(37 99 235 / 25%);
+
+  /* spacing */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+/* Report layout. Tokens come from tokens.css (prepended at render time). */
+* { box-sizing: border-box; }
+html[data-lang="en"] [lang="pt-BR"], html[data-lang="pt-BR"] [lang="en"] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--text); font: var(--fs-md)/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+a { color: var(--blue-600); }
+code, pre { font-family: var(--mono); font-size: var(--fs-sm); }
+pre { background: var(--navy-900); color: var(--on-dark); padding: var(--s4); border-radius: var(--r-md); overflow-x: auto; white-space: pre-wrap; }
+.muted { color: var(--muted); }
+
+/* hero */
+.hero { background: var(--hero); color: #fff; border-bottom: 3px solid var(--blue-500); }
+.hero-in { max-width: 1120px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s6); }
+.hero-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: var(--s3); color: #fff; text-decoration: none; }
+.brand b { font: 600 var(--fs-xl) var(--font-display); letter-spacing: -.01em; }
+.brand b span { color: var(--sky-400); }
+.hero-actions { display: flex; gap: var(--s2); align-items: center; }
+.chip-link { color: var(--sky-300); text-decoration: none; font-size: var(--fs-sm); border: 1px solid rgb(125 211 252 / 35%); padding: 5px 12px; border-radius: var(--r-pill); }
+.chip-link:hover { background: rgb(125 211 252 / 10%); }
+button.lang { background: rgb(255 255 255 / 8%); color: #fff; border: 1px solid rgb(255 255 255 / 18%); border-radius: var(--r-pill); padding: 5px 12px; cursor: pointer; font: inherit; font-size: var(--fs-sm); }
+.hero h1 { font: 700 var(--fs-3xl)/1.15 var(--font-display); letter-spacing: -.02em; margin: var(--s6) 0 var(--s2); word-break: break-word; }
+.hero .sub { color: var(--on-dark); margin: 0; }
+.hero .sub > span + span::before { content: "·"; margin: 0 var(--s2); color: var(--on-dark-muted); }
+
+main { max-width: 1120px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s7); }
+h2.sec { font: 700 var(--fs-xl) var(--font-display); margin: var(--s6) 0 var(--s3); }
+h2.sec .n { color: var(--muted); font-weight: 400; }
+
+/* KPI cards */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s3); margin-top: calc(-1 * var(--s5)); }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s4); box-shadow: var(--shadow-sm); }
+.kpi .lbl { color: var(--muted); font-size: var(--fs-sm); }
+.kpi .val { font: 700 var(--fs-2xl)/1.2 var(--font-display); margin: var(--s1) 0; display: flex; align-items: baseline; gap: var(--s2); }
+.kpi .val small { font: 400 var(--fs-sm) var(--font); color: var(--muted); }
+.kpi .foot { font-size: var(--fs-sm); color: var(--muted); }
+.grade-letter { width: 52px; height: 52px; border-radius: var(--r-md); display: inline-grid; place-items: center; color: #fff; font-size: 30px; }
+.g-a { background: var(--ok); } .g-b { background: var(--blue-600); } .g-c { background: var(--med); }
+.g-d { background: var(--high); } .g-f { background: var(--crit); } .g-\? { background: var(--low); }
+.bar { height: 6px; background: var(--line); border-radius: var(--r-pill); overflow: hidden; margin: var(--s2) 0; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue-600), var(--sky-400)); }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 600; padding: 2px 10px; border-radius: var(--r-pill); white-space: nowrap; }
+.badge.partial { color: var(--high); background: var(--high-bg); }
+.t-crit { color: var(--crit); } .t-ok { color: var(--ok); }
+
+/* points of attention */
+.attn { display: grid; gap: var(--s2); }
+.attn a { display: block; background: var(--surface); border-left: 4px solid var(--low); border-radius: 0 var(--r-sm) var(--r-sm) 0; padding: var(--s3) var(--s4);
+  color: var(--text); text-decoration: none; box-shadow: var(--shadow-sm); }
+.attn a:hover { box-shadow: var(--shadow-md); }
+.attn b { display: block; }
+.attn small { color: var(--text-2); }
+.sev-critical { border-left-color: var(--crit) !important; } .sev-high { border-left-color: var(--high) !important; }
+.sev-medium { border-left-color: var(--med) !important; }
+
+/* finding story */
+.story { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s5); margin: var(--s4) 0; box-shadow: var(--shadow-sm); break-inside: avoid; }
+.eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); font-size: var(--fs-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--low); display: inline-block; }
+.dot.critical { background: var(--crit); } .dot.high { background: var(--high); } .dot.medium { background: var(--med); }
+.conf { padding: 1px 8px; border-radius: var(--r-pill); }
+.conf-confirmed { color: var(--crit); background: var(--crit-bg); } .conf-hint { color: #9a6700; background: var(--med-bg); }
+.story h3 { font: 700 var(--fs-2xl)/1.2 var(--font-display); letter-spacing: -.01em; margin: var(--s2) 0 var(--s4); }
+.rid { color: var(--muted); font-size: var(--fs-xs); }
+.boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
+.box { border-radius: var(--r-md); padding: var(--s4); background: var(--surface-2); border: 1px solid var(--line); }
+.box.action { background: var(--info-bg); border: 0; border-left: 4px solid var(--blue-500); }
+.box h4 { margin: 0 0 var(--s1); font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.box.action h4 { color: var(--blue-700); }
+.box p { margin: 0; }
+.caveat { font-size: var(--fs-sm); color: var(--muted); margin: var(--s3) 0 0; }
+details { margin-top: var(--s3); } summary { cursor: pointer; color: var(--muted); font-size: var(--fs-sm); }
+.table { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); }
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); }
+th { background: var(--blue-50); color: var(--text-2); font-weight: 600; text-align: left; }
+th, td { padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.story footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s3); margin-top: var(--s4);
+  padding-top: var(--s4); border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+.cta { display: inline-flex; align-items: center; gap: 6px; color: var(--blue-700); background: var(--blue-50); font-weight: 600; text-decoration: none;
+  padding: 7px 14px; border-radius: var(--r-pill); }
+.cta:hover { background: var(--blue-100); }
+
+/* no data / passed */
+.nodata td:first-child { white-space: normal; min-width: 220px; }
+.nodata td.reason { white-space: normal; color: var(--text-2); }
+.passed { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s2); padding: 0; list-style: none; }
+.passed li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--s2) var(--s3); font-size: var(--fs-sm); }
+.passed li::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: var(--s2); }
+.passed li.na::before { content: "–"; color: var(--muted); }
+.passed li.na { color: var(--muted); }
+
+/* locked SaaS teaser */
+.locked { position: relative; margin-top: var(--s6); border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.blur { filter: blur(5px); opacity: .7; padding: var(--s5); color: var(--blue-500); }
+.blur svg { width: 100%; height: 140px; display: block; }
+.unlock { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--s2); text-align: center; padding: var(--s4); background: rgb(255 255 255 / 55%); }
+.unlock b { font: 700 var(--fs-xl) var(--font-display); }
+
+.bottom { max-width: 1120px; margin: 0 auto; padding: var(--s4); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s2);
+  color: var(--muted); font-size: var(--fs-xs); border-top: 1px solid var(--line); }
+.empty { background: var(--ok-bg); color: var(--ok); border-radius: var(--r-md); padding: var(--s4); font-weight: 600; }
+
+@media (max-width: 640px) { .hero h1 { font-size: var(--fs-2xl); } .story { padding: var(--s4); } .story h3 { font-size: var(--fs-xl); } }
+@media print {
+  body { background: #fff; } .hero-actions, .locked { display: none; } .story, .kpi { box-shadow: none; }
+  details { display: block; } details > summary { display: none; } .story { break-before: auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <a class="brand" href="https://codedb.com.br/?utm_campaign=header&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAlg0lEQVR42u2deZRdV3Xmf/uce&#43;&#43;bqurVJJXmwZYt2XgAAh4QsY2xTZhCIIGEMSGEJAzJSjo0HVjpDg0hARbdHSBNCN00ZiWkO5AEm5kYbGyMAQ84Np4HjSVLNQ&#43;v3nCHc07/ce8bqlRVqpJKJsaptd6SVHrvvvu&#43;fc4&#43;e3/72/sJK/p5tYYvmua/&#43;jbu3ZYorhDc5Q4uFNw2kF7AR1jjH1n2v&#43;RkX3sy79v8lSNGmAY55HD3KCc3i2&#43;&#43;O7Xv&#43;4eWwuxk71Dg1ap5oe7NP/9SEftm59yVSlQfCA4HzgGOJxV8QOSnAH7HL0QkvQkHDjvlkBudk89WDn33ax1GsCk4q79LBViAno17r0bzPhH1PBCcNYDNLiyS3s1awy8n/G/5qYGf7QNaq09AKVEe4HDO3uase9/s4VtuWIjlCu802z5DF5TKfvdHQX4XBOeSJuhq3mufVit/ydc5cBYQUZ7COZzjUzOh/y5Gbqgu5ZJkKfB7tlyyC6f/QZR&#43;trOJTS0tek0/788E&#43;Is90ZnUEL7CmR9bE/7q7PAPH1vMCAtfqQFT2nLpedrpb4mSTc6aGPDX/PM&#43;lcF3mUsX1b4pZ9uevn2jsSjtO2ePKKteNHX4pvubGHf6&#43;eznTxVgyttftEM79U0RNjmbJP8O/gLgRaHyRXRXGd3di9fdi9dVRneVUYUS4nltA4HvbJIIarMV&#43;63y9hftSMH/U7XQAAIPCFCwjWP/LMrb7FySgHj/Dn77yFX5Il5PBrQfIEqnN6cU4vltw5S6sujIAeI5Gyei/c02Gv9noJBhLU2Xk/35gCl2D30cU3&#43;5QyXiFb1Fo6enqdvRpW5UPt96koiglCBKIUqlYGcrXzwf5Qe4JE6DReUrF00nLprc7Oe7&#43;&#43;LGD76aYe&#43;k6ZO6ujZc5rTc7JxNAE/l16GC3uxgf3q7HV3qRoJ8M8hBKUUSx8SNBs45RMALcni5HM7a9vWMxVQr2MYUJhwHJBHRHja5fG56&#43;BZAe1k8q6ziI9LxsW1jFGyIyq3Lok6zxhZ4aoCvgjwS5Frgi1LU5&#43;Yor1vPGS&#43;4gtLgELOzsxz5yb1M7d&#43;HXyxmrxXQHo4qpjHa9OYCDifqI8ClzR1AsWfjNSJ8yzlnOtwSOIvoHKqwDvGK2Raza2CIp0qoKXjdZVA6C3oUYbXKhS&#43;8ipf&#43;zm/Su76f0MJsAiPTIT&#43;&#43;/noe&#43;sLfpu7H1LHhJM5GmMoMLo5BCYARUdo686La5OF/0QB&#43;rvQREbUnQ7gdGYkCl&#43;DiCtgE0QGooCMRlCcBfFnwePJCTfGDzO&#43;DysDfvXcvb3n/ezi/v8A6F1OvG&#43;bqCcYpys&#43;&#43;gHqsGfvhNxBqOGsQ8cBZXBy1nIuICM4V4sbsF1Whf8tm5&#43;SFzlmZH5YCkjENIth4hqR6GNsYA5ekOZlIhzFOlVgTRCtE6Sy6UGmu7yzOWlyaWWYcTPN56kTb5ZSSLPH81hOttQSFPM9/w5tY50G/xKwreGzt8vC1RnAkMxGbfuGXKGzZhA1DRDTg0uu03087ZwWRqwoDWzd5YpOrREnZOWfnr/6Fd6MAhw0nsdEsyu9Ggm5E59uJyLK7QhYHXSQNIGyCCSOcTVBKUJ6H9gKU7yGicM5hTYJNIpIkxtksJtcByvOzSCQ11FrRC6J1K&#43;KJGw2Gzt5N96atzFYNUY/GWEfNOCIHBsEkCVIo0PWMS6jtexCVK&#43;CchWyxuOYKSndBrzh3lecsV2SLyC1/g9JcFqkhommIZxFdSI3hFUB5HcbodFOyAHcBUZgkxkZ1lBaKvYN0bdxJ16ZdFNfvIChvwCuUUX4BEY2zBps0SOqzRJVRGmOHqY7sY&#43;7YPmoTI8SNCPFyaD&#43;HZDvn1LgdN2&#43;hOGfxSt1EojhQjTBoAgVH6qkR6gZCC5FzSKmcvk3zMsfvUgeCOHmBJ86d79pPXx78Tjtl28slVUxSBeWjvALilRBdQJTGIW2qOuPwRBQmauCSkOLAetadcyUD5&#43;yltOUCvJ6NoBTWpWyKM2CbL828oSdQEOgVEGcxtQkao48w9ehtTDz4AyrHDuKcRueKHYY4hfNbVHYGCJXRYaaqIbGnmJu1iKT3VzMwZ6BqHHUjxONHOkAXcIYFG1NciuP5UugZGhNkMHVWp8JItRMRlI/SecQrpC5KBYj2MXGEi6r0bj2TLc/7RfrPuxq/dxOJAROBS2KcM22Gt/UBXFZ3aOY7LvudQpSH8ny0B64&#43;SWX/9zl2x/VMPHov1im8XCGLzRfWK9yCzyctZj11&#43;gkS&#43;Kich03qYCOS&#43;hyXfuAzbL/oEqRSRXk&#43;iYO6gUqUUJGAWmWWx97zKySzUyktAbgowlSmOndCtpzcuBR7NoRAcOKVv5qt67LP5xDlgQpIGjV6Nu3izF/4bQZ/7hVIvkzcABuH6fNEdeyYDjrF0QK//XvXYW/XOqQRHy&#43;XQxFSffxmDt/8OSb2P4TOlVBapYaQRaIpZ9NVamOciXAmBNMArdDd5WzzakzYoLT9LJ79/s9Q7O/D1CKMtYQWGl6eWGD4E3/M1M3Xo0o9YE0awFTnsI3qPFeUIRVJsWeDW6ric6ohnyiNTWJcUmPH5a/hjFe8F69/J2HVpku&#43;WVZo2SsD32Yr3toO8KVjG3eAOM9ADmvSWELni2hbYeKuv&#43;fAjX9H1AjxcgWsiVpgYxOcjbI/kzTZXMBo6p5&#43;xEsTMVEKU69S2HY2W9/0RxR3PxuCIkkc03jicUa/&#43;Elmb78BVexun4POYWYm57vC9jGPFMsb3OlIdkRrkkaNfFcX57/xgwxe/HrCOtgoRJRkq729WZw12U1rxAtQWubjbNslD5NYXBJhTZJhpdrXw2VRlQE8glKB&#43;OjtPPKFdzG5/378YjfOJAsOWTXfFXVsN/EDdE9/m&#43;dRChPWwTlyW3fh9w1hqzOEhx/DNKqoUndWLEyv66oVTMfqX1jFWsQAawG&#43;R1ybpXfzTp75tk&#43;T3/YcwtkwjX6QJk6ki9wgIuggh3jpxoimj1GfOEg49QRxdQqbRCgvQOe78buHyPdtIShvQufzqUEaDaxJMkN0HkkOawxevhudHGP/P/0&#43;R&#43;68Ab/U2&#43;ZsTni0OVShhCr2tFeBpHG/jUKcSVJCLpdPAw&#43;bUf1K4cI6pjLbDiBbcWGHGeYbYG1WflyrMLjrPJ71jr9FyjuIqw1Epzx5042kAAheIcAmjtn9dzF2zzeYfOR71Ecfx9SmMXE9NZdzWc6gEO3jFcrk&#43;rfRs/Ni&#43;s&#43;9hp4znodX7CKpN7BJnEVgbZdmjUF0nlzOcOi63&#43;fgrV/EL/a1wVqxEbrnFWSaRXnXGXpLWh63YR1TnV3U7cz799oYoO3z4/ocg2eey7P/4Au4wiZMo5HmB861Vr4zBl3I44xl7K7rOHTjp5ne9yM8F9PT20e5b4CunjLHRsaYnJxCa91KsJxzYNOEzCYhon1KG85h/UWvZ/3FbyDo6ieuzjU5xo7dZrB4FIqaQ9e9k4O3/mNmhGTFRhA/hyqWEC/IoHQZm9axvo3B1qvYsL6k21nEAGtx4CqSsEHP&#43;g08993XIz1nHAe&#43;sxZB8IoBkw98n8evez/jD9xMV3c3G7Zsp7e3jyDwMElCkiQMH3niOAN0howiafZr4jo2qlPcsIctV72L9c99PTaJMHGbDkjTEYvFp5C37Pt/v8ETd38Hv1hexU7I3toL0oKM1i2GAGNwSYyNo3Q3rAD8zAAb3SkTXCI4a/E8uPhdXyS/cy/xXNvtpG7AojwfxLH/&#43;j9j39f/O1o5Nu84i3UD/WitqFarTM/MUqlUaDRCkiRBKbWiZElEYeMaJqoxeOGr2Pmq/0bQs4GkNttiM2kezipPIBM8&#43;JlfZnp4X0eusFI&#43;yS1Cu7iOXIIVgX&#43;KBui4vNIktWme&#43;eYPseGFb6cxvRB8gw7yxLVJHvjfb&#43;Xoj6&#43;jb/02tm3bRqmYp1avMzIyyvT0DEmSZNUm1RI9HZ88LW&#43;IuDpBYf3ZnP2Gz1La&#43;myS2jQiXtsF2hiV68WN38pPPv06kkQQJeDcyngsWZVvWPY52s93v&#43;9UwY9rs2x57tWc&#43;eoP0aiYlBjLfqyx6CBHNDvKPR/7Zcbuv5H1W89i5/at5AKfsbFxDhw6zNxcDaU12vPar29lvLYZO6UgK9VmRGXBKnQWne8mrowwcc91dG97DoX1uzFhLXVZ2dlgwxr&#43;wG7yfoPx&#43;29CB4UlDLB68GWF4J/kDpD5JJW1&#43;IHmkvd8HW/9&#43;dgwakUGzlqU1piwyr/&#43;5SuYeOQHrNt8Btu3bkQp4cgTI4yOTSAYMCEmiVpZp9IB4uUQ3WZDnU3S&#43;D9Owz&#43;cQ7SPCvIoP8iiK5PZycPGNZRfZM9br6e0&#43;ZmYRiXlsLLkzVkhn4t55NpXMrn/odQVzUuYTg781WwT71SKGiKKpDHDrmveSWHL&#43;TRmQkSreXG&#43;aM2D176dyUduo7x&#43;K1s3D6GU4vDwUUaOHkYRo4uDFDacT2njMygOnUWubzNBzyBeVw8ql0f5GpTD2QibVImrE4Qzx6iP7GPuwE&#43;YO/gAjbEjiNJ4pe6UmrAxyi9iwjke&#43;/xvcM7vfhOv2I&#43;LI5yo7P4SYvrYfPk7mT74tgUO7uTczmqf7J30RUWwSUxpYIjNl/82Ud1lGW471PS78uz/6sc5dscXyZWH2LxhHUEQMHzkKEePPE554wWsv/CN9O56Afl1O9D5IuIr0BYRC9qCcogHogXxFCrQ4AsSpMy4s45o&#43;ijTD3yfI9/6WybuvAmdL6ZZqE3Q&#43;S4a449x4Lo/4qw3/B2WqENYpUnqFYo7X8zA2Rcx&#43;tCd&#43;PliWms4zSt/lWfAIvGr0iT1WXZc8VrWXfxrJPUIlMrcsEXnAiqHH&#43;TBz/4WTnzWrxtkw4YhJqemOXTgUTZe&#43;CZ2/9LnKO&#43;8DFXoAhdjkjrW1HEmxLkYXJy5hIybdgnWRlkOEGGjCOcS/O4y5T3ns/nFr8Ur9zFx&#43;3daxRScRQdd1IbvJujfQdf2i7FRtV17cgnO6yGfg4n7vg46v4CmOH3gc1wJchXbyVmLXygydNGvksR0kDrNc06x/yt/QVKbRXkBjbDB1NQ0w8OH8fJ9bN37XkTniKujuDhsGbX1ENWW/nU82uVI3T4fkphodo64WuPM17&#43;N8rnPxdSrrcPcOYsKChy96aPElVFEBW0djyiSxhzFHVfSvfFMbBy2D/bT5HZWYYAlkgdRmKhG3xkXpmFemGQF/PQQ1PmA6Ud&#43;xNg9X0UXexEss7MVHn1sH3EUISqgOjsJJCgvdxK15ePjceX5aK2pTlYxotpRU7YLlF&#43;kMfYI43f9PTrfhbMmc5cCNsYGG&#43;jbfQUuaWSGX9toZ6krqJMtoDsTs&#43;68F4AfgE3AZZGPS8&#43;CJ269Fhs3stCPVmwvIojAzPQkE6NPEDaqgEMpjcpWvshSCoi2Kk1Epa/RHiJCEoVMj44wPjKSRULzTJDuAr/AxN3/l6Q2nWXobZsnsaH7zBfg5YJFqeO1dDsrOISXbwtyzuLn85R37c3cT5uQUn6O&#43;tgxJu//NjrXlVa4Fs2ZFLVqlVpjhqCQJ1dMH34&#43;QOc8tO8hTrJClmpV3JwDEyfYxGBdgrERYVwnSiIsBr&#43;7e3GlRGaA&#43;siDVPbfRnn3i0jqM1lpVbBRg2DwGRT7N1EZH0H5/jKJ2dpwZ8iiBjiRbkcwcUzX4EYKQ3uwsWsJUZ216Lxi&#43;tFbaUwfOSHjmMpKNHEcE1ciqrUKyhOULyhfozyF8gXJwlCUBS1YDGiwYmlYhx8oCnkPpfXyty&#43;CszEzj95Aec9LMllh6sKciSG/jtKG3cyOHEKCYBGFxRp2pciiZ4CswOkJLokoDe1EFwexJu6oX6R/mX7k1qyaLsu77&#43;wvqXtKXVCaxAnGGJIkIYpiojAkiiLiJP2dA6wT8oHPb&#43;7dznO29xEa2&#43;pTWZrQdIiXo3r4DpLGbKo/alU7HZYchaHdzf6K0wT&#43;/N4qtRrFWrMZzNmE4rodoFVa92xK58XDhIa5I/ehvGC&#43;sHeJdsPjD1Q6/PziDyWCdY5STvPC3X2cM1QisS7zPG5psZZzKB0QTh0injmCqGyVuzZtEvTtTOvH7nS4neMb27yTkQsKkO/f1IIrpXrTAnw8N0k4dQTRPo7FuRVno0ys5Kd/d6uTHVrn8LQwWY1595ceppYY8sphHfh&#43;DheFSxjBgfIw4SzR9DBB/y5wjbb6zVi80hDKm38Qr7XbWRCGyurPGSV4pYFUTNBpBaWJq5PztvdiANhohtn7Ppmq4PL9qeYUlx7YzdpwU&#43;V23MOmxXprUM4wPhcSofC7evFKPYx97bPUHvlXVK7Yrs0uOMOciYnnRjLBV7vw76xB5cpoL1iZwu4k3c6KqYildnJawy3NA986hxYwYQ2bRKkBFtsBNkbnBwlH72TkG6&#43;ha8&#43;vUdi6F7&#43;8CZUvgAbR6YEr2cErnqS/9xTKV&#43;BrlK8RX9AuIZkbY/reG5n8zueJRg8SDG4kmjiWajIX8yXOYhqzrehNml7IOkTnUyo9jjvY01OPdlbNBS3jRlM5hWoSWu2ynMxTN3iLGEBah2HPeb9DffjbTN/1l8zc/Vf4vTsJ1p1DMHAGXnkjXlc/qtCNCoJ2FORirKlh69MklRHi8YPUhx8gHH4EU5shv3U3G173H5m6&#43;Uu4keGsdOiWyORNW84i83vAmrnL6XI7JzaALB&#43;GOhw2TQBaKyhbQIj2l179rUQiQZRP9543UtxxNfHUg0STD1I/eAvVh7&#43;S1mlFUml3sw/LZTohm6SuRRQqXyIY3ELPs66kcMb5BBu2Ir6Hi6MFdYJF7kIH88Ve2UJyNunw/3IS2fmK5ygsbgBZQXOEcw4TVtq0c/M&#43;jUPnulB&#43;HhM3WvXYxY1gcPEcOlfG23oZhe2X41yISyrYuIKLKtikCjaVK4pWiO&#43;jc0VUsTtrhuvGej46F6DEYsM6ilyrHrHkR1Eane9Npe&#43;ZI0rVkAob13FJp/tZe7ezpAFW3JniHFFlvN0fninXrInxiv14xT7M1GHw9PJTEjLK2MVxWhLUGp3vQZf6Ea3AE5RWaaigs5BBHE65lK7Gsnnzeiqzs8zNVdPzQZZnZ9IiUQ6veyPOmLb/zzgu25jEJBGiiktNF1hTXk6dXFuQojF5ZF4Skyo/ErximXz/tlSfs3wLyjxDNNUFadUrxMU1XFTFhnMdjyo2quHiBknYoFDM8/yrX8BZz9iDManAq&#43;VWlvgcziboQh9Bz&#43;ZUB9rU5luXKjvmjqbuVeS0uZ3jDbAa8LN4vza6D5eEaUtZa2yFRXmKrq3PSlN7WYbrU37HeAWOk5y0jLLoQ9CeR61a59YbvstjDz6SSlesaSmSZUkSMSQ3sAuvawM2idraVAdKHOHkvk5VyWkFP43oVzl1xOEQL6A2dohk9miacLn2arYGymf9fBqBHAduKutz8RzR&#43;N1pL4GX6zjvOkbfnEAklRJzhsP79jMzPY0OcuiuXhqHHiY6dhDxj39/EYUzEaVtlyJeIZPCN/evIK5OfeShrNTmTjv4IMvlAcuk855PY3qM&#43;rH7KJ61gyS2Wc&#43;YwoQh3dsvorBuF&#43;HEAcTPLfgwaTJW2/8VkrlhClv2pv44sqhiAdEOJxZkiTE7ImkxxktzAd/TOBcTz4xSu&#43;NOKvfcnB6i&#43;ngQnTWooIueM6/CJSGCasvdVYCrP0F19DHEC5bI4tcW/JOjo7NQNIljph&#43;9he49LyMlRF0mto3wu8sMXvByDn3rw/hBEeeSRV1QOHoH4djd&#43;D1bKV/6KqJj46hcD6pYRgUFJPBSIaySLNZ1OBNjowYuqmFqk0STw0QjB4jGDmHrc&#43;nrFgEfUdhwjtKOvRQ2PjM9S7LwzVmLyuWJhu&#43;mMT2G8ruW4bHWDvwlDCAr00l6eSYeuIXNV02DKqadkwiCwoYJ6y9&#43;I0dv&#43;0zarr9oSOdQuR6S6THWvel1bH77f&#43;Dgh/6Eo5//MEH/JlA&#43;4uVSUs/zwCQ4kzZQ2KiBixu4JEr9vsok7YWuNEdYjEYWwTnDwDN/PSPhaq0zyjnB04aJfTemfFAgK/BApw7&#43;6unojuqSDvLMHnmUuf23pFUka7NYWkiiOsUNuxi6&#43;E0k9el2gXxeIuSRVCYpX3wNQ6/9Q8wUDL78rfi967FRDVOfxsyN0Dj6EPUDdxKOPEZSGSWZm8DFqfBVggKq0IUEhRTMpeSFSmPCCl3bnkfP7peSNGZbJdT09M1B7QDTj9&#43;G&#43;IUVVMROFvxla8Kru6KIYBLLyO3/gBaDc6olghVRmEbI5hf8AYX1Z2HDWnuyiAgojUsivK4yW975YcTzsFFCftsZdD/nSky9isoVsFFI3&#43;WvZOd7/xfB0DZMtZLWkJXXjrA6O1qWipqsRUQxdNl7QPkpwFkIbY3FyxWo7fsatYljaC84wQF8KitflmJDV3/FtPjexeh9N1Efvj3tiW1VvwSThPg969nxig9hbYwNa9iwgQ3ruKhBMjfNxt94L90X7qFy922MffnT6C4YuPLVabQSx&#43;hSL1vf8WGGfvUt7P7Lr9F3&#43;SswtVlcVM&#43;ud&#43;KHixok1XEGL/09SjsuwzRm08O3xf34eGaEsXv&#43;EVH5E/j&#43;tXE78/6n1Lv5pNXRojzi2gxbLnkZZ77uczQqtawhuSNFloCKu5e4WEWSbFhURl2X9jwHVQx4&#43;J0vJjx2mPM&#43;/2MwlofeeTVzD93O0CvfwY7/9DGS6Qr&#43;QDem7pi79/s4l6xwRmCaTbuGw584B2w6O89ltWZnE/zSII0HPsa&#43;r30QnetdsoZ9am5H1kqauDCrNHiFHo7d9U2GnvN18me8jLg&#43;m3JALu17xUT0FJ9NcrbCdUNG/adVPwVHP/sJKvd8H/F8Zn7wbdb94svpe/7LmXvodgZf8uuoPBz9/EcQUWz&#43;7f9M7/Oev2LnapO03hLfGZPEs6Db4OMsThWQyj2M/Oha0MtRD2u/8k/RAPNrRIlV7PvqBznvbZeApCo3h2oRdcnsLOq&#43;AmOPfpHRH12LV&#43;hHlGDjiLmf/BDdVcbMzTD5nX9g8BdeTs9F1zCw7z5K5z2L&#43;v6jTHzz80Rjw1Tu&#43;R5&#43;3yDO2GU&#43;W3rGmNoEXWdczsB578DOxIiv2uDjMMZSLOdpPHYXs0/sI&#43;jZsES3zOkD/yQNIMdFRF6uyNSBBznyL&#43;9nyy9&#43;nPpM3D4jHYincWHMwMaXUyvewxM3fxTBRwVFVC6dNaELXVTu&#43;i7Vhx&#43;nePb5bHn7h1C&#43;MPWdLxCPP0HQv5Hqg3eRTlKTRWsNaZNcgjE1es96GeX1v4arpprSNvhND6gp5qvoPa9nw2WHGL3tE3jFgXZTNyejjlv9jw7yPe879ZEvqfRv6vE76R4coLj9UpJGrSNSkZSu8DT9F7yU0tbnUjt6D0ltDOUFiPIQzyOZHscfGKLnossRXcDU6hz6&#43;Luw1TRsFD9A5wqpHL35yBVQ&#43;RIqyOFcA69YZuML38emF38UlSukdPaCFlZroXdAYxJHHMb0nn01Nq5T2X8L2i&#43;eYi1mdUHNKgxwgikGAiiPyYduYmDHuQTrzm81RbQ7Ix0mrFPaeAH9578ScNSPPkBSHU8B9nySmQkGrnodXjnP1E1fZuxLf4MulbNa8XzVRFpIjzCNGXCOnrNfytaX/RXl3a/ANmbSvi3pAJ/0MuV&#43;jSho1B1KHC4OKZ99TcsIKiidWi1g7XfAykZIKKUxiWHqwX9hcNcFeP3nkIS1rIrWVkOaqIb2i/Se8xJ6z3kJOt9FPHuMpDFF49hj5DftpLBjFwc/&#43;ockU6OZxMV10NV1bFTFJiFecYDec17Bxqv/nHWX/B4634dpTKcFd5nvdprgaw/qVUuq3c0MmTQon3UNNqkzt/9mdK60SkLu5AywgjB0dfM7RGlMFJLvKrLn9Z8gt/0lhJXplM/pJL&#43;sw1qD8osoP09cGWXu8J1UHvsujalHMbZG/cA96VwRm4p/lfJRuW6C8lby68&#43;ltPUSilsuIujdgTMJJqy0O9RbpGqH2&#43;nXKA9qlQz8ztpBlpypXA9P3PgBxn70P/EKA8uEpWugmJATGuAkJ00pjYljfF84&#43;5X/he4L30qjWgcTtqYftxaXtVhnEBWg/CIojQ2rxJVRbNLANCppbUEplFdA5/vQxQGUV0g74eNaNvCDtkK7pfOyGGPRWlEe8HCuY&#43;W7Nr0&#43;T9nnQOW6OXrjBxi7/a/Rxf6W&#43;GytwQdZzgCnNMg6Le8ZA6bGtp9/HRuu/BNitZ6kNpMNLFHzmrdTaUuqBxLRWcFGzaMcnLM4Y9JKlm3Wc1WL1WyDb9MuF12gUPIpdRkac3WiSJYBvy1ZcdlOOHbTBxi7/ZNZdGTWzgAd45mWOAPWYpB1WuITnWPysTuo7vs2PesGya8/F0suW7W2FTW4bB5/ytFnRXubpGAnMdbEWWOeSQEXlT63IyRtzpdD5QlKXajqvzJx6/ux&#43;e3o7u24pNZS5DtYBHyXGRNsEtKz6xpcXGfuwPdQfumUop3FwF/CAGs5RTz9lDooUpsaY/zeL2Om7qN7cD1B306cFLBJCrRkxnAt5UV7eomTtq6y&#43;f&#43;0Bjc1h/opxC8SFAp40T5m7/4Ywzf8BROP3kFl/61079xL0LMFG9dbu&#43;948GmNxgFwSYPuM9MQtXrwe6iguGCY1KmBv8ghvNbgLygHOkgaFXLFPIPnXsHAM19DftPzsP4AJjIkcQQmm5rV6R4AyXoD2jSTAqVRXg7teShXwUz9hNmHrmPivm9QmxxDBV0oP8CEFfyuIc54zefIr9tNUp9BlLcE&#43;MzjspwDFfQwcsufMX7HX6/iYF4KniUNcPrAX3hAW2MwURXP03RvPpu&#43;s55P1/a9&#43;P17kPwQTuWxVmfRS8coNCRTaVvENSCaJJ5&#43;lPoTdzC773tUDt9HVKshfgntN2lnl75nVMXrGmLna64lP7gHU585bojIkhO5suLR6M0fZPyOT6EL/RmZdfIrv8MAW9ypYSonyaRmAEcNnAnRgU&#43;&#43;PEhhcDv5/u0EPRvxSoNpeVBpnElwcZ2kMUVcOUY4eYjGxEEaMyPEjQaIj/LzKK1bwB8fHtfwu9az81euJbduD6be0aq0KPjNMDb9R7oTPsjEnZ9Ke45XMuRDTkhHb3FPNvjzyLxs/LuzLjtoo&#43;xMSBs30vxB2q7COZwTRDQyb2aoO2ElS5SHiav4pfXs&#43;OVryQ/uJml0uiM3P4ylY8ROlljooIfR732Q8bv&#43;Bi/fv7w7khXVA7a4kw0114QblwWKh46JI61&#43;6s75o01ysjVJcXXqhZY7Kq1n&#43;6s6jaCPX/kLOKTmAtC5HkZv/XMm7/oUKr&#43;EO5KV4TQ/CnoSV/7Sl3Hz9EEyr3PGrVw7tBSl7BzKy5E0pqk8fgNd25&#43;P3705jY5aFVrXbmFdEJGlIWpE186rsHGd&#43;uFbEb/A8c3dskouaMUr/3SCf/p7so43wrcpdRihNXeu5YqkYwe0FdMuCenaeRUmnKX&#43;xI/SycGtiS6yltLE0&#43;x2nmzwO2vaQYmkOsqhL72ZcPxhdL4Ha&#43;N5G64F/rzv70kvasIKg5f&#43;MYWNP4eLq/O/1GfFBjjNBYd/i&#43;DPV8qViKujHLruzTTGH0bnylmPAPNVFx0HcbPc6myC6Bw95742FZ&#43;J4jTNingquR1ZVRmxuRPi6hiHr3sLjfGHUblyOti147jplCq61vhthTUNcgPnoHI9mTht9QaIfrbczupf3umODl//FsLxh1o7od1BwzyDtA9ql3UF&#43;SdDU0TKOWZOclLGU9LtLKfwUEEJUx1l&#43;Mu/RTj&#43;MCrowdpk6fwAB&#43;KRVMew0VxrovzKpowIDmaUCIfbHc5PD7ez1Lt3ngnDX/ktwomH0UFPqkk9Dvzs&#43;V6e6sGb2lNWVjrmRQRxHFbAvTKvyX&#43;N3I7823Y7S/Y/tNzRGEe&#43;mhmhMJhSITbBOZNSECbBK6yjfuSHzD78BVTQvUJFdVOmICByr/aL5V6BXzp1&#43;ddTz&#43;0sr/7OYcNp5g58m6BvF7mB3YifR1Qu/aIKnad26LuMfPfd2GgO0f4K3Y80SUUR4X9IoX/LZnHcL0j55LuSf4bAX9BT4Exa7ixtv4LC5kvR&#43;QFMfYLakR9QO3xzpvTOrbyfIE3txMG0cd4zBKDUt&#43;WfRPQrXapK0qfkdniyfD6nF/zO7kUHNp5LQVY6rRErnTK1wgr5qBYXkohojbP/VBl//NVeahL5G4FXPRmO99&#43;az19JMwqS1oibDePSGlBlVhj0yMLQX0TJp1tyKoBS79bvi5JLjvs2vaeb21n9V/ut5n2NiNLO2R/OjT/&#43;vM6vjrAC7155PvDTiHbkyQdf1hT8Dmztu5vnbTNz0FFj9oCf7x4S0RdnObV6Wq98WevvrXSJUp5nnf1kdXzfXze/xbYJsgV0tcQfOWfvFlEekKzVFPGnM/jSPng958zd1Xz4rgx8y7wKBDiGh&#43;uJVa9yzh1JR5V0GmH1boc1mKv5VF/5Dpco0R7YI5HyXsXwcL1zPlunm7GADmcOHgD3IhzD6U5w8UkX3p9K0c7pcTtxuvLtsE14UTjy8IHO1b8YHW0AXZ06fH9iuczh7hDl&#43;dkLzL/7/JVHO4BVyvNx7g6l48uqU4/f3/T7nU/US4wx0SacmYx7i5/3E9UnIheJKIU4O09PuPx3kT7d3E7z264RUVrS8ZKfrPi114fHjowtBv6J3lU1L1jq33YVyPtEZC/tL8i0C74uVZ5mK7/zW0olHXzS6su61Vr5r9XJR7&#43;9EMvV3nUzUTMAxb7tLxHFb&#43;K4UoS&#43;bNZUlh0e/yVlP9tuR9oymnRRTgncCOr/VMYf/XqHh7EsP7ZqRT/ztk&#43;&#43;d8d2pczl4tRl4C5wwvb0G2YlePLBZ01Uyqtc/BGoaeCgCPcCN&#43;vY3DI9feDgUpgt9fP/Abr&#43;JFxCmfFiAAAAAElFTkSuQmCC" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <div class="hero-actions">
+        <a class="chip-link" href="https://codedb.com.br/?utm_campaign=header&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">Powered by codeDB</span><span lang="pt-BR">Powered by codeDB</span></a>
+        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
+      </div>
+    </div>
+    <h1><span lang="en">Database health check</span><span lang="pt-BR">Diagnóstico do banco</span> — sql-demo-01</h1>
+    <p class="sub"><span>SQL Server 16.0.4135.4</span><span>onprem</span><span>2026-10-22 09:30</span><span><span lang="en">Read-only analysis</span><span lang="pt-BR">Análise somente leitura</span></span></p>
+  </div>
+</header>
+
+<main>
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl"><span lang="en">Grade</span><span lang="pt-BR">Nota</span></div>
+    <div class="val"><span class="grade-letter g-d">D</span>55<small>/100</small></div>
+    <div class="foot"><span lang="en">Weighted by severity</span><span lang="pt-BR">Ponderada pela severidade</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl"><span lang="en">Coverage</span><span lang="pt-BR">Cobertura</span></div>
+    <div class="val">83%</div>
+    <div class="bar"><i style="width:83%"></i></div>
+    <div class="foot"><span lang="en">10 of 12 applicable rules ran</span><span lang="pt-BR">10 de 12 regras aplicáveis executadas</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl"><span lang="en">Findings</span><span lang="pt-BR">Achados</span></div>
+    <div class="val t-crit">5</div>
+    <div class="foot"><span lang="en">3 critical or high</span><span lang="pt-BR">3 críticos ou altos</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl"><span lang="en">No data</span><span lang="pt-BR">Sem dados</span></div>
+    <div class="val">2</div>
+    <div class="foot"><span lang="en">Rules that could not run</span><span lang="pt-BR">Regras que não puderam rodar</span></div>
+  </div>
+  
+</section>
+
+
+
+
+<h2 class="sec"><span lang="en">Points of attention</span><span lang="pt-BR">Pontos de atenção</span></h2>
+<div class="attn">
+<a class="sev-critical" href="#MSSQL-BACKUP-001"><b><span lang="en">Databases with missing or old backups</span><span lang="pt-BR">Bancos com backup ausente ou antigo</span></b><small><span lang="en">Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.</span><span lang="pt-BR">Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.</span></small></a><a class="sev-high" href="#MSSQL-CHECKDB-001"><b><span lang="en">Databases without a recent clean DBCC CHECKDB</span><span lang="pt-BR">Bancos sem DBCC CHECKDB recente e sem erros</span></b><small><span lang="en">Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.</span><span lang="pt-BR">Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.</span></small></a><a class="sev-high" href="#MSSQL-WAITS-001"><b><span lang="en">The instance spends a lot of time waiting on one resource</span><span lang="pt-BR">A instância passa muito tempo esperando por um recurso</span></b><small><span lang="en">Start with the top row. The meaning column says which resource to look at; the rule&#39;s documentation page lists the usual causes for each wait.</span><span lang="pt-BR">Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.</span></small></a><a class="sev-medium" href="#MSSQL-CONFIG-001"><b><span lang="en">Instance settings left at defaults that hurt performance</span><span lang="pt-BR">Configurações da instância no padrão que prejudicam o desempenho</span></b><small><span lang="en">Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.</span><span lang="pt-BR">Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.</span></small></a><a class="sev-medium" href="#MSSQL-MISSINGIDX-001"><b><span lang="en">High-impact missing indexes</span><span lang="pt-BR">Índices ausentes de alto impacto</span></b><small><span lang="en">Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.</span><span lang="pt-BR">Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.</span></small></a>
+</div>
+
+<h2 class="sec"><span lang="en">Findings</span><span lang="pt-BR">Achados</span> <span class="n">5</span></h2>
+
+<article class="story" id="MSSQL-BACKUP-001">
+  <div class="eyebrow">
+    <span class="dot critical"></span>
+    <span><span lang="en">Finding 1 of 5</span><span lang="pt-BR">Achado 1 de 5</span></span>
+    <span>· <span lang="en">Critical</span><span lang="pt-BR">Crítica</span></span>
+    <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span>
+  </div>
+  <h3><span lang="en">Databases with missing or old backups</span><span lang="pt-BR">Bancos com backup ausente ou antigo</span></h3>
+  <div class="table"><table>
+    <tr><th>database</th><th>recovery_model</th><th>last_full</th><th>last_diff</th><th>last_log</th><th>problem</th></tr>
+    <tr><td>sales</td><td>FULL</td><td>2026-10-12 23:10</td><td>NULL</td><td>2026-10-12 23:40</td><td>full/diff too old</td></tr><tr><td>inventory</td><td>FULL</td><td>2026-10-21 23:05</td><td>2026-10-21 23:30</td><td>2026-10-21 02:15</td><td>log backup too old</td></tr>
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">A failure or mistake on these databases may lose more data than you expect, or be unrecoverable.</span><span lang="pt-BR">Uma falha ou erro nesses bancos pode perder mais dados do que você espera, ou não ter recuperação.</span></p></div>
+    <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.</span><span lang="pt-BR">Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.</span></p></div>
+  </div>
+  <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.</span><span lang="pt-BR">Baseado no histórico do msdb desta instância. Backups de ferramentas externas sem histórico no msdb não aparecem.</span></p>
+  
+  <details><summary><span lang="en">Source query</span><span lang="pt-BR">Query de origem</span> · <span lang="en">Collected at</span><span lang="pt-BR">Coletado em</span> 2026-10-22 09:30 UTC · 120ms</summary><pre>WITH b AS (
+    SELECT database_name,
+           MAX(CASE WHEN type = &#39;D&#39; THEN backup_finish_date END) AS last_full,
+           MAX(CASE WHEN type = &#39;I&#39; THEN backup_finish_date END) AS last_diff,
+           MAX(CASE WHEN type = &#39;L&#39; THEN backup_finish_date END) AS last_log
+    FROM msdb.dbo.backupset
+    WHERE is_copy_only = 0
+    GROUP BY database_name
+)
+SELECT d.name                AS [database],
+       d.recovery_model_desc AS recovery_model,
+       b.last_full,
+       b.last_diff,
+       b.last_log,
+       CASE
+           WHEN b.last_full IS NULL THEN &#39;no full backup&#39;
+           WHEN ISNULL(b.last_diff, b.last_full) &lt; DATEADD(hour, -{{full_max_hours}}, GETDATE())
+                AND b.last_full &lt; DATEADD(hour, -{{full_max_hours}}, GETDATE()) THEN &#39;full/diff too old&#39;
+           ELSE &#39;log backup too old&#39;
+       END AS problem
+FROM sys.databases d
+LEFT JOIN b ON b.database_name = d.name
+WHERE d.database_id &lt;&gt; 2               -- tempdb
+  AND d.state_desc = &#39;ONLINE&#39;
+  AND d.source_database_id IS NULL     -- snapshots
+  AND (
+        b.last_full IS NULL
+     OR (ISNULL(b.last_diff, b.last_full) &lt; DATEADD(hour, -{{full_max_hours}}, GETDATE())
+         AND b.last_full &lt; DATEADD(hour, -{{full_max_hours}}, GETDATE()))
+     OR (d.recovery_model_desc &lt;&gt; &#39;SIMPLE&#39; AND d.name &lt;&gt; &#39;model&#39;
+         AND ISNULL(b.last_log, &#39;19000101&#39;) &lt; DATEADD(hour, -{{log_max_hours}}, GETDATE()))
+  )
+ORDER BY d.name;
+</pre></details>
+  <footer>
+    <span><code class="rid">MSSQL-BACKUP-001</code> · <a lang="en" href="https://lens.codedb.com.br/rules/mssql-backup-001/" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="https://lens.codedb.com.br/pt-BR/rules/mssql-backup-001/" target="_blank" rel="noopener">Documentação ↗</a></span>
+    <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=MSSQL-BACKUP-001&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">codeDB checks backups continuously and alerts you the moment one is late.</span><span lang="pt-BR">O codeDB verifica os backups continuamente e alerta assim que um atrasa.</span> →</a>
+  </footer>
+</article>
+
+<article class="story" id="MSSQL-CHECKDB-001">
+  <div class="eyebrow">
+    <span class="dot high"></span>
+    <span><span lang="en">Finding 2 of 5</span><span lang="pt-BR">Achado 2 de 5</span></span>
+    <span>· <span lang="en">High</span><span lang="pt-BR">Alta</span></span>
+    <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span>
+  </div>
+  <h3><span lang="en">Databases without a recent clean DBCC CHECKDB</span><span lang="pt-BR">Bancos sem DBCC CHECKDB recente e sem erros</span></h3>
+  <div class="table"><table>
+    <tr><th>database</th><th>last_good_checkdb</th><th>days_ago</th><th>create_date</th></tr>
+    <tr><td>sales</td><td>2026-08-30 01:00</td><td>53</td><td>2021-03-02</td></tr><tr><td>reporting</td><td>NULL</td><td>NULL</td><td>2025-11-18</td></tr>
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Corruption can sit unnoticed for weeks and end up in every backup, leaving nothing clean to restore.</span><span lang="pt-BR">Uma corrupção pode passar semanas sem ser notada e entrar em todos os backups, sem deixar nada limpo para restaurar.</span></p></div>
+    <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.</span><span lang="pt-BR">Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.</span></p></div>
+  </div>
+  <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.</span><span lang="pt-BR">Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados.</span></p>
+  
+  <details><summary><span lang="en">Source query</span><span lang="pt-BR">Query de origem</span> · <span lang="en">Collected at</span><span lang="pt-BR">Coletado em</span> 2026-10-22 09:30 UTC · 120ms</summary><pre>SELECT d.name AS [database],
+       NULLIF(CAST(DATABASEPROPERTYEX(d.name, &#39;LastGoodCheckDbTime&#39;) AS datetime), &#39;19000101&#39;) AS last_good_checkdb,
+       DATEDIFF(day, NULLIF(CAST(DATABASEPROPERTYEX(d.name, &#39;LastGoodCheckDbTime&#39;) AS datetime), &#39;19000101&#39;), GETDATE()) AS days_ago,
+       d.create_date
+FROM sys.databases d
+WHERE d.database_id &lt;&gt; 2                -- tempdb
+  AND d.state_desc = &#39;ONLINE&#39;
+  AND d.source_database_id IS NULL      -- snapshots
+  AND d.create_date &lt; DATEADD(day, -{{max_days}}, GETDATE())
+  AND ISNULL(CAST(DATABASEPROPERTYEX(d.name, &#39;LastGoodCheckDbTime&#39;) AS datetime), &#39;19000101&#39;) &lt; DATEADD(day, -{{max_days}}, GETDATE())
+ORDER BY d.name;
+</pre></details>
+  <footer>
+    <span><code class="rid">MSSQL-CHECKDB-001</code> · <a lang="en" href="https://lens.codedb.com.br/rules/mssql-checkdb-001/" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="https://lens.codedb.com.br/pt-BR/rules/mssql-checkdb-001/" target="_blank" rel="noopener">Documentação ↗</a></span>
+    <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=MSSQL-CHECKDB-001&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">codeDB tracks integrity checks on every instance and warns when one is overdue.</span><span lang="pt-BR">O codeDB acompanha os checks de integridade de todas as instâncias e avisa quando um atrasa.</span> →</a>
+  </footer>
+</article>
+
+<article class="story" id="MSSQL-WAITS-001">
+  <div class="eyebrow">
+    <span class="dot high"></span>
+    <span><span lang="en">Finding 3 of 5</span><span lang="pt-BR">Achado 3 de 5</span></span>
+    <span>· <span lang="en">High</span><span lang="pt-BR">Alta</span></span>
+    <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
+  </div>
+  <h3><span lang="en">The instance spends a lot of time waiting on one resource</span><span lang="pt-BR">A instância passa muito tempo esperando por um recurso</span></h3>
+  <div class="table"><table>
+    <tr><th lang="en">meaning</th><th lang="pt-BR">meaning</th><th>wait_type</th><th>share_pct</th><th>wait_s_per_hour</th><th>avg_wait_ms</th></tr>
+    <tr><td lang="en">Disk reads (data pages not in memory)</td><td lang="pt-BR">Leitura de disco (páginas fora da memória)</td><td>PAGEIOLATCH_SH</td><td>41.7</td><td>812.4</td><td>18.3</td></tr><tr><td lang="en">Parallel query coordination</td><td lang="pt-BR">Coordenação de consultas paralelas</td><td>CXPACKET</td><td>22.9</td><td>446</td><td>3.1</td></tr>
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Waits are where query time goes when it isn&#39;t running. A dominant wait points straight at the bottleneck (disk, locks, CPU, memory).</span><span lang="pt-BR">As esperas mostram para onde vai o tempo das consultas quando elas não estão executando. Uma espera dominante aponta direto para o gargalo (disco, bloqueios, CPU, memória).</span></p></div>
+    <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Start with the top row. The meaning column says which resource to look at; the rule&#39;s documentation page lists the usual causes for each wait.</span><span lang="pt-BR">Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.</span></p></div>
+  </div>
+  <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.</span><span lang="pt-BR">Os totais acumulam desde o último restart, então mostram o perfil de longo prazo, não o que acontece agora. Só diferenças ao longo do tempo mostram o presente.</span></p>
+  
+  <details><summary><span lang="en">Source query</span><span lang="pt-BR">Query de origem</span> · <span lang="en">Collected at</span><span lang="pt-BR">Coletado em</span> 2026-10-22 09:30 UTC · 120ms</summary><pre>-- Only waits with a clear meaning are counted; idle and background waits never reach the report.
+WITH meaning (pattern, cat_en, cat_pt) AS (
+    SELECT * FROM (VALUES
+        (&#39;PAGEIOLATCH[_]%&#39;,         &#39;Disk: reading data pages&#39;,                     &#39;Disco: leitura de páginas de dados&#39;),
+        (&#39;WRITELOG&#39;,                &#39;Disk: transaction log writes&#39;,                 &#39;Disco: escrita no log de transações&#39;),
+        (&#39;IO[_]COMPLETION&#39;,         &#39;Disk: other I/O&#39;,                              &#39;Disco: outros I/O&#39;),
+        (&#39;LCK[_]M[_]%&#39;,             &#39;Blocking: waiting for locks&#39;,                  &#39;Bloqueio: esperando locks&#39;),
+        (&#39;PAGELATCH[_]%&#39;,           &#39;Page contention in memory (often TempDB)&#39;,     &#39;Disputa de páginas em memória (geralmente TempDB)&#39;),
+        (&#39;SOS[_]SCHEDULER[_]YIELD&#39;, &#39;CPU pressure&#39;,                                 &#39;Pressão de CPU&#39;),
+        (&#39;CXPACKET&#39;,                &#39;Parallelism&#39;,                                  &#39;Paralelismo&#39;),
+        (&#39;CXCONSUMER&#39;,              &#39;Parallelism&#39;,                                  &#39;Paralelismo&#39;),
+        (&#39;RESOURCE[_]SEMAPHORE&#39;,    &#39;Queries waiting for memory grants&#39;,            &#39;Consultas esperando memória&#39;),
+        (&#39;THREADPOOL&#39;,              &#39;Out of worker threads&#39;,                        &#39;Falta de threads de trabalho&#39;),
+        (&#39;ASYNC[_]NETWORK[_]IO&#39;,    &#39;Application not reading results fast enough&#39;,  &#39;Aplicação lendo resultados devagar&#39;),
+        (&#39;HADR[_]SYNC[_]COMMIT&#39;,    &#39;Synchronous Availability Group commit&#39;,        &#39;Commit síncrono do Availability Group&#39;)
+    ) v (pattern, cat_en, cat_pt)
+),
+c AS (
+    SELECT m.cat_en, MAX(m.cat_pt) AS cat_pt, SUM(ws.wait_time_ms) AS ms, SUM(ws.waiting_tasks_count) AS tasks,
+           MAX(ws.wait_type) AS example
+    FROM sys.dm_os_wait_stats ws
+    JOIN meaning m ON ws.wait_type LIKE m.pattern
+    WHERE ws.wait_time_ms &gt; 0
+    GROUP BY m.cat_en
+),
+t AS (SELECT SUM(ms) AS total FROM c),
+up AS (SELECT DATEDIFF(second, sqlserver_start_time, SYSDATETIME()) / 3600.0 AS hours FROM sys.dm_os_sys_info)
+SELECT c.cat_en AS [meaning@en],
+       c.cat_pt AS [meaning@pt-BR],
+       c.example AS wait_type,
+       CAST(c.ms * 100.0 / t.total AS decimal(5, 1)) AS share_pct,
+       CAST(c.ms / 1000.0 / NULLIF(up.hours, 0) AS decimal(14, 1)) AS wait_s_per_hour,
+       CAST(c.ms * 1.0 / NULLIF(c.tasks, 0) AS decimal(14, 1)) AS avg_wait_ms,
+       CASE WHEN c.cat_en IN (&#39;Out of worker threads&#39;, &#39;Queries waiting for memory grants&#39;) THEN &#39;confirmed&#39; ELSE &#39;hint&#39; END AS _confidence
+FROM c CROSS JOIN t CROSS JOIN up
+WHERE c.ms * 100.0 / t.total &gt;= {{min_share_pct}}
+  AND c.ms / 1000.0 / NULLIF(up.hours, 0) &gt;= {{min_wait_s_per_hour}}
+ORDER BY c.ms DESC;
+</pre></details>
+  <footer>
+    <span><code class="rid">MSSQL-WAITS-001</code> · <a lang="en" href="https://lens.codedb.com.br/rules/mssql-waits-001/" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="https://lens.codedb.com.br/pt-BR/rules/mssql-waits-001/" target="_blank" rel="noopener">Documentação ↗</a></span>
+    <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=MSSQL-WAITS-001&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">codeDB samples waits every minute, so you can see what changed at 03:12, not just since the last restart.</span><span lang="pt-BR">O codeDB amostra as esperas a cada minuto, para você ver o que mudou às 03:12, e não só desde o último restart.</span> →</a>
+  </footer>
+</article>
+
+<article class="story" id="MSSQL-CONFIG-001">
+  <div class="eyebrow">
+    <span class="dot medium"></span>
+    <span><span lang="en">Finding 4 of 5</span><span lang="pt-BR">Achado 4 de 5</span></span>
+    <span>· <span lang="en">Medium</span><span lang="pt-BR">Média</span></span>
+    <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
+  </div>
+  <h3><span lang="en">Instance settings left at defaults that hurt performance</span><span lang="pt-BR">Configurações da instância no padrão que prejudicam o desempenho</span></h3>
+  <div class="table"><table>
+    <tr><th>setting</th><th>current_value</th><th>suggested</th><th>host</th></tr>
+    <tr><td>max server memory (MB)</td><td>2147483647</td><td>26214</td><td>32768 MB RAM</td></tr><tr><td>cost threshold for parallelism</td><td>5</td><td>50</td><td>16 CPUs</td></tr>
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Default memory can starve the OS; default parallelism settings make small queries go parallel and fight for CPU.</span><span lang="pt-BR">A memória padrão pode sufocar o sistema operacional; o paralelismo padrão faz consultas pequenas rodarem em paralelo e disputarem CPU.</span></p></div>
+    <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.</span><span lang="pt-BR">Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.</span></p></div>
+  </div>
+  <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Recommendations are common starting points, not universal rules. Hosts running other services may need different values.</span><span lang="pt-BR">As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores.</span></p>
+  
+  <details><summary><span lang="en">Source query</span><span lang="pt-BR">Query de origem</span> · <span lang="en">Collected at</span><span lang="pt-BR">Coletado em</span> 2026-10-22 09:30 UTC · 120ms</summary><pre>WITH c AS (SELECT name, CAST(value_in_use AS bigint) AS v FROM sys.configurations),
+     s AS (SELECT cpu_count, physical_memory_kb / 1024 AS ram_mb FROM sys.dm_os_sys_info)
+SELECT &#39;max server memory (MB)&#39; AS setting, CAST(c.v AS varchar(20)) AS current_value,
+       CAST(CAST(s.ram_mb * 0.8 AS bigint) AS varchar(20)) AS suggested, CAST(s.ram_mb AS varchar(20)) &#43; &#39; MB RAM&#39; AS host
+FROM c CROSS JOIN s WHERE c.name = &#39;max server memory (MB)&#39; AND c.v &gt;= 2147483647
+UNION ALL
+SELECT &#39;max degree of parallelism&#39;, CAST(c.v AS varchar(20)), &#39;8&#39;, CAST(s.cpu_count AS varchar(20)) &#43; &#39; CPUs&#39;
+FROM c CROSS JOIN s WHERE c.name = &#39;max degree of parallelism&#39; AND c.v = 0 AND s.cpu_count &gt; {{maxdop_cpus}}
+UNION ALL
+SELECT &#39;cost threshold for parallelism&#39;, CAST(c.v AS varchar(20)), &#39;50&#39;, CAST(s.cpu_count AS varchar(20)) &#43; &#39; CPUs&#39;
+FROM c CROSS JOIN s WHERE c.name = &#39;cost threshold for parallelism&#39; AND c.v = 5
+UNION ALL
+SELECT &#39;optimize for ad hoc workloads&#39;, CAST(c.v AS varchar(20)), &#39;1&#39;, NULL
+FROM c WHERE c.name = &#39;optimize for ad hoc workloads&#39; AND c.v = 0;
+</pre></details>
+  <footer>
+    <span><code class="rid">MSSQL-CONFIG-001</code> · <a lang="en" href="https://lens.codedb.com.br/rules/mssql-config-001/" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="https://lens.codedb.com.br/pt-BR/rules/mssql-config-001/" target="_blank" rel="noopener">Documentação ↗</a></span>
+    
+  </footer>
+</article>
+
+<article class="story" id="MSSQL-MISSINGIDX-001">
+  <div class="eyebrow">
+    <span class="dot medium"></span>
+    <span><span lang="en">Finding 5 of 5</span><span lang="pt-BR">Achado 5 de 5</span></span>
+    <span>· <span lang="en">Medium</span><span lang="pt-BR">Média</span></span>
+    <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span>
+  </div>
+  <h3><span lang="en">High-impact missing indexes</span><span lang="pt-BR">Índices ausentes de alto impacto</span></h3>
+  <div class="table"><table>
+    <tr><th>database</th><th>table</th><th>equality_columns</th><th>inequality_columns</th><th>included_columns</th><th>uses</th><th>est_impact_pct</th><th>improvement</th><th>last_user_seek</th></tr>
+    <tr><td>sales</td><td>[sales].[dbo].[orders]</td><td>[customer_id]</td><td>[order_date]</td><td>[total]</td><td>48210</td><td>93.4</td><td>1840221</td><td>2026-10-22 09:12</td></tr>
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">The optimizer recorded queries that would run much cheaper with an index that doesn&#39;t exist. They read more pages and hold locks longer than needed.</span><span lang="pt-BR">O otimizador registrou consultas que ficariam bem mais baratas com um índice que não existe. Elas leem mais páginas e seguram locks por mais tempo que o necessário.</span></p></div>
+    <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.</span><span lang="pt-BR">Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.</span></p></div>
+  </div>
+  <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.</span><span lang="pt-BR">Sempre um indício. A DMV ignora índices parecidos que já existem, sugere índices sobrepostos e é zerada no restart.</span></p>
+  
+  <details><summary><span lang="en">Source query</span><span lang="pt-BR">Query de origem</span> · <span lang="en">Collected at</span><span lang="pt-BR">Coletado em</span> 2026-10-22 09:30 UTC · 120ms</summary><pre>SELECT TOP (20)
+       DB_NAME(d.database_id) AS [database],
+       d.statement AS [table],
+       d.equality_columns,
+       d.inequality_columns,
+       d.included_columns,
+       s.user_seeks &#43; s.user_scans AS uses,
+       CAST(s.avg_user_impact AS decimal(5, 1)) AS est_impact_pct,
+       CAST(s.avg_total_user_cost * s.avg_user_impact * (s.user_seeks &#43; s.user_scans) AS decimal(18, 0)) AS improvement,
+       s.last_user_seek
+FROM sys.dm_db_missing_index_details d
+JOIN sys.dm_db_missing_index_groups g ON g.index_handle = d.index_handle
+JOIN sys.dm_db_missing_index_group_stats s ON s.group_handle = g.index_group_handle
+WHERE d.database_id &gt; 4
+  AND s.avg_user_impact &gt;= {{min_impact_pct}}
+  AND s.avg_total_user_cost * s.avg_user_impact * (s.user_seeks &#43; s.user_scans) &gt;= {{min_improvement}}
+ORDER BY improvement DESC;
+</pre></details>
+  <footer>
+    <span><code class="rid">MSSQL-MISSINGIDX-001</code> · <a lang="en" href="https://lens.codedb.com.br/rules/mssql-missingidx-001/" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="https://lens.codedb.com.br/pt-BR/rules/mssql-missingidx-001/" target="_blank" rel="noopener">Documentação ↗</a></span>
+    
+  </footer>
+</article>
+
+
+
+
+<h2 class="sec"><span lang="en">No data</span><span lang="pt-BR">Sem dados</span> <span class="n">2</span></h2>
+<div class="table nodata"><table>
+  <tr><th><span lang="en">Rule</span><span lang="pt-BR">Regra</span></th><th><span lang="en">Reason</span><span lang="pt-BR">Motivo</span></th><th><span lang="en">Required permission</span><span lang="pt-BR">Permissão necessária</span></th></tr>
+  <tr><td><b><span lang="en">SQL Agent jobs failing</span><span lang="pt-BR">Jobs do SQL Agent com falha</span></b><br><code class="rid">MSSQL-AGENT-001</code></td><td class="reason">The SELECT permission was denied on the object &#39;sysjobhistory&#39;, database &#39;msdb&#39;.</td><td><code>SQLAgentReaderRole on msdb</code></td></tr><tr><td><b><span lang="en">Unused or duplicate indexes</span><span lang="pt-BR">Índices não usados ou duplicados</span></b><br><code class="rid">MSSQL-UNUSEDIDX-001</code></td><td class="reason">skipped databases (no access): archive</td><td><code>VIEW SERVER STATE &#43; VIEW ANY DEFINITION &#43; CONNECT ANY DATABASE</code></td></tr>
+</table></div>
+
+
+<h2 class="sec"><span lang="en">Passed</span><span lang="pt-BR">Sem problemas</span> <span class="n">5</span></h2>
+<ul class="passed">
+<li><span lang="en">Sessions blocked right now</span><span lang="pt-BR">Sessões bloqueadas neste momento</span></li><li><span lang="en">Disk or transaction log running out of space</span><span lang="pt-BR">Disco ou log de transações ficando sem espaço</span></li><li><span lang="en">SQL Server version out of support or close to it</span><span lang="pt-BR">Versão do SQL Server fora de suporte ou perto disso</span></li><li><span lang="en">TempDB files not laid out for concurrency</span><span lang="pt-BR">Arquivos do TempDB fora do padrão para concorrência</span></li><li><span lang="en">A single query dominates CPU usage</span><span lang="pt-BR">Uma única consulta domina o uso de CPU</span></li>
+
+</ul>
+
+<section class="locked">
+  <div class="blur" aria-hidden="true"><svg viewBox="0 0 600 140" preserveAspectRatio="none"><polyline points="0,110 50,96 100,102 150,70 200,84 250,48 300,66 350,38 400,58 450,30 500,44 550,22 600,34" fill="none" stroke="currentColor" stroke-width="4"/><polyline points="0,124 60,118 120,121 180,104 240,112 300,92 360,101 420,84 480,94 540,76 600,82" fill="none" stroke="#94a3b8" stroke-width="3"/></svg></div>
+  <div class="unlock">
+    <b><span lang="en">Baseline and trends</span><span lang="pt-BR">Baseline e tendências</span></b>
+    <span class="muted"><span lang="en">History and trends need continuous monitoring.</span><span lang="pt-BR">Histórico e tendências exigem monitoramento contínuo.</span></span>
+    <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=baseline&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">Try codeDB</span><span lang="pt-BR">Conheça o codeDB</span> →</a>
+  </div>
+</section>
+</main>
+
+<footer class="bottom">
+  <span><span lang="en">Generated by codeDB Lens 0.5.0 on 2026-10-22 09:30</span><span lang="pt-BR">Gerado pelo codeDB Lens 0.5.0 em 2026-10-22 09:30</span> · <span lang="en">rule catalog</span><span lang="pt-BR">catálogo de regras</span> 18dbd2173059 · 14s</span>
+  <span><span lang="en">Lens shows a snapshot. codeDB monitors around the clock, with history, baselines and alerts.</span><span lang="pt-BR">O Lens mostra um retrato do momento. O codeDB monitora 24 horas por dia, com histórico, baseline e alertas.</span> <a href="https://codedb.com.br/?utm_campaign=footer&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener">codedb.com.br</a></span>
+</footer>
+<script>
+function toggleLang() {
+  var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
+  h.dataset.lang = l; h.lang = l;
+  try { localStorage.setItem('lens-lang', l); } catch (e) {}
+}
+try { var s = localStorage.getItem('lens-lang'); if (s) { document.documentElement.dataset.lang = s; document.documentElement.lang = s; } } catch (e) {}
+</script>
+</body>
+</html>

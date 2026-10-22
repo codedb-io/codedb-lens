@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"io/fs"
 	"math"
 
@@ -26,6 +28,27 @@ type Score struct {
 	Partial  bool    `json:"partial"`
 	Executed int     `json:"executed"`
 	Applies  int     `json:"applicable"`
+}
+
+// CatalogVersion fingerprints the rules of one engine plus scoring.yaml: any change to a rule's
+// text, query or parameters, or to the weights, gives a new version.
+func CatalogVersion(fsys fs.FS, engine string) (string, error) {
+	h := sha256.New()
+	err := fs.WalkDir(fsys, engine, func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		b, err := fs.ReadFile(fsys, p)
+		h.Write([]byte(p + "\x00"))
+		h.Write(b)
+		return err
+	})
+	if err != nil {
+		return "", err
+	}
+	b, err := fs.ReadFile(fsys, "scoring.yaml")
+	h.Write(b)
+	return hex.EncodeToString(h.Sum(nil))[:12], err
 }
 
 func LoadScoring(fsys fs.FS) (Scoring, error) {

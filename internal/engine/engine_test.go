@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -25,7 +26,11 @@ func TestCatalogIsValid(t *testing.T) {
 		if len(rs) == 0 {
 			t.Fatalf("no %s rules", e)
 		}
-		for _, r := range rs { // every rule documents itself in both languages
+		for _, r := range rs {
+			if w := writeKeyword(r.SQL); w != "" {
+				t.Errorf("%s: query.sql uses %q; rules must be read-only SELECTs", r.ID, w)
+			}
+			// every rule documents itself in both languages
 			for _, l := range engine.Languages {
 				if _, err := os.Stat(filepath.Join("..", "..", "docs", l, "rules", strings.ToLower(r.ID)+".md")); err != nil {
 					t.Errorf("%s: missing doc page in %s", r.ID, l)
@@ -35,6 +40,30 @@ func TestCatalogIsValid(t *testing.T) {
 	}
 	if _, err := engine.LoadScoring(rules.FS); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// Static guard for contributed rules; the adapters' read-only sessions are the real barrier.
+var (
+	sqlNoise  = regexp.MustCompile(`(?s)--[^\n]*|/\*.*?\*/|'[^']*'|"[^"]*"`)
+	sqlWriter = regexp.MustCompile(`(?i)\b(insert|update|delete|merge|alter|create|drop|truncate|grant|revoke|deny|exec|execute|dbcc|backup|restore|kill|shutdown|reconfigure|vacuum|analyze|reindex|cluster|copy|into|call|do|set|declare|lock)\b`)
+)
+
+func writeKeyword(sql string) string {
+	return sqlWriter.FindString(sqlNoise.ReplaceAllString(sql, " "))
+}
+
+func TestWriteKeyword(t *testing.T) {
+	for sql, want := range map[string]string{
+		"SELECT 'no full backup' AS x -- drop later":  "",
+		"SELECT /* delete */ name FROM sys.databases": "",
+		`SELECT "update" FROM t`:                      "",
+		"SELECT * INTO #t FROM sys.objects":           "INTO",
+		"select 1; drop table t":                      "drop",
+	} {
+		if got := writeKeyword(sql); got != want {
+			t.Errorf("%q: got %q, want %q", sql, got, want)
+		}
 	}
 }
 

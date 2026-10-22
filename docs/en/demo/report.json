@@ -1,0 +1,573 @@
+{
+  "tool": "codeDB Lens",
+  "tool_version": "0.5.0",
+  "generated_at": "2026-10-22T09:30:00Z",
+  "catalog_version": "18dbd2173059",
+  "duration": "14s",
+  "lang": "en",
+  "server": {
+    "engine": "mssql",
+    "version": "16.0.4135.4",
+    "major": 16,
+    "platform": "onprem",
+    "host": "sql-demo-01"
+  },
+  "score": {
+    "value": 54.7,
+    "letter": "D",
+    "coverage": 0.8333333333333334,
+    "partial": false,
+    "executed": 10,
+    "applicable": 12
+  },
+  "results": [
+    {
+      "rule": {
+        "id": "MSSQL-BACKUP-001",
+        "engine": "mssql",
+        "category": "backup",
+        "severity": "critical",
+        "permission": "db_datareader on msdb",
+        "params": {
+          "full_max_hours": 192,
+          "log_max_hours": 24
+        },
+        "title": {
+          "en": "Databases with missing or old backups",
+          "pt-BR": "Bancos com backup ausente ou antigo"
+        },
+        "impact": {
+          "en": "A failure or mistake on these databases may lose more data than you expect, or be unrecoverable.",
+          "pt-BR": "Uma falha ou erro nesses bancos pode perder mais dados do que você espera, ou não ter recuperação."
+        },
+        "next_action": {
+          "en": "Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.",
+          "pt-BR": "Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log."
+        },
+        "caveat": {
+          "en": "Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.",
+          "pt-BR": "Baseado no histórico do msdb desta instância. Backups de ferramentas externas sem histórico no msdb não aparecem."
+        },
+        "saas_cta": {
+          "en": "codeDB checks backups continuously and alerts you the moment one is late.",
+          "pt-BR": "O codeDB verifica os backups continuamente e alerta assim que um atrasa."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-backup-001/",
+        "query": "WITH b AS (\n    SELECT database_name,\n           MAX(CASE WHEN type = 'D' THEN backup_finish_date END) AS last_full,\n           MAX(CASE WHEN type = 'I' THEN backup_finish_date END) AS last_diff,\n           MAX(CASE WHEN type = 'L' THEN backup_finish_date END) AS last_log\n    FROM msdb.dbo.backupset\n    WHERE is_copy_only = 0\n    GROUP BY database_name\n)\nSELECT d.name                AS [database],\n       d.recovery_model_desc AS recovery_model,\n       b.last_full,\n       b.last_diff,\n       b.last_log,\n       CASE\n           WHEN b.last_full IS NULL THEN 'no full backup'\n           WHEN ISNULL(b.last_diff, b.last_full) \u003c DATEADD(hour, -{{full_max_hours}}, GETDATE())\n                AND b.last_full \u003c DATEADD(hour, -{{full_max_hours}}, GETDATE()) THEN 'full/diff too old'\n           ELSE 'log backup too old'\n       END AS problem\nFROM sys.databases d\nLEFT JOIN b ON b.database_name = d.name\nWHERE d.database_id \u003c\u003e 2               -- tempdb\n  AND d.state_desc = 'ONLINE'\n  AND d.source_database_id IS NULL     -- snapshots\n  AND (\n        b.last_full IS NULL\n     OR (ISNULL(b.last_diff, b.last_full) \u003c DATEADD(hour, -{{full_max_hours}}, GETDATE())\n         AND b.last_full \u003c DATEADD(hour, -{{full_max_hours}}, GETDATE()))\n     OR (d.recovery_model_desc \u003c\u003e 'SIMPLE' AND d.name \u003c\u003e 'model'\n         AND ISNULL(b.last_log, '19000101') \u003c DATEADD(hour, -{{log_max_hours}}, GETDATE()))\n  )\nORDER BY d.name;\n"
+      },
+      "status": "finding",
+      "confidence": "confirmed",
+      "columns": [
+        "database",
+        "recovery_model",
+        "last_full",
+        "last_diff",
+        "last_log",
+        "problem"
+      ],
+      "rows": [
+        [
+          "sales",
+          "FULL",
+          "2026-10-12 23:10",
+          null,
+          "2026-10-12 23:40",
+          "full/diff too old"
+        ],
+        [
+          "inventory",
+          "FULL",
+          "2026-10-21 23:05",
+          "2026-10-21 23:30",
+          "2026-10-21 02:15",
+          "log backup too old"
+        ]
+      ],
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-CHECKDB-001",
+        "engine": "mssql",
+        "category": "integrity",
+        "severity": "high",
+        "permission": "VIEW ANY DEFINITION",
+        "params": {
+          "max_days": 7
+        },
+        "title": {
+          "en": "Databases without a recent clean DBCC CHECKDB",
+          "pt-BR": "Bancos sem DBCC CHECKDB recente e sem erros"
+        },
+        "impact": {
+          "en": "Corruption can sit unnoticed for weeks and end up in every backup, leaving nothing clean to restore.",
+          "pt-BR": "Uma corrupção pode passar semanas sem ser notada e entrar em todos os backups, sem deixar nada limpo para restaurar."
+        },
+        "next_action": {
+          "en": "Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.",
+          "pt-BR": "Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta."
+        },
+        "caveat": {
+          "en": "Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.",
+          "pt-BR": "Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados."
+        },
+        "saas_cta": {
+          "en": "codeDB tracks integrity checks on every instance and warns when one is overdue.",
+          "pt-BR": "O codeDB acompanha os checks de integridade de todas as instâncias e avisa quando um atrasa."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-checkdb-001/",
+        "query": "SELECT d.name AS [database],\n       NULLIF(CAST(DATABASEPROPERTYEX(d.name, 'LastGoodCheckDbTime') AS datetime), '19000101') AS last_good_checkdb,\n       DATEDIFF(day, NULLIF(CAST(DATABASEPROPERTYEX(d.name, 'LastGoodCheckDbTime') AS datetime), '19000101'), GETDATE()) AS days_ago,\n       d.create_date\nFROM sys.databases d\nWHERE d.database_id \u003c\u003e 2                -- tempdb\n  AND d.state_desc = 'ONLINE'\n  AND d.source_database_id IS NULL      -- snapshots\n  AND d.create_date \u003c DATEADD(day, -{{max_days}}, GETDATE())\n  AND ISNULL(CAST(DATABASEPROPERTYEX(d.name, 'LastGoodCheckDbTime') AS datetime), '19000101') \u003c DATEADD(day, -{{max_days}}, GETDATE())\nORDER BY d.name;\n"
+      },
+      "status": "finding",
+      "confidence": "confirmed",
+      "columns": [
+        "database",
+        "last_good_checkdb",
+        "days_ago",
+        "create_date"
+      ],
+      "rows": [
+        [
+          "sales",
+          "2026-08-30 01:00",
+          53,
+          "2021-03-02"
+        ],
+        [
+          "reporting",
+          null,
+          null,
+          "2025-11-18"
+        ]
+      ],
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-WAITS-001",
+        "engine": "mssql",
+        "category": "performance",
+        "severity": "high",
+        "permission": "VIEW SERVER STATE (2022+ VIEW SERVER PERFORMANCE STATE)",
+        "params": {
+          "min_share_pct": 20,
+          "min_wait_s_per_hour": 300
+        },
+        "title": {
+          "en": "The instance spends a lot of time waiting on one resource",
+          "pt-BR": "A instância passa muito tempo esperando por um recurso"
+        },
+        "impact": {
+          "en": "Waits are where query time goes when it isn't running. A dominant wait points straight at the bottleneck (disk, locks, CPU, memory).",
+          "pt-BR": "As esperas mostram para onde vai o tempo das consultas quando elas não estão executando. Uma espera dominante aponta direto para o gargalo (disco, bloqueios, CPU, memória)."
+        },
+        "next_action": {
+          "en": "Start with the top row. The meaning column says which resource to look at; the rule's documentation page lists the usual causes for each wait.",
+          "pt-BR": "Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera."
+        },
+        "caveat": {
+          "en": "Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.",
+          "pt-BR": "Os totais acumulam desde o último restart, então mostram o perfil de longo prazo, não o que acontece agora. Só diferenças ao longo do tempo mostram o presente."
+        },
+        "saas_cta": {
+          "en": "codeDB samples waits every minute, so you can see what changed at 03:12, not just since the last restart.",
+          "pt-BR": "O codeDB amostra as esperas a cada minuto, para você ver o que mudou às 03:12, e não só desde o último restart."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-waits-001/",
+        "query": "-- Only waits with a clear meaning are counted; idle and background waits never reach the report.\nWITH meaning (pattern, cat_en, cat_pt) AS (\n    SELECT * FROM (VALUES\n        ('PAGEIOLATCH[_]%',         'Disk: reading data pages',                     'Disco: leitura de páginas de dados'),\n        ('WRITELOG',                'Disk: transaction log writes',                 'Disco: escrita no log de transações'),\n        ('IO[_]COMPLETION',         'Disk: other I/O',                              'Disco: outros I/O'),\n        ('LCK[_]M[_]%',             'Blocking: waiting for locks',                  'Bloqueio: esperando locks'),\n        ('PAGELATCH[_]%',           'Page contention in memory (often TempDB)',     'Disputa de páginas em memória (geralmente TempDB)'),\n        ('SOS[_]SCHEDULER[_]YIELD', 'CPU pressure',                                 'Pressão de CPU'),\n        ('CXPACKET',                'Parallelism',                                  'Paralelismo'),\n        ('CXCONSUMER',              'Parallelism',                                  'Paralelismo'),\n        ('RESOURCE[_]SEMAPHORE',    'Queries waiting for memory grants',            'Consultas esperando memória'),\n        ('THREADPOOL',              'Out of worker threads',                        'Falta de threads de trabalho'),\n        ('ASYNC[_]NETWORK[_]IO',    'Application not reading results fast enough',  'Aplicação lendo resultados devagar'),\n        ('HADR[_]SYNC[_]COMMIT',    'Synchronous Availability Group commit',        'Commit síncrono do Availability Group')\n    ) v (pattern, cat_en, cat_pt)\n),\nc AS (\n    SELECT m.cat_en, MAX(m.cat_pt) AS cat_pt, SUM(ws.wait_time_ms) AS ms, SUM(ws.waiting_tasks_count) AS tasks,\n           MAX(ws.wait_type) AS example\n    FROM sys.dm_os_wait_stats ws\n    JOIN meaning m ON ws.wait_type LIKE m.pattern\n    WHERE ws.wait_time_ms \u003e 0\n    GROUP BY m.cat_en\n),\nt AS (SELECT SUM(ms) AS total FROM c),\nup AS (SELECT DATEDIFF(second, sqlserver_start_time, SYSDATETIME()) / 3600.0 AS hours FROM sys.dm_os_sys_info)\nSELECT c.cat_en AS [meaning@en],\n       c.cat_pt AS [meaning@pt-BR],\n       c.example AS wait_type,\n       CAST(c.ms * 100.0 / t.total AS decimal(5, 1)) AS share_pct,\n       CAST(c.ms / 1000.0 / NULLIF(up.hours, 0) AS decimal(14, 1)) AS wait_s_per_hour,\n       CAST(c.ms * 1.0 / NULLIF(c.tasks, 0) AS decimal(14, 1)) AS avg_wait_ms,\n       CASE WHEN c.cat_en IN ('Out of worker threads', 'Queries waiting for memory grants') THEN 'confirmed' ELSE 'hint' END AS _confidence\nFROM c CROSS JOIN t CROSS JOIN up\nWHERE c.ms * 100.0 / t.total \u003e= {{min_share_pct}}\n  AND c.ms / 1000.0 / NULLIF(up.hours, 0) \u003e= {{min_wait_s_per_hour}}\nORDER BY c.ms DESC;\n"
+      },
+      "status": "finding",
+      "confidence": "hint",
+      "columns": [
+        "meaning@en",
+        "meaning@pt-BR",
+        "wait_type",
+        "share_pct",
+        "wait_s_per_hour",
+        "avg_wait_ms"
+      ],
+      "rows": [
+        [
+          "Disk reads (data pages not in memory)",
+          "Leitura de disco (páginas fora da memória)",
+          "PAGEIOLATCH_SH",
+          41.7,
+          812.4,
+          18.3
+        ],
+        [
+          "Parallel query coordination",
+          "Coordenação de consultas paralelas",
+          "CXPACKET",
+          22.9,
+          446,
+          3.1
+        ]
+      ],
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-CONFIG-001",
+        "engine": "mssql",
+        "category": "configuration",
+        "severity": "medium",
+        "permission": "VIEW SERVER STATE (host CPU and RAM)",
+        "params": {
+          "maxdop_cpus": 8
+        },
+        "title": {
+          "en": "Instance settings left at defaults that hurt performance",
+          "pt-BR": "Configurações da instância no padrão que prejudicam o desempenho"
+        },
+        "impact": {
+          "en": "Default memory can starve the OS; default parallelism settings make small queries go parallel and fight for CPU.",
+          "pt-BR": "A memória padrão pode sufocar o sistema operacional; o paralelismo padrão faz consultas pequenas rodarem em paralelo e disputarem CPU."
+        },
+        "next_action": {
+          "en": "Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.",
+          "pt-BR": "Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe."
+        },
+        "caveat": {
+          "en": "Recommendations are common starting points, not universal rules. Hosts running other services may need different values.",
+          "pt-BR": "As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-config-001/",
+        "query": "WITH c AS (SELECT name, CAST(value_in_use AS bigint) AS v FROM sys.configurations),\n     s AS (SELECT cpu_count, physical_memory_kb / 1024 AS ram_mb FROM sys.dm_os_sys_info)\nSELECT 'max server memory (MB)' AS setting, CAST(c.v AS varchar(20)) AS current_value,\n       CAST(CAST(s.ram_mb * 0.8 AS bigint) AS varchar(20)) AS suggested, CAST(s.ram_mb AS varchar(20)) + ' MB RAM' AS host\nFROM c CROSS JOIN s WHERE c.name = 'max server memory (MB)' AND c.v \u003e= 2147483647\nUNION ALL\nSELECT 'max degree of parallelism', CAST(c.v AS varchar(20)), '8', CAST(s.cpu_count AS varchar(20)) + ' CPUs'\nFROM c CROSS JOIN s WHERE c.name = 'max degree of parallelism' AND c.v = 0 AND s.cpu_count \u003e {{maxdop_cpus}}\nUNION ALL\nSELECT 'cost threshold for parallelism', CAST(c.v AS varchar(20)), '50', CAST(s.cpu_count AS varchar(20)) + ' CPUs'\nFROM c CROSS JOIN s WHERE c.name = 'cost threshold for parallelism' AND c.v = 5\nUNION ALL\nSELECT 'optimize for ad hoc workloads', CAST(c.v AS varchar(20)), '1', NULL\nFROM c WHERE c.name = 'optimize for ad hoc workloads' AND c.v = 0;\n"
+      },
+      "status": "finding",
+      "confidence": "hint",
+      "columns": [
+        "setting",
+        "current_value",
+        "suggested",
+        "host"
+      ],
+      "rows": [
+        [
+          "max server memory (MB)",
+          "2147483647",
+          "26214",
+          "32768 MB RAM"
+        ],
+        [
+          "cost threshold for parallelism",
+          "5",
+          "50",
+          "16 CPUs"
+        ]
+      ],
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-MISSINGIDX-001",
+        "engine": "mssql",
+        "category": "indexes",
+        "severity": "medium",
+        "permission": "VIEW SERVER STATE",
+        "params": {
+          "min_impact_pct": 50,
+          "min_improvement": 100000
+        },
+        "title": {
+          "en": "High-impact missing indexes",
+          "pt-BR": "Índices ausentes de alto impacto"
+        },
+        "impact": {
+          "en": "The optimizer recorded queries that would run much cheaper with an index that doesn't exist. They read more pages and hold locks longer than needed.",
+          "pt-BR": "O otimizador registrou consultas que ficariam bem mais baratas com um índice que não existe. Elas leem mais páginas e seguram locks por mais tempo que o necessário."
+        },
+        "next_action": {
+          "en": "Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.",
+          "pt-BR": "Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção."
+        },
+        "caveat": {
+          "en": "Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.",
+          "pt-BR": "Sempre um indício. A DMV ignora índices parecidos que já existem, sugere índices sobrepostos e é zerada no restart."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-missingidx-001/",
+        "query": "SELECT TOP (20)\n       DB_NAME(d.database_id) AS [database],\n       d.statement AS [table],\n       d.equality_columns,\n       d.inequality_columns,\n       d.included_columns,\n       s.user_seeks + s.user_scans AS uses,\n       CAST(s.avg_user_impact AS decimal(5, 1)) AS est_impact_pct,\n       CAST(s.avg_total_user_cost * s.avg_user_impact * (s.user_seeks + s.user_scans) AS decimal(18, 0)) AS improvement,\n       s.last_user_seek\nFROM sys.dm_db_missing_index_details d\nJOIN sys.dm_db_missing_index_groups g ON g.index_handle = d.index_handle\nJOIN sys.dm_db_missing_index_group_stats s ON s.group_handle = g.index_group_handle\nWHERE d.database_id \u003e 4\n  AND s.avg_user_impact \u003e= {{min_impact_pct}}\n  AND s.avg_total_user_cost * s.avg_user_impact * (s.user_seeks + s.user_scans) \u003e= {{min_improvement}}\nORDER BY improvement DESC;\n"
+      },
+      "status": "finding",
+      "confidence": "hint",
+      "columns": [
+        "database",
+        "table",
+        "equality_columns",
+        "inequality_columns",
+        "included_columns",
+        "uses",
+        "est_impact_pct",
+        "improvement",
+        "last_user_seek"
+      ],
+      "rows": [
+        [
+          "sales",
+          "[sales].[dbo].[orders]",
+          "[customer_id]",
+          "[order_date]",
+          "[total]",
+          48210,
+          93.4,
+          1840221,
+          "2026-10-22 09:12"
+        ]
+      ],
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-AGENT-001",
+        "engine": "mssql",
+        "category": "agent",
+        "severity": "high",
+        "permission": "SQLAgentReaderRole on msdb",
+        "params": {
+          "days": 7
+        },
+        "title": {
+          "en": "SQL Agent jobs failing",
+          "pt-BR": "Jobs do SQL Agent com falha"
+        },
+        "impact": {
+          "en": "Failed jobs usually mean backups, maintenance or data loads that silently stopped happening.",
+          "pt-BR": "Jobs com falha geralmente significam backups, manutenção ou cargas de dados que pararam de acontecer sem ninguém perceber."
+        },
+        "next_action": {
+          "en": "Open the job history for each job, fix the failing step and set up an operator to be notified on failure.",
+          "pt-BR": "Abra o histórico de cada job, corrija o passo que falha e configure um operador para ser notificado em caso de falha."
+        },
+        "caveat": {
+          "en": "Shows enabled jobs whose last run failed within the window. Not available on Express or Azure SQL Database (no Agent).",
+          "pt-BR": "Mostra jobs habilitados cuja última execução falhou dentro da janela. Não existe no Express nem no Azure SQL Database (sem Agent)."
+        },
+        "saas_cta": {
+          "en": "codeDB alerts on Teams, Slack or e-mail the moment a job fails.",
+          "pt-BR": "O codeDB alerta no Teams, Slack ou e-mail assim que um job falha."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-agent-001/",
+        "query": "WITH h AS (\n    SELECT jh.job_id, jh.run_status, jh.message,\n           CONVERT(datetime, CONVERT(char(8), jh.run_date))\n             + CONVERT(datetime, STUFF(STUFF(RIGHT('000000' + CAST(jh.run_time AS varchar(6)), 6), 5, 0, ':'), 3, 0, ':')) AS run_at,\n           ROW_NUMBER() OVER (PARTITION BY jh.job_id ORDER BY jh.instance_id DESC) AS rn\n    FROM msdb.dbo.sysjobhistory jh\n    WHERE jh.step_id = 0                -- job outcome\n)\nSELECT j.name AS job,\n       h.run_at AS last_run,\n       CASE h.run_status WHEN 0 THEN 'failed' WHEN 3 THEN 'canceled' END AS outcome,\n       (SELECT COUNT(*) FROM h AS x WHERE x.job_id = j.job_id AND x.run_status = 0\n          AND x.run_at \u003e= DATEADD(day, -{{days}}, GETDATE())) AS failures_in_window,\n       LEFT(h.message, 300) AS message\nFROM msdb.dbo.sysjobs j\nJOIN h ON h.job_id = j.job_id AND h.rn = 1\nWHERE j.enabled = 1\n  AND h.run_status IN (0, 3)\n  AND h.run_at \u003e= DATEADD(day, -{{days}}, GETDATE())\nORDER BY h.run_at DESC;\n"
+      },
+      "status": "no_data",
+      "reason": "The SELECT permission was denied on the object 'sysjobhistory', database 'msdb'.",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-UNUSEDIDX-001",
+        "engine": "mssql",
+        "category": "indexes",
+        "severity": "low",
+        "scope": "database",
+        "permission": "VIEW SERVER STATE + VIEW ANY DEFINITION + CONNECT ANY DATABASE",
+        "params": {
+          "min_writes": 1000
+        },
+        "title": {
+          "en": "Unused or duplicate indexes",
+          "pt-BR": "Índices não usados ou duplicados"
+        },
+        "impact": {
+          "en": "Every index is updated on every insert, update and delete. Indexes nobody reads only slow writes down, take space and lengthen maintenance.",
+          "pt-BR": "Todo índice é atualizado em cada insert, update e delete. Índices que ninguém lê só deixam as escritas mais lentas, ocupam espaço e alongam a manutenção."
+        },
+        "next_action": {
+          "en": "Confirm over a full business cycle (month-end, reports) before dropping. Script the index first so it can be recreated, or disable it instead of dropping.",
+          "pt-BR": "Confirme durante um ciclo completo do negócio (fechamento de mês, relatórios) antes de remover. Gere o script do índice antes, para poder recriá-lo, ou desabilite em vez de remover."
+        },
+        "caveat": {
+          "en": "Usage statistics reset on restart; the longer the instance has been up, the more reliable this is. Replicas and readable secondaries have their own usage.",
+          "pt-BR": "As estatísticas de uso zeram no restart; quanto mais tempo a instância está no ar, mais confiável. Réplicas e secundárias legíveis têm uso próprio."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-unusedidx-001/",
+        "query": "-- Runs in each database. Nonclustered, non-constraint indexes only.\nWITH ix AS (\n    SELECT i.object_id, i.index_id, i.name, i.filter_definition,\n           OBJECT_SCHEMA_NAME(i.object_id) + '.' + OBJECT_NAME(i.object_id) AS [table],\n           (SELECT STRING_AGG(CAST(c.name AS nvarchar(max)) + CASE WHEN ic.is_descending_key = 1 THEN ' DESC' ELSE '' END, ', ')\n                   WITHIN GROUP (ORDER BY ic.key_ordinal)\n            FROM sys.index_columns ic JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id\n            WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.key_ordinal \u003e 0) AS keys\n    FROM sys.indexes i\n    WHERE i.type = 2 AND i.is_primary_key = 0 AND i.is_unique_constraint = 0 AND i.is_hypothetical = 0\n      AND OBJECTPROPERTY(i.object_id, 'IsUserTable') = 1\n),\nu AS (\n    SELECT ix.*,\n           ISNULL(us.user_seeks + us.user_scans + us.user_lookups, 0) AS reads,\n           ISNULL(us.user_updates, 0) AS writes,\n           (SELECT SUM(ps.used_page_count) * 8 / 1024 FROM sys.dm_db_partition_stats ps\n            WHERE ps.object_id = ix.object_id AND ps.index_id = ix.index_id) AS size_mb\n    FROM ix\n    LEFT JOIN sys.dm_db_index_usage_stats us\n           ON us.database_id = DB_ID() AND us.object_id = ix.object_id AND us.index_id = ix.index_id\n)\nSELECT u.[table], u.name AS [index], 'unused' AS issue, u.keys, u.reads, u.writes, u.size_mb, CAST(NULL AS sysname) AS duplicate_of\nFROM u\nWHERE u.reads = 0 AND u.writes \u003e= {{min_writes}}\nUNION ALL\nSELECT u.[table], u.name, 'duplicate', u.keys, u.reads, u.writes, u.size_mb, d.name\nFROM u\nJOIN u AS d ON d.object_id = u.object_id AND d.index_id \u003c u.index_id\n            AND d.keys = u.keys AND ISNULL(d.filter_definition, '') = ISNULL(u.filter_definition, '')\nORDER BY [table], [index];\n"
+      },
+      "status": "no_data",
+      "reason": "skipped databases (no access): archive",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-BLOCKING-001",
+        "engine": "mssql",
+        "category": "concurrency",
+        "severity": "high",
+        "permission": "VIEW SERVER STATE",
+        "params": {
+          "min_wait_ms": 5000
+        },
+        "title": {
+          "en": "Sessions blocked right now",
+          "pt-BR": "Sessões bloqueadas neste momento"
+        },
+        "impact": {
+          "en": "Blocked sessions wait for another session to release its locks. Users see timeouts and frozen screens.",
+          "pt-BR": "Sessões bloqueadas esperam outra sessão liberar seus locks. Os usuários veem timeouts e telas travadas."
+        },
+        "next_action": {
+          "en": "Look at the blocker first. A blocker in \"sleeping\" status with an open transaction is usually an application that forgot to commit. Talk to its owner before considering KILL.",
+          "pt-BR": "Olhe primeiro para quem bloqueia. Um bloqueador em status \"sleeping\" com transação aberta costuma ser uma aplicação que esqueceu o commit. Fale com o responsável antes de pensar em KILL."
+        },
+        "caveat": {
+          "en": "A snapshot only sees blocking happening at the moment of the check.",
+          "pt-BR": "Um retrato só vê bloqueios que estão acontecendo no momento da verificação."
+        },
+        "saas_cta": {
+          "en": "codeDB catches blocking chains as they happen, at any hour, and alerts you within minutes.",
+          "pt-BR": "O codeDB pega cadeias de bloqueio na hora em que acontecem, a qualquer hora, e alerta em minutos."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-blocking-001/",
+        "query": "SELECT r.session_id                    AS blocked_session,\n       r.blocking_session_id           AS blocked_by,\n       DB_NAME(r.database_id)          AS [database],\n       CAST(r.wait_time / 1000.0 AS decimal(12, 1)) AS waiting_s,\n       r.wait_type,\n       bs.status                       AS blocker_status,\n       bs.login_name                   AS blocker_login,\n       bs.host_name                    AS blocker_host,\n       bs.program_name                 AS blocker_program,\n       bs.open_transaction_count       AS blocker_open_trans,\n       LEFT(REPLACE(REPLACE(t.text, CHAR(13), ' '), CHAR(10), ' '), 200) AS blocked_query\nFROM sys.dm_exec_requests r\nJOIN sys.dm_exec_sessions bs ON bs.session_id = r.blocking_session_id\nOUTER APPLY sys.dm_exec_sql_text(r.sql_handle) t\nWHERE r.blocking_session_id \u003c\u003e 0\n  AND r.session_id \u003c\u003e @@SPID\n  AND r.wait_time \u003e= {{min_wait_ms}}\nORDER BY r.wait_time DESC;\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-SPACE-001",
+        "engine": "mssql",
+        "category": "capacity",
+        "severity": "high",
+        "permission": "VIEW SERVER STATE (2022+ VIEW SERVER PERFORMANCE STATE)",
+        "params": {
+          "log_confirmed_pct": 90,
+          "log_hint_pct": 75,
+          "volume_confirmed_pct": 5,
+          "volume_hint_pct": 15
+        },
+        "title": {
+          "en": "Disk or transaction log running out of space",
+          "pt-BR": "Disco ou log de transações ficando sem espaço"
+        },
+        "impact": {
+          "en": "A full volume or log stops all writes in the affected databases. Usually it happens at the worst possible time.",
+          "pt-BR": "Um volume ou log cheio interrompe todas as escritas nos bancos afetados. Normalmente acontece na pior hora possível."
+        },
+        "next_action": {
+          "en": "Volumes: free space or grow the disk. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica).",
+          "pt-BR": "Volumes: libere espaço ou aumente o disco. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
+        },
+        "caveat": {
+          "en": "A snapshot shows how full things are now, not how fast they grow. Only volumes that hold database files are checked.",
+          "pt-BR": "Um retrato mostra o quanto está cheio agora, não a velocidade de crescimento. Só são verificados volumes com arquivos de banco."
+        },
+        "saas_cta": {
+          "en": "codeDB projects when each volume and log will fill up and alerts you days before.",
+          "pt-BR": "O codeDB projeta quando cada volume e log vai encher e alerta dias antes."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-space-001/",
+        "query": "WITH vol AS (\r\n    SELECT DISTINCT s.volume_mount_point, s.total_bytes, s.available_bytes\r\n    FROM sys.master_files f\r\n    CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s\r\n)\r\nSELECT 'volume'                                                AS kind,\r\n       v.volume_mount_point                                    AS name,\r\n       CAST(v.available_bytes * 100.0 / v.total_bytes AS decimal(5, 1)) AS free_pct,\r\n       CAST(v.available_bytes / 1048576 AS bigint)             AS free_mb,\r\n       CAST(NULL AS decimal(5, 1))                             AS log_used_pct,\r\n       CAST(NULL AS nvarchar(60))                              AS log_reuse_wait,\r\n       CASE WHEN v.available_bytes * 100.0 / v.total_bytes \u003c {{volume_confirmed_pct}} THEN 'confirmed' ELSE 'hint' END AS _confidence\r\nFROM vol v\r\nWHERE v.available_bytes * 100.0 / v.total_bytes \u003c {{volume_hint_pct}}\r\nUNION ALL\r\nSELECT 'log', d.name, NULL, NULL,\r\n       CAST(ls.active_log_size_mb * 100.0 / NULLIF(ls.total_log_size_mb, 0) AS decimal(5, 1)),\r\n       d.log_reuse_wait_desc,\r\n       CASE WHEN ls.active_log_size_mb * 100.0 / NULLIF(ls.total_log_size_mb, 0) \u003e= {{log_confirmed_pct}} THEN 'confirmed' ELSE 'hint' END\r\nFROM sys.databases d\r\nCROSS APPLY sys.dm_db_log_stats(d.database_id) ls  -- per-database counters are unreliable on 2025\r\nWHERE d.state_desc = 'ONLINE'\r\n  AND d.log_reuse_wait_desc NOT IN ('NOTHING', 'CHECKPOINT')\r\n  AND ls.active_log_size_mb * 100.0 / NULLIF(ls.total_log_size_mb, 0) \u003e= {{log_hint_pct}};\r\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-VERSION-001",
+        "engine": "mssql",
+        "category": "version",
+        "severity": "high",
+        "permission": "public",
+        "params": {
+          "warn_days": 365
+        },
+        "title": {
+          "en": "SQL Server version out of support or close to it",
+          "pt-BR": "Versão do SQL Server fora de suporte ou perto disso"
+        },
+        "impact": {
+          "en": "Out-of-support versions get no security fixes. Upgrades take months to plan, so the window matters.",
+          "pt-BR": "Versões fora de suporte não recebem correções de segurança. Upgrades levam meses para planejar, então o prazo importa."
+        },
+        "next_action": {
+          "en": "Plan an upgrade to a supported version. Check application compatibility and the compatibility level of each database.",
+          "pt-BR": "Planeje o upgrade para uma versão suportada. Verifique a compatibilidade das aplicações e o compatibility level de cada banco."
+        },
+        "caveat": {
+          "en": "Dates come from the Microsoft lifecycle table bundled in this Lens version. Update Lens to refresh them.",
+          "pt-BR": "As datas vêm da tabela de ciclo de vida da Microsoft embutida nesta versão do Lens. Atualize o Lens para renová-las."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-version-001/",
+        "query": "-- Microsoft lifecycle (extended support end). Source: learn.microsoft.com/lifecycle/products\nWITH lifecycle (major, product, extended_end) AS (\n    SELECT * FROM (VALUES\n        (11, 'SQL Server 2012', CAST('2022-07-12' AS date)),\n        (12, 'SQL Server 2014', CAST('2024-07-09' AS date)),\n        (13, 'SQL Server 2016', CAST('2026-07-14' AS date)),\n        (14, 'SQL Server 2017', CAST('2027-10-12' AS date)),\n        (15, 'SQL Server 2019', CAST('2030-01-08' AS date)),\n        (16, 'SQL Server 2022', CAST('2033-01-11' AS date))\n    ) v (major, product, extended_end)\n),\ns AS (\n    SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS int) AS major,\n           CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(32)) AS build,\n           CAST(SERVERPROPERTY('ProductUpdateLevel') AS nvarchar(32)) AS update_level,\n           CAST(SERVERPROPERTY('Edition') AS nvarchar(128)) AS edition\n)\nSELECT l.product,\n       s.build,\n       s.update_level,\n       s.edition,\n       l.extended_end AS extended_support_end,\n       DATEDIFF(day, GETDATE(), l.extended_end) AS days_left,\n       CASE WHEN l.extended_end \u003c GETDATE() THEN 'confirmed' ELSE 'hint' END AS _confidence\nFROM s\nJOIN lifecycle l ON l.major = s.major\nWHERE l.extended_end \u003c DATEADD(day, {{warn_days}}, GETDATE());\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-TEMPDB-001",
+        "engine": "mssql",
+        "category": "configuration",
+        "severity": "medium",
+        "permission": "VIEW ANY DEFINITION + VIEW SERVER STATE",
+        "title": {
+          "en": "TempDB files not laid out for concurrency",
+          "pt-BR": "Arquivos do TempDB fora do padrão para concorrência"
+        },
+        "impact": {
+          "en": "Too few or uneven data files cause allocation contention (PAGELATCH waits); percent growth makes growth events slower and slower.",
+          "pt-BR": "Poucos arquivos de dados, ou de tamanhos diferentes, causam disputa de alocação (esperas PAGELATCH); crescimento em percentual deixa cada crescimento mais lento."
+        },
+        "next_action": {
+          "en": "Use one data file per logical CPU up to 8, all with the same size and the same fixed growth in MB.",
+          "pt-BR": "Use um arquivo de dados por CPU lógica, até 8, todos com o mesmo tamanho e o mesmo crescimento fixo em MB."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-tempdb-001/",
+        "query": "WITH f AS (SELECT name, type_desc, size, growth, is_percent_growth FROM sys.master_files WHERE database_id = 2),\n     d AS (SELECT COUNT(*) AS n, MIN(size) AS mn, MAX(size) AS mx FROM f WHERE type_desc = 'ROWS'),\n     s AS (SELECT CASE WHEN cpu_count \u003e 8 THEN 8 ELSE cpu_count END AS want FROM sys.dm_os_sys_info)\nSELECT 'data file count' AS issue, CAST(NULL AS sysname) AS [file], CAST(d.n AS varchar(20)) AS current_value, CAST(s.want AS varchar(20)) AS suggested\nFROM d CROSS JOIN s WHERE d.n \u003c s.want\nUNION ALL\nSELECT 'data files with different sizes', NULL,\n       CAST(d.mn * 8 / 1024 AS varchar(20)) + '-' + CAST(d.mx * 8 / 1024 AS varchar(20)) + ' MB', 'same size'\nFROM d WHERE d.mn \u003c\u003e d.mx\nUNION ALL\nSELECT 'growth in percent', f.name, CAST(f.growth AS varchar(20)) + '%', 'fixed MB'\nFROM f WHERE f.is_percent_growth = 1;\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-TOPQUERY-001",
+        "engine": "mssql",
+        "category": "performance",
+        "severity": "medium",
+        "permission": "VIEW SERVER STATE",
+        "params": {
+          "dominant_pct": 40,
+          "min_total_cpu_s": 60
+        },
+        "title": {
+          "en": "A single query dominates CPU usage",
+          "pt-BR": "Uma única consulta domina o uso de CPU"
+        },
+        "impact": {
+          "en": "Tuning a database is rarely about tuning everything. When one query takes most of the CPU, fixing it pays more than anything else.",
+          "pt-BR": "Otimizar um banco quase nunca é otimizar tudo. Quando uma consulta leva a maior parte da CPU, corrigi-la rende mais que qualquer outra coisa."
+        },
+        "next_action": {
+          "en": "Start from the first query in the evidence (the top 5 are listed). Look at its execution plan, missing indexes and whether it runs more often than it should.",
+          "pt-BR": "Comece pela primeira consulta da evidência (as 5 maiores aparecem). Veja o plano de execução, os índices faltando e se ela roda mais vezes do que deveria."
+        },
+        "caveat": {
+          "en": "Based on the plan cache, which is cleared on restart and under memory pressure. Queries with OPTION (RECOMPILE) may not appear.",
+          "pt-BR": "Baseado no plan cache, que é limpo no restart e sob pressão de memória. Consultas com OPTION (RECOMPILE) podem não aparecer."
+        },
+        "saas_cta": {
+          "en": "codeDB keeps the query history, so you can see when a query started dominating and what changed.",
+          "pt-BR": "O codeDB guarda o histórico das consultas, para você ver quando uma consulta passou a dominar e o que mudou."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-topquery-001/",
+        "query": "WITH q AS (\n    SELECT qs.query_hash,\n           SUM(qs.total_worker_time)   AS cpu_us,\n           SUM(qs.execution_count)     AS executions,\n           SUM(qs.total_logical_reads) AS reads,\n           SUM(qs.total_elapsed_time)  AS elapsed_us,\n           MAX(qs.sql_handle)          AS sql_handle,\n           MAX(qs.statement_start_offset) AS so,\n           MAX(qs.statement_end_offset)   AS eo\n    FROM sys.dm_exec_query_stats qs\n    GROUP BY qs.query_hash\n),\nt AS (SELECT SUM(cpu_us) AS total, MAX(cpu_us) AS top1 FROM q),\ntop5 AS (SELECT TOP (5) * FROM q ORDER BY cpu_us DESC)\nSELECT CAST(top5.cpu_us * 100.0 / t.total AS decimal(5, 1)) AS cpu_pct,\n       top5.executions,\n       CAST(top5.cpu_us / 1000.0 / NULLIF(top5.executions, 0) AS decimal(14, 1))     AS avg_cpu_ms,\n       CAST(top5.elapsed_us / 1000.0 / NULLIF(top5.executions, 0) AS decimal(14, 1)) AS avg_duration_ms,\n       top5.reads / NULLIF(top5.executions, 0) AS avg_reads,\n       DB_NAME(st.dbid) AS [database],\n       LEFT(REPLACE(REPLACE(SUBSTRING(st.text, top5.so / 2 + 1,\n            (CASE top5.eo WHEN -1 THEN DATALENGTH(st.text) ELSE top5.eo END - top5.so) / 2 + 1),\n            CHAR(13), ' '), CHAR(10), ' '), 300) AS query\nFROM top5 CROSS JOIN t\nOUTER APPLY sys.dm_exec_sql_text(top5.sql_handle) st\nWHERE t.total / 1000000.0 \u003e= {{min_total_cpu_s}}\n  AND t.top1 * 100.0 / t.total \u003e= {{dominant_pct}}\nORDER BY top5.cpu_us DESC;\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
+    }
+  ]
+}

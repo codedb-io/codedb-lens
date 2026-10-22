@@ -95,7 +95,8 @@ func Compare(version, lang string, a, b *Report, fileA, fileB string) (*Comparis
 	for id := range before {
 		ids[id] = true
 	}
-	catalogDiffers := len(before) != len(after)
+	catalogDiffers := len(before) != len(after) ||
+		a.CatalogVersion != "" && b.CatalogVersion != "" && a.CatalogVersion != b.CatalogVersion
 	for id := range after {
 		if !ids[id] {
 			catalogDiffers = true

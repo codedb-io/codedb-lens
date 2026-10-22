@@ -33,13 +33,16 @@ var style string
 var icon []byte
 
 type Report struct {
-	Tool        string            `json:"tool"`
-	ToolVersion string            `json:"tool_version"`
-	GeneratedAt time.Time         `json:"generated_at"`
-	Lang        string            `json:"lang"`
-	Server      engine.ServerInfo `json:"server"`
-	Score       engine.Score      `json:"score"`
-	Results     []engine.Result   `json:"results"`
+	Tool        string    `json:"tool"`
+	ToolVersion string    `json:"tool_version"`
+	GeneratedAt time.Time `json:"generated_at"`
+	// CatalogVersion fingerprints the rules and weights used (engine.CatalogVersion); empty before v0.5.
+	CatalogVersion string            `json:"catalog_version,omitempty"`
+	Duration       string            `json:"duration,omitempty"` // whole run, connection included
+	Lang           string            `json:"lang"`
+	Server         engine.ServerInfo `json:"server"`
+	Score          engine.Score      `json:"score"`
+	Results        []engine.Result   `json:"results"`
 }
 
 var severityOrder = map[engine.Severity]int{engine.Critical: 0, engine.High: 1, engine.Medium: 2, engine.Low: 3}

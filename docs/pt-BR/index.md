@@ -14,5 +14,8 @@ nota de A a F e selo de cobertura.
 - **Confiança:** *Confirmado* (a evidência comprova), *Indício* (provável, precisa de análise humana) ou
   *Sem dados* (a regra não pôde rodar, e o motivo aparece).
 
+A fórmula completa está em [Como a nota é calculada](methodology.md). Quer ver antes de instalar? Abra o
+[relatório de exemplo](demo/report.html) (dados sintéticos).
+
 O Lens mostra um retrato do momento. Para histórico, baseline e alertas, conheça o
 [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=home).

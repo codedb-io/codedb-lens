@@ -48,3 +48,31 @@ Flags úteis: `--lang en|pt-BR`, `--out <pasta>`, `--trust-server-cert` (certifi
 Os relatórios ficam em HTML e JSON em `Documentos\codeDB Lens\reports\<perfil>` (Windows) ou
 `~/codedb-lens/reports/<perfil>` (Linux). Veja [como ler a nota e a cobertura](index.md#como-ler-o-relatorio).
 Cada achado leva à página da regra, com o raciocínio, os limites e o que fazer.
+
+## 5. Use em CI ou num job agendado
+
+O `check` termina com um código que o pipeline pode usar. Por padrão, achados nunca reprovam a execução; defina uma
+política:
+
+| Código | Significado |
+|---|---|
+| `0` | Execução concluída e a política passou |
+| `1` | Um achado com severidade igual ou maior que `--fail-on` (`critical`, `high`, `medium`, `low`) |
+| `2` | Erro de conexão, configuração ou execução. Nunca vira achado do banco |
+| `3` | Cobertura abaixo de `--min-coverage` (porcentagem) |
+
+Um achado tem prioridade sobre a cobertura baixa. O relatório JSON fica ao lado do HTML, com o mesmo nome.
+
+```yaml
+# GitHub Actions
+- name: codeDB Lens
+  env:
+    CODEDB_LENS_PASSWORD: ${{ secrets.LENS_PASSWORD }}
+    CODEDB_LENS_NO_UPDATE: "1"
+  run: >
+    codedb-lens check --engine pg --server db.internal --user codedb_lens
+    --out lens-report --fail-on high --min-coverage 80
+```
+
+Rodando o Lens agendado para acompanhar a produção? É isso que o [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=ci)
+faz 24 horas por dia, com histórico e alertas.

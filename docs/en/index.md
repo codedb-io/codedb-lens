@@ -14,5 +14,8 @@ A–F grade and a coverage seal.
 - **Confidence:** *Confirmed* (the evidence proves it), *Hint* (likely, needs a human look) or *No data*
   (the rule couldn't run, and the reason is shown).
 
+The full formula is in [How the grade is calculated](methodology.md). Want to see it before installing? Open the
+[sample report](demo/report.html) (synthetic data).
+
 Lens shows a snapshot. For history, baselines and alerts, see
 [codeDB](https://codedb.com.br/?utm_source=lens&utm_medium=docs&utm_campaign=home).

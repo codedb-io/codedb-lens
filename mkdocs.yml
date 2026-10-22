@@ -30,11 +30,13 @@ plugins:
             Rules: Regras
             Getting started: Primeiros passos
             Compare and free key: Comparação e chave grátis
+            How the grade works: Como a nota é calculada
 
 nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Compare and free key: compare.md
+  - How the grade works: methodology.md
   - Permissions: permissions.md
   - Privacy: privacy.md
   - Roadmap: roadmap.md
