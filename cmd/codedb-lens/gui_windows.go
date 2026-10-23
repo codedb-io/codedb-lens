@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -25,6 +26,7 @@ import (
 	"github.com/codedb-io/codedb-lens/internal/i18n"
 	"github.com/codedb-io/codedb-lens/internal/license"
 	"github.com/codedb-io/codedb-lens/internal/profile"
+	"github.com/codedb-io/codedb-lens/internal/record"
 	"github.com/codedb-io/codedb-lens/internal/report"
 	"github.com/codedb-io/codedb-lens/internal/saas"
 	"github.com/codedb-io/codedb-lens/internal/update"
@@ -39,6 +41,26 @@ type App struct {
 	ctx    context.Context
 	mu     sync.Mutex
 	cancel context.CancelFunc // of the running diagnosis
+
+	rec     RecState // the recording, one at a time (Q15); guarded by mu
+	recStop context.CancelFunc
+	recDone chan struct{}
+}
+
+// RecState is the recording as the Record tab shows it; also sent as the "rec" event after every cycle.
+type RecState struct {
+	Running   bool   `json:"running"`
+	Profile   string `json:"profile"`
+	Dir       string `json:"dir"`
+	Started   string `json:"started"`
+	Deadline  string `json:"deadline"`
+	Samples   int    `json:"samples"`
+	Gaps      int    `json:"gaps"`
+	Bytes     int64  `json:"bytes"`
+	Connected bool   `json:"connected"`
+	LastError string `json:"last_error,omitempty"`
+	Stop      string `json:"stop,omitempty"`  // stop reason once finished
+	Error     string `json:"error,omitempty"` // why it ended or never started
 }
 
 type State struct {
@@ -371,6 +393,138 @@ func (a *App) Compare(older, newer, lang string) (RunResult, error) {
 	return RunResult{HTML: b.String(), Path: path}, nil
 }
 
+// recordingsDir is where the GUI keeps a profile's recordings: next to its reports.
+func recordingsDir(p profile.Profile) string {
+	return filepath.Join(firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)), "recordings")
+}
+
+// StartRecording records the profile for 1 or 24 hours (24 needs the free key) in the background. Progress and the
+// end come as "rec" events; a recording that cannot start ends at once with Error set.
+func (a *App) StartRecording(p profile.Profile, password string, hours int) error {
+	lang := i18n.Normalize(firstNonEmpty(p.Lang, i18n.Detect()))
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.rec.Running {
+		return fmt.Errorf(i18n.T(lang, "gui_rec_other"), a.rec.Profile)
+	}
+	l, keyErr := validLicense(lang)
+	licensed := keyErr == nil
+	dur := recordFree
+	if hours == 24 {
+		if !licensed {
+			return errors.New(i18n.T(lang, "rec_need_key"))
+		}
+		dur = recordMax
+	}
+	dir := filepath.Join(recordingsDir(p), record.DefaultDir(p.Conn.Server, time.Now()))
+	opts, err := recordOptions(connFor(p, password), dir, dur, lang, l, licensed)
+	if err != nil {
+		return err
+	}
+	ctx, stop := context.WithCancel(a.ctx)
+	a.rec, a.recStop, a.recDone = RecState{Running: true, Profile: p.Name, Dir: dir, Connected: true}, stop, make(chan struct{})
+	opts.Progress = func(s record.Status) {
+		a.mu.Lock()
+		a.rec.Started, a.rec.Deadline = s.Started.Format(time.RFC3339), s.Deadline.Format(time.RFC3339)
+		a.rec.Samples, a.rec.Gaps, a.rec.Bytes, a.rec.Connected, a.rec.LastError = s.Samples, s.Gaps, s.Bytes, s.Connected, s.LastError
+		st := a.rec
+		a.mu.Unlock()
+		runtime.EventsEmit(a.ctx, "rec", st)
+	}
+	done := a.recDone
+	go func() {
+		defer close(done)
+		defer stop()
+		meta, err := record.Run(ctx, opts)
+		a.mu.Lock()
+		a.rec.Running, a.rec.Stop = false, meta.StopReason
+		if err != nil {
+			a.rec.Error = err.Error()
+		}
+		st := a.rec
+		a.mu.Unlock()
+		runtime.EventsEmit(a.ctx, "rec", st)
+	}()
+	return nil
+}
+
+// StopRecording ends the recording cleanly; what was recorded is kept.
+func (a *App) StopRecording() {
+	a.mu.Lock()
+	stop, done := a.recStop, a.recDone
+	a.mu.Unlock()
+	if stop != nil {
+		stop()
+		select {
+		case <-done:
+		case <-time.After(15 * time.Second): // a query in flight has its own 10 s timeout
+		}
+	}
+}
+
+// Recording returns the current (or last) recording, so the tab can redraw after navigating away.
+func (a *App) Recording() RecState {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.rec
+}
+
+// RecSummary is one recording in a profile's list.
+type RecSummary struct {
+	Dir     string `json:"dir"`
+	Started string `json:"started"`
+	Stopped string `json:"stopped,omitempty"`
+	Stop    string `json:"stop,omitempty"`
+	Report  string `json:"report,omitempty"` // report.html, once generated
+}
+
+// Recordings lists the profile's recordings, newest first.
+func (a *App) Recordings(p profile.Profile) []RecSummary {
+	entries, _ := os.ReadDir(recordingsDir(p))
+	var out []RecSummary
+	for _, e := range entries {
+		dir := filepath.Join(recordingsDir(p), e.Name())
+		m, err := record.ReadMeta(dir)
+		if !e.IsDir() || err != nil {
+			continue
+		}
+		r := RecSummary{Dir: dir, Started: m.StartedAt.Format(time.RFC3339), Stop: m.StopReason}
+		if !m.StoppedAt.IsZero() {
+			r.Stopped = m.StoppedAt.Format(time.RFC3339)
+		}
+		if _, err := os.Stat(filepath.Join(dir, "report.html")); err == nil {
+			r.Report = filepath.Join(dir, "report.html")
+		}
+		out = append(out, r)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Started > out[j].Started })
+	return out
+}
+
+// RecordingReport (re)builds the report of a recording, also while it is still running, and returns it for the viewer.
+func (a *App) RecordingReport(dir, lang string) (RunResult, error) {
+	path, err := saveTimeline(dir, time.Time{}, time.Time{}, i18n.Normalize(lang), "", false)
+	if err != nil {
+		return RunResult{}, err
+	}
+	html, err := a.ReadReport(path)
+	return RunResult{HTML: html, Path: path}, err
+}
+
+// beforeClose asks before closing while recording; closing stops it cleanly.
+func (a *App) beforeClose(ctx context.Context) bool {
+	st := a.Recording()
+	if !st.Running {
+		return false
+	}
+	lang := i18n.Normalize(i18n.Detect())
+	if !a.Confirm(i18n.T(lang, "gui_rec_close_title"), i18n.T(lang, "gui_rec_close_msg")) {
+		return true
+	}
+	a.StopRecording()
+	return false
+}
+
 func (a *App) OpenFolder(path string) { _ = exec.Command("explorer", "/select,", path).Start() }
 
 func (a *App) OpenURL(url string) { runtime.BrowserOpenURL(a.ctx, url) }
@@ -386,6 +540,7 @@ func runGUI() bool {
 		BackgroundColour: &options.RGBA{R: 10, G: 14, B: 23, A: 255},
 		AssetServer:      &assetserver.Options{Assets: frontend},
 		OnStartup:        func(ctx context.Context) { app.ctx = ctx },
+		OnBeforeClose:    app.beforeClose,
 		Bind:             []any{app},
 	})
 	if err != nil {

@@ -164,6 +164,19 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .promo.hero b { font: 700 var(--fs-xl) var(--font-display); margin-bottom: var(--s1); }
 .promo.hero > div { font-size: var(--fs-sm); }
 .promo.hero .btn { height: 40px; padding: 0 var(--s5); font-size: var(--fs-sm); }
+.recstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s3); margin: var(--s2) 0 var(--s3); }
+.recstats > div { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s3); }
+.recstats .lbl { display: flex; align-items: center; color: var(--muted); font-size: var(--fs-xs); }
+.recstats b { display: block; font: 700 var(--fs-xl) var(--font-display); margin-top: 2px; }
+#recel { font-size: var(--fs-lg); white-space: nowrap; }
+.bar { height: 6px; background: var(--line); border-radius: var(--r-pill); overflow: hidden; margin-top: var(--s2); }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blue-600), var(--sky-400)); transition: width .4s; }
+.infobtn { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 6px; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%;
+  background: var(--surface); color: var(--muted); font: 600 10px/1 var(--font); cursor: pointer; }
+.infobtn:hover, .infobtn:focus-visible { color: var(--blue-700); border-color: var(--blue-500); outline: none; box-shadow: var(--focus); }
+.pop { max-width: min(420px, calc(100vw - 32px)); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface);
+  color: var(--text); box-shadow: var(--shadow-md); font-size: var(--fs-sm); line-height: 1.55; }
+.pop::backdrop { background: rgb(15 23 42 / 18%); }
 .promo-t { transition: opacity .4s var(--ease); }
 .promo-t.fade { opacity: 0; }
 .code { background: var(--navy-900); color: var(--on-dark); border-radius: var(--r-md); padding: var(--s3) var(--s4); font: 12px/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; }
@@ -256,7 +269,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <div class="acts">
     <button type="button" class="card act" id="actnew"><svg class="i"><use href="#i-plus"/></svg><b data-t="gui_new_title"></b><span data-t="gui_card_new_s"></span></button>
     <button type="button" class="card act" id="actrun"><svg class="i"><use href="#i-play"/></svg><b data-t="gui_card_run"></b><span data-t="gui_card_run_s"></span></button>
-    <button type="button" class="card act" disabled><svg class="i"><use href="#i-rec"/></svg><b data-t="gui_card_record"></b><span data-t="gui_card_record_s"></span><span class="soon" data-t="gui_soon"></span></button>
+    <button type="button" class="card act" id="actrec"><svg class="i"><use href="#i-rec"/></svg><b data-t="gui_card_record"></b><span data-t="gui_card_record_s"></span></button>
   </div>
   <div class="promo hero"><div><b data-t="gui_codedb_title"></b><span data-t="gui_codedb_text"></span><br><span data-t="gui_promo"></span>
     <br><button type="button" class="linkbtn" id="homekey" style="color:var(--sky-300);margin-top:var(--s3)"><svg class="i"><use href="#i-key"/></svg><span></span></button></div>
@@ -279,9 +292,32 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <button type="button" role="tab" data-tab="hist" data-t="gui_history"></button>
   </div>
 
-  <div class="card sec" id="tab-record" style="max-width:760px" hidden>
-    <div class="sh"><svg class="i" style="color:var(--blue-600)"><use href="#i-rec"/></svg><div><h2 data-t="gui_card_record"></h2><p data-t="gui_record_soon"></p></div>
-      <span class="soon right" data-t="gui_soon"></span></div>
+  <div id="tab-record" style="max-width:760px" hidden>
+    <div class="card sec">
+      <div class="sh"><svg class="i" style="color:var(--blue-600)"><use href="#i-rec"/></svg><div><h2 data-t="gui_card_record"></h2><p data-t="gui_rec_sub"></p></div></div>
+      <div id="recstatus"></div>
+      <div id="recidle">
+        <div class="seg" id="recdur"><button type="button" data-h="1" aria-pressed="true" data-t="gui_rec_1h"></button><button type="button" data-h="24" data-t="gui_rec_24h"></button></div>
+        <p class="hint" id="reckey" hidden><button type="button" class="linkbtn" id="reckeybtn"><svg class="i"><use href="#i-key"/></svg><span data-t="gui_rec_24h_key"></span></button></p>
+        <div class="actions" style="margin-top:var(--s4)"><button type="button" class="btn primary" id="recstart"><svg class="i"><use href="#i-rec"/></svg><span data-t="gui_rec_start"></span></button></div>
+      </div>
+      <div id="reclive" hidden>
+        <div class="recstats">
+          <div><span class="lbl"><span data-t="gui_rec_elapsed"></span><i data-info="gui_rec_info_elapsed"></i></span><b id="recel"></b><div class="bar"><i id="recbar"></i></div></div>
+          <div><span class="lbl"><span data-t="gui_rec_samples"></span><i data-info="gui_rec_info_samples"></i></span><b id="recsm"></b></div>
+          <div><span class="lbl"><span data-t="gui_rec_gaps"></span><i data-info="gui_rec_info_gaps"></i></span><b id="recgp"></b></div>
+          <div><span class="lbl"><span data-t="gui_rec_size"></span><i data-info="gui_rec_info_size"></i></span><b id="recsz"></b></div>
+        </div>
+        <p class="hint" data-t="gui_rec_keep_open"></p>
+        <div class="actions"><button type="button" class="btn danger" id="recstop" data-t="gui_rec_stop"></button><span class="sp"></span>
+          <button type="button" class="btn" id="recnow" data-t="gui_rec_report"></button></div>
+      </div>
+      <div style="margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line)">
+        <button type="button" class="linkbtn" id="reccopy"><svg class="i"><use href="#i-paste"/></svg><span data-t="gui_rec_copy"></span></button>
+        <p class="hint" data-t="gui_rec_copy_hint"></p>
+      </div>
+    </div>
+    <div class="card sec" style="margin-top:var(--s4)"><h3 style="margin:0 0 var(--s3)" data-t="gui_rec_list"></h3><div class="hist" id="reclist"></div></div>
   </div>
 
   <div class="card sec" id="tab-hist" style="max-width:760px" hidden><div class="hist" id="hist"></div></div>
@@ -429,7 +465,10 @@ let key = {}, state, texts = {}, uiLang = 'en', current = null, engine = 'mssql'
 const t = k => texts[k] || k;
 const tf = (k, ...a) => a.reduce((s, v) => s.replace(/%[sd]/, v), t(k));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-function applyTexts() { $$('[data-t]').forEach(e => e.textContent = t(e.dataset.t)); $$('[data-tt]').forEach(e => e.title = t(e.dataset.tt)); }
+function applyTexts() {
+  $$('[data-t]').forEach(e => e.textContent = t(e.dataset.t)); $$('[data-tt]').forEach(e => e.title = t(e.dataset.tt));
+  $$('button.infobtn').forEach(b => b.setAttribute('aria-label', t('tl_what')));
+}
 function ago(iso) {
   const s = (new Date(iso) - Date.now()) / 1000, rtf = new Intl.RelativeTimeFormat(uiLang, { numeric: 'auto' });
   for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(s) >= n) return rtf.format(Math.round(s / n), u);
@@ -478,6 +517,88 @@ function show(id) {
 function setTab(name) {
   $$('#tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
   for (const n of ['check', 'record', 'hist']) $('#tab-' + n).hidden = n !== name;
+  if (name === 'record') loadRecordings();
+}
+
+/* ── record tab ── */
+let rec = {}, recHours = 1;
+const mb = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+const hm = s => { s = Math.max(0, Math.round(s)); const p = n => String(n).padStart(2, '0'); return Math.floor(s / 3600) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60); };
+function recStatus(kind, msg, detail) {
+  $('#recstatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b>' + (detail ? '<details><summary>' + esc(t('gui_details')) + '</summary><code>' + esc(detail) + '</code></details>' : '') + '</div></div>' : '';
+}
+function renderRec() {
+  const mine = rec.profile && rec.profile === current, live = mine && rec.running;
+  $('#recidle').hidden = live; $('#reclive').hidden = !live;
+  $('#reckey').hidden = !!key.valid; $$('#recdur button')[1].disabled = !key.valid;
+  if (!key.valid && recHours === 24) setHours(1);
+  if (live) {
+    const start = new Date(rec.started || Date.now()), end = new Date(rec.deadline || Date.now()), total = (end - start) / 1000 || 1, el = (Date.now() - start) / 1000;
+    $('#recel').textContent = rec.started ? hm(el) + ' / ' + hm(total) : '–';
+    $('#recbar').style.width = rec.started ? Math.min(100, el / total * 100) + '%' : '0';
+    $('#recsm').textContent = rec.samples || 0; $('#recgp').textContent = rec.gaps || 0; $('#recsz').textContent = mb(rec.bytes || 0);
+    if (!rec.started) recStatus('info', t('gui_rec_connecting'));
+    else if (!rec.connected) recStatus('err', tf('gui_rec_down', rec.last_error || ''));
+    else recStatus('info', tf('gui_rec_running', end.toLocaleString(uiLang)));
+  } else if (mine && rec.error && !rec.stop) recStatus('err', friendly(rec.error), rec.error);
+  else if (mine && rec.stop) recStatus(rec.error ? 'err' : 'ok', tf('gui_rec_done', t('rec_stop_' + rec.stop)), rec.error);
+  else recStatus();
+  $('#recstart').disabled = !!rec.running;
+}
+function setHours(h) { recHours = h; $$('#recdur button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.h === h)); }
+async function loadRecordings() {
+  rec = await api().Recording(); renderRec();
+  const p = (state.profiles || []).find(x => x.name === current), box = $('#reclist');
+  const list = p ? await api().Recordings(p) || [] : [];
+  box.innerHTML = list.length ? '' : '<p class="sub" style="margin:0">' + esc(t('gui_rec_none')) + '</p>';
+  list.forEach(r => {
+    const line = document.createElement('div'); line.className = 'hline';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'hrow';
+    const s = new Date(r.started), e = r.stopped ? new Date(r.stopped) : null;
+    b.innerHTML = '<svg class="i" style="color:var(--blue-600)"><use href="#i-rec"/></svg><span>' + esc(s.toLocaleString(uiLang)) + '<br><small>' +
+      esc(e ? hm((e - s) / 1000) + ' · ' + t('rec_stop_' + r.stop) : t('gui_rec_live')) + '</small></span><small>' + esc(t('gui_rec_report')) + ' ›</small>';
+    b.onclick = () => recReport(r.dir, p);
+    const f = document.createElement('button'); f.type = 'button'; f.className = 'linkbtn'; f.textContent = t('gui_rec_folder');
+    f.onclick = () => api().OpenFolder(r.dir + '\\meta.json');
+    line.append(b, f); box.appendChild(line);
+  });
+}
+async function recReport(dir, p) {
+  try { const r = await api().RecordingReport(dir, uiLang); showReport(r.html, r.path, p); }
+  catch (e) { recStatus('err', friendly(e), String(e)); }
+}
+async function startRec() {
+  let p; try { p = await save(); } catch (e) { recStatus('err', String(e)); return; }
+  if (!p) { setTab('check'); return; }
+  $('#recstart').disabled = true; rec = { running: true, profile: p.name }; renderRec();
+  try { await api().StartRecording({ ...p, lang: uiLang }, '', recHours); }
+  catch (e) { rec = {}; renderRec(); recStatus('err', friendly(e), String(e)); }
+}
+function onRec(ev) {
+  const ended = rec.running && !ev.running;
+  rec = ev;
+  if (current === ev.profile && !$('#tab-record').hidden) { renderRec(); if (ended) loadRecordings(); }
+}
+function recCommand(p) { // what to run on the server; the password stays out of it (CODEDB_LENS_PASSWORD)
+  const c = p.conn, q = v => /[\s"\\]/.test(v) ? '"' + v.replace(/"/g, '\\"') + '"' : v;
+  const a = ['codedb-lens record', '--engine ' + c.engine, '--server ' + q(c.server)];
+  if (c.port) a.push('--port ' + c.port);
+  if (c.database) a.push('--database ' + q(c.database));
+  if (c.engine === 'mssql' && c.auth === 'windows') a.push('--auth windows'); else if (c.user) a.push('--user ' + q(c.user));
+  if (c.trust_server_cert) a.push('--trust-server-cert');
+  if (c.sslmode) a.push('--sslmode ' + c.sslmode);
+  a.push('--duration ' + (key.valid ? '24h' : '1h'));
+  return a.join(' ');
+}
+/* ── "i" buttons: native popover (click, keyboard, Esc), text from the i18n key in data-info ── */
+let infoN = 0;
+function applyInfo() {
+  $$('i[data-info]').forEach(el => {
+    const id = 'info-' + (++infoN), b = document.createElement('button'), pop = document.createElement('div');
+    b.type = 'button'; b.className = 'infobtn'; b.textContent = 'i'; b.setAttribute('popovertarget', id); b.setAttribute('aria-label', t('tl_what'));
+    pop.id = id; pop.className = 'pop'; pop.popover = 'auto'; pop.dataset.t = el.dataset.info; pop.textContent = t(el.dataset.info);
+    el.replaceWith(b, pop);
+  });
 }
 function goHome() { current = null; show('home'); renderList(); }
 
@@ -730,6 +851,20 @@ $('#actrun').onclick = () => {
   if (p) { fill(p); run(p); } else fill(null);
 };
 $$('#tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+$$('#recdur button').forEach(b => b.onclick = () => setHours(+b.dataset.h));
+$('#recstart').onclick = startRec;
+$('#recstop').onclick = async () => { $('#recstop').disabled = true; try { await api().StopRecording(); } finally { $('#recstop').disabled = false; } };
+$('#recnow').onclick = () => recReport(rec.dir, (state.profiles || []).find(x => x.name === current));
+$('#reckeybtn').onclick = showKey;
+$('#reccopy').onclick = async () => {
+  const cmd = recCommand(profileFromForm());
+  try { await navigator.clipboard.writeText(cmd); recStatus('ok', t('gui_rec_copied'), cmd); } catch (e) {}
+};
+$('#actrec').onclick = () => {
+  const ps = state.profiles || [], p = ps.find(x => x.name === (rec.running ? rec.profile : state.last)) || ps[0];
+  if (p) { fill(p); setTab('record'); } else fill(null);
+};
+setInterval(() => { if (rec.running && !$('#reclive').hidden) renderRec(); }, 1000); // the clock moves between cycles
 $$('.promo').forEach(e => { e.onmouseenter = () => promoHover = true; e.onmouseleave = () => promoHover = false; });
 $('#homecta').onclick = () => api().OpenURL(landing('home'));
 $('#updbtn').onclick = async () => {
@@ -778,6 +913,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('#tokens').textContent = state.tokens; $('#ver').textContent = 'v' + state.version + ' · by codeDB';
   $('#uilang').value = uiLang; applyTexts(); renderPromo();
   window.runtime.EventsOn('rule', onRule);
+  window.runtime.EventsOn('rec', onRec);
+  applyInfo();
   fill(null); goHome(); // opens on Home: nothing selected, no connection attempted
   loadKey();
   loadHistories();
