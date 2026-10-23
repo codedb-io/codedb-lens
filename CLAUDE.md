@@ -61,9 +61,10 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
-Status (2026-10-23): fase 2 concluída. Repo público, v0.6.1 publicada (v0.6: resumo executivo, `--redact`, `verify`,
+Status (2026-10-23): fase 2 concluída. Repo público, v0.7.0 publicada (v0.6: resumo executivo, `--redact`, `verify`,
 `*-VERSION-002`; 26 regras; sem nota abaixo de 6 regras aplicáveis. v0.6.1: attestations, bucket Scoop em `bucket/`
-atualizado pelo `publish.yml`; winget `codeDB.Lens` em revisão), `.deb`/`.rpm`, imagem pública
+atualizado pelo `publish.yml`; winget `codeDB.Lens` em revisão, sem `WINGET_TOKEN`. v0.7: GUI com tela inicial, abas
+por conexão, botão "Atualizar agora", excluir do histórico; plano da v0.8 em `planos/08-v0.7-v0.8.md`), `.deb`/`.rpm`, imagem pública
 `ghcr.io/codedb-io/codedb-lens`, docs em `https://lens.codedb.com.br/` (GitHub Pages, workflow `docs.yml`),
 página `https://app.codedb.com.br/lens` no ar. Próximo marco: v0.8 `record` (v0.5.2 assinatura quando o SignPath aprovar).
 
