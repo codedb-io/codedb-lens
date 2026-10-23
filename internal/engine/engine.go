@@ -63,6 +63,17 @@ type Rule struct {
 	SQL        string             `yaml:"-" json:"query"`
 	// Variants: query.<platform>.sql replaces query.sql on that platform (e.g. azure_sqldb, where server DMVs differ).
 	Variants map[string]string `yaml:"-" json:"-"`
+
+	// Series rules only (kind: series, see series.go): no query.sql, they read a record collector.
+	Kind      string   `yaml:"kind" json:"kind,omitempty"`
+	Source    string   `yaml:"source" json:"source,omitempty"`
+	Where     []Cond   `yaml:"where" json:"where,omitempty"`
+	GroupBy   []string `yaml:"group_by" json:"group_by,omitempty"`
+	Measure   string   `yaml:"measure" json:"measure,omitempty"` // a column, or count (rows in the group)
+	PerS      bool     `yaml:"per_s" json:"per_s,omitempty"`     // divide by the sample's interval_s
+	Of        string   `yaml:"of" json:"of,omitempty"`           // percentage of this column
+	Threshold Cond     `yaml:"threshold" json:"threshold,omitzero"`
+	Sustain   int      `yaml:"sustain" json:"sustain,omitempty"` // samples in a row before it counts (default 1)
 }
 
 // ServerInfo is what an adapter learns about the target before rules run.
@@ -117,8 +128,13 @@ func WriteKeyword(sql string) string {
 
 var placeholder = regexp.MustCompile(`\{\{\s*(\w+)\s*\}\}`)
 
-// LoadCatalog reads rules/<engine>/<ID>/{rule.yaml,query.sql} from fsys.
-func LoadCatalog(fsys fs.FS, engine string) ([]*Rule, error) {
+// LoadCatalog reads the snapshot rules (check): rules/<engine>/<ID>/{rule.yaml,query.sql} from fsys.
+func LoadCatalog(fsys fs.FS, engine string) ([]*Rule, error) { return load(fsys, engine, false) }
+
+// LoadSeries reads the series rules (kind: series), which judge recordings.
+func LoadSeries(fsys fs.FS, engine string) ([]*Rule, error) { return load(fsys, engine, true) }
+
+func load(fsys fs.FS, engine string, series bool) ([]*Rule, error) {
 	dirs, err := fs.ReadDir(fsys, engine)
 	if err != nil {
 		return nil, err
@@ -137,11 +153,16 @@ func LoadCatalog(fsys fs.FS, engine string) ([]*Rule, error) {
 		if err := yaml.Unmarshal(raw, r); err != nil {
 			return nil, fmt.Errorf("%s: %w", base, err)
 		}
-		q, err := fs.ReadFile(fsys, path.Join(base, "query.sql"))
-		if err != nil {
-			return nil, err
+		if (r.Kind == KindSeries) != series {
+			continue
 		}
-		r.SQL = string(q)
+		if !series {
+			q, err := fs.ReadFile(fsys, path.Join(base, "query.sql"))
+			if err != nil {
+				return nil, err
+			}
+			r.SQL = string(q)
+		}
 		entries, err := fs.ReadDir(fsys, base)
 		if err != nil {
 			return nil, err
@@ -187,6 +208,13 @@ func (r *Rule) Validate(engine, dir string) error {
 	}
 	if r.Confidence != Confirmed && r.Confidence != Hint {
 		errs = append(errs, fmt.Errorf("confidence must be confirmed or hint"))
+	}
+	switch r.Kind {
+	case "":
+	case KindSeries:
+		errs = append(errs, r.validateSeries()...)
+	default:
+		errs = append(errs, fmt.Errorf("kind %q must be empty or series", r.Kind))
 	}
 	required := map[string]Text{"title": r.Title, "impact": r.Impact, "next_action": r.NextAction, "verify": r.Verify}
 	optional := map[string]Text{"caveat": r.Caveat, "saas_cta": r.SaaSCTA}

@@ -50,6 +50,10 @@ nav:
           - MSSQL-CHECKDB-001: rules/mssql-checkdb-001.md
           - MSSQL-CONFIG-001: rules/mssql-config-001.md
           - MSSQL-MISSINGIDX-001: rules/mssql-missingidx-001.md
+          - MSSQL-REC-BLOCKING-001: rules/mssql-rec-blocking-001.md
+          - MSSQL-REC-LONGQUERY-001: rules/mssql-rec-longquery-001.md
+          - MSSQL-REC-WAITS-001: rules/mssql-rec-waits-001.md
+          - MSSQL-REC-WORKERS-001: rules/mssql-rec-workers-001.md
           - MSSQL-SPACE-001: rules/mssql-space-001.md
           - MSSQL-TEMPDB-001: rules/mssql-tempdb-001.md
           - MSSQL-TOPQUERY-001: rules/mssql-topquery-001.md
@@ -65,6 +69,10 @@ nav:
           - PG-LOCKS-001: rules/pg-locks-001.md
           - PG-LONGTX-001: rules/pg-longtx-001.md
           - PG-PGSS-001: rules/pg-pgss-001.md
+          - PG-REC-BLOCKING-001: rules/pg-rec-blocking-001.md
+          - PG-REC-CONN-001: rules/pg-rec-conn-001.md
+          - PG-REC-LONGQUERY-001: rules/pg-rec-longquery-001.md
+          - PG-REC-WAITS-001: rules/pg-rec-waits-001.md
           - PG-SIZE-001: rules/pg-size-001.md
           - PG-SLOTS-001: rules/pg-slots-001.md
           - PG-TOPQUERY-001: rules/pg-topquery-001.md

@@ -1,0 +1,33 @@
+id: MSSQL-REC-LONGQUERY-001
+engine: mssql
+kind: series
+category: performance
+severity: medium
+confidence: confirmed
+permission: VIEW SERVER STATE
+source: requests
+where:
+  - {column: command, op: "!=", value: WAITFOR}   # waiting on purpose (Service Broker, scripts)
+group_by: [session_id, query_hash]               # one episode per query run
+measure: elapsed_s
+threshold: {op: ">=", param: min_s}
+params:
+  min_s: 60   # a request running at least this long
+title:
+  en: Queries running for 1 minute or more
+  pt-BR: Queries executando por 1 minuto ou mais
+impact:
+  en: Requests ran for at least a minute. Long queries hold locks and memory and compete with everything else; in an online system they are usually what users feel as slowness.
+  pt-BR: Requisições executaram por pelo menos um minuto. Queries longas seguram locks e memória e disputam recursos com todo o resto; num sistema online costumam ser a lentidão que o usuário sente.
+next_action:
+  en: Separate what is expected (backups, index maintenance, reports at night) from what is not. For the rest, look at the plan of the query (its text is in the report) and at missing indexes and wait types in the same period.
+  pt-BR: Separe o esperado (backups, manutenção de índices, relatórios à noite) do que não é. Para o resto, veja o plano da query (o texto está no relatório) e os índices faltando e tipos de espera no mesmo período.
+verify:
+  en: Record again during the same hours after the change. The query must not appear, or its peak duration must be clearly lower.
+  pt-BR: Grave de novo no mesmo horário depois da mudança. A query não deve aparecer, ou sua duração de pico deve ser claramente menor.
+caveat:
+  en: Samples are taken every 15 seconds, so the real duration may be up to 15 seconds longer than the peak shown. Maintenance jobs show up here too.
+  pt-BR: As amostras são feitas a cada 15 segundos, então a duração real pode ser até 15 segundos maior que o pico mostrado. Rotinas de manutenção também aparecem aqui.
+saas_cta:
+  en: codeDB tracks long queries continuously and shows which ones got slower after a deploy.
+  pt-BR: O codeDB acompanha queries longas o tempo todo e mostra quais ficaram mais lentas depois de um deploy.

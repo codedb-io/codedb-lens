@@ -8,6 +8,7 @@ import (
 	"testing/fstest"
 	"time"
 
+	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/codedb-io/codedb-lens/rules"
 )
 
@@ -28,6 +29,23 @@ func TestBuiltinCollectors(t *testing.T) {
 		}
 		if !slices.Equal(got, names) {
 			t.Errorf("%s collectors = %v, want %v", eng, got, names)
+		}
+	}
+}
+
+// Every series rule reads a collector that exists on its engine (the columns are checked against real servers in
+// the integration test).
+func TestSeriesRulesHaveTheirCollector(t *testing.T) {
+	for _, eng := range []string{"mssql", "pg"} {
+		cs, _ := LoadCollectors(rules.FS, eng)
+		rs, err := engine.LoadSeries(rules.FS, eng)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, r := range rs {
+			if !slices.ContainsFunc(cs, func(c *Collector) bool { return c.Name == r.Source }) {
+				t.Errorf("%s: no collector %q on %s", r.ID, r.Source, eng)
+			}
 		}
 	}
 }

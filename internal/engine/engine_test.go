@@ -25,7 +25,19 @@ func TestCatalogIsValid(t *testing.T) {
 		if len(rs) == 0 {
 			t.Fatalf("no %s rules", e)
 		}
-		for _, r := range rs {
+		series, err := engine.LoadSeries(rules.FS, e)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(series) == 0 {
+			t.Fatalf("no %s series rules", e)
+		}
+		for _, r := range series {
+			if r.Kind != engine.KindSeries || r.SQL != "" {
+				t.Errorf("%s: a series rule leaked into the wrong catalog", r.ID)
+			}
+		}
+		for _, r := range append(rs, series...) {
 			for _, q := range r.Queries() {
 				if w := writeKeyword(q); w != "" {
 					t.Errorf("%s: a query uses %q; rules must be read-only SELECTs", r.ID, w)

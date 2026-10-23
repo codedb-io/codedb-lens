@@ -1,0 +1,33 @@
+id: PG-REC-LONGQUERY-001
+engine: pg
+kind: series
+category: performance
+severity: medium
+confidence: confirmed
+permission: pg_monitor (pg_read_all_stats)
+source: activity
+where:
+  - {column: state, op: "=", value: active}
+group_by: [pid, query_hash]     # one episode per statement run
+measure: running_s
+threshold: {op: ">=", param: min_s}
+params:
+  min_s: 60   # a statement running at least this long
+title:
+  en: Queries running for 1 minute or more
+  pt-BR: Queries executando por 1 minuto ou mais
+impact:
+  en: Statements ran for at least a minute. Long statements hold locks, keep old row versions alive (autovacuum cannot clean them) and compete with everything else.
+  pt-BR: Comandos executaram por pelo menos um minuto. Comandos longos seguram locks, impedem o autovacuum de limpar versões antigas das linhas e disputam recursos com todo o resto.
+next_action:
+  en: Separate what is expected (backups, VACUUM, reports at night) from what is not. For the rest, run EXPLAIN (ANALYZE, BUFFERS) on the query (its text is in the report) and consider statement_timeout for the application role.
+  pt-BR: Separe o esperado (backups, VACUUM, relatórios à noite) do que não é. Para o resto, rode EXPLAIN (ANALYZE, BUFFERS) na query (o texto está no relatório) e considere statement_timeout para o usuário da aplicação.
+verify:
+  en: Record again during the same hours after the change. The query must not appear, or its peak duration must be clearly lower.
+  pt-BR: Grave de novo no mesmo horário depois da mudança. A query não deve aparecer, ou sua duração de pico deve ser claramente menor.
+caveat:
+  en: Samples are taken every 15 seconds, so the real duration may be up to 15 seconds longer than the peak shown. Maintenance commands show up here too.
+  pt-BR: As amostras são feitas a cada 15 segundos, então a duração real pode ser até 15 segundos maior que o pico mostrado. Comandos de manutenção também aparecem aqui.
+saas_cta:
+  en: codeDB tracks long queries continuously and shows which ones got slower after a deploy.
+  pt-BR: O codeDB acompanha queries longas o tempo todo e mostra quais ficaram mais lentas depois de um deploy.

@@ -1,0 +1,32 @@
+id: PG-REC-CONN-001
+engine: pg
+kind: series
+category: connections
+severity: high
+confidence: confirmed
+permission: pg_monitor (pg_read_all_stats)
+source: connections
+measure: connections
+of: max_connections             # percentage of usable connection slots
+threshold: {op: ">=", param: max_pct}
+sustain: 2                      # at least two samples in a row (about 30 s)
+params:
+  max_pct: 90
+title:
+  en: Connections near max_connections
+  pt-BR: Conexões perto do max_connections
+impact:
+  en: Client connections used 90% or more of the usable slots for at least 30 seconds. When they run out, new connections fail with "too many clients" and the application stops.
+  pt-BR: As conexões de clientes usaram 90% ou mais das vagas disponíveis por pelo menos 30 segundos. Quando acabam, novas conexões falham com "too many clients" e a aplicação para.
+next_action:
+  en: Look at how many of those connections were idle or idle in transaction. Many idle connections call for a pooler (PgBouncer) or smaller application pools, not a higher max_connections.
+  pt-BR: Veja quantas dessas conexões estavam ociosas ou idle in transaction. Muitas conexões ociosas pedem um pooler (PgBouncer) ou pools menores na aplicação, não um max_connections maior.
+verify:
+  en: Record again during the same hours after the change. Connections must stay well below max_connections.
+  pt-BR: Grave de novo no mesmo horário depois da mudança. As conexões devem ficar bem abaixo do max_connections.
+caveat:
+  en: The limit shown is max_connections minus superuser_reserved_connections; on PostgreSQL 16+ reserved_connections also takes slots and is not subtracted.
+  pt-BR: O limite mostrado é max_connections menos superuser_reserved_connections; no PostgreSQL 16+ o reserved_connections também ocupa vagas e não é descontado.
+saas_cta:
+  en: codeDB alerts before connections run out and shows which application opened them.
+  pt-BR: O codeDB alerta antes de as conexões acabarem e mostra qual aplicação as abriu.

@@ -1,0 +1,36 @@
+id: PG-REC-WAITS-001
+engine: pg
+kind: series
+category: performance
+severity: medium
+confidence: hint
+permission: pg_monitor (pg_read_all_stats)
+source: activity
+where:
+  - {column: state, op: "=", value: active}
+  - {column: wait_event_type, op: "!=", value: ""}
+  - {column: wait_event_type, op: "!=", value: Client}   # waiting for the application, not the server
+group_by: [wait_event_type, wait_event]
+measure: count                  # active sessions waiting on the same event
+threshold: {op: ">=", param: min_sessions}
+sustain: 2                      # at least two samples in a row (about 30 s)
+params:
+  min_sessions: 5
+title:
+  en: Wait peaks during the recording
+  pt-BR: Picos de espera durante a gravação
+impact:
+  en: For at least 30 seconds, several active sessions were waiting on the same event (locks, disk, WAL, internal locks). Each event points to a different bottleneck.
+  pt-BR: Por pelo menos 30 segundos, várias sessões ativas esperavam o mesmo evento (locks, disco, WAL, locks internos). Cada evento aponta um gargalo diferente.
+next_action:
+  en: "Match the peak with the event type: Lock = blocking between sessions, IO (DataFileRead) = reading from disk (missing indexes or memory), LWLock = contention inside the server (WAL, buffers), IO (WALWrite/WALSync) = WAL disk. Then look at the top queries of the same period."
+  pt-BR: "Relacione o pico ao tipo de evento: Lock = bloqueio entre sessões, IO (DataFileRead) = leitura de disco (índices ou memória faltando), LWLock = disputa dentro do servidor (WAL, buffers), IO (WALWrite/WALSync) = disco do WAL. Depois veja as top queries do mesmo período."
+verify:
+  en: Record again during the same hours after the change. The peaks of that event must be lower or shorter.
+  pt-BR: Grave de novo no mesmo horário depois da mudança. Os picos desse evento devem ficar menores ou mais curtos.
+caveat:
+  en: PostgreSQL shows only what each session waits on at the moment of the sample, not accumulated wait time, so short waits between samples are missed. A wait peak is a symptom, not a cause, so this is a hint.
+  pt-BR: O PostgreSQL mostra só o que cada sessão espera no momento da amostra, não o tempo acumulado, então esperas curtas entre amostras passam despercebidas. Um pico de espera é sintoma, não causa, por isso é um indício.
+saas_cta:
+  en: codeDB keeps wait history for months, so you can compare today's peak with last week's.
+  pt-BR: O codeDB guarda o histórico de esperas por meses, para comparar o pico de hoje com o da semana passada.

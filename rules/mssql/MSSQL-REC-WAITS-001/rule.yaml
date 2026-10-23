@@ -1,0 +1,33 @@
+id: MSSQL-REC-WAITS-001
+engine: mssql
+kind: series
+category: performance
+severity: medium
+confidence: hint
+permission: VIEW SERVER STATE
+source: waits
+group_by: [wait_type]
+measure: wait_ms
+per_s: true                     # milliseconds of waiting per second of clock
+threshold: {op: ">=", param: min_wait_ms_per_s}
+sustain: 2                      # at least two samples in a row (about 30 s)
+params:
+  min_wait_ms_per_s: 2000   # 2000 ms/s = on average two tasks waiting all the time
+title:
+  en: Wait peaks during the recording
+  pt-BR: Picos de espera durante a gravação
+impact:
+  en: For at least 30 seconds, queries spent a lot of time waiting on one resource (disk, locks, CPU, memory, log). Each wait type points to a different bottleneck.
+  pt-BR: Por pelo menos 30 segundos, as queries passaram muito tempo esperando um mesmo recurso (disco, locks, CPU, memória, log). Cada tipo de espera aponta um gargalo diferente.
+next_action:
+  en: "Match the peak with the wait type: PAGEIOLATCH = reading data from disk (missing indexes or memory), WRITELOG = log disk, LCK_M = blocking, SOS_SCHEDULER_YIELD = CPU, RESOURCE_SEMAPHORE = memory grants, CXPACKET/CXCONSUMER = parallelism. Then look at the top queries of the same period."
+  pt-BR: "Relacione o pico ao tipo de espera: PAGEIOLATCH = leitura de dados em disco (índices ou memória faltando), WRITELOG = disco do log, LCK_M = bloqueio, SOS_SCHEDULER_YIELD = CPU, RESOURCE_SEMAPHORE = memória para queries, CXPACKET/CXCONSUMER = paralelismo. Depois veja as top queries do mesmo período."
+verify:
+  en: Record again during the same hours after the change. The peaks of that wait type must be lower or shorter.
+  pt-BR: Grave de novo no mesmo horário depois da mudança. Os picos desse tipo de espera devem ficar menores ou mais curtos.
+caveat:
+  en: A wait peak is a symptom, not a cause, so this is a hint. Only waits with a clear meaning are recorded; idle and background waits are left out.
+  pt-BR: Um pico de espera é sintoma, não causa, por isso é um indício. Só esperas com significado claro são gravadas; esperas ociosas e de segundo plano ficam de fora.
+saas_cta:
+  en: codeDB keeps wait history for months, so you can compare today's peak with last week's.
+  pt-BR: O codeDB guarda o histórico de esperas por meses, para comparar o pico de hoje com o da semana passada.

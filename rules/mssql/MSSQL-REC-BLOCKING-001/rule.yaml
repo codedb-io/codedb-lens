@@ -1,0 +1,31 @@
+id: MSSQL-REC-BLOCKING-001
+engine: mssql
+kind: series
+category: concurrency
+severity: high
+confidence: confirmed
+permission: VIEW SERVER STATE
+source: locks
+group_by: [blocked_by]          # one episode per blocking session
+measure: waiting_s
+threshold: {op: ">=", param: min_wait_s}
+params:
+  min_wait_s: 30   # a session blocked at least this long
+title:
+  en: Blocking of 30 s or more during the recording
+  pt-BR: Bloqueios de 30 s ou mais durante a gravação
+impact:
+  en: Sessions waited at least 30 seconds for another session to release its locks. Users see timeouts and frozen screens while it lasts.
+  pt-BR: Sessões esperaram pelo menos 30 segundos outra sessão liberar seus locks. Enquanto dura, os usuários veem timeouts e telas travadas.
+next_action:
+  en: Start with the blocker of the longest episode. A blocker in "sleeping" status with open transactions is usually an application that forgot to commit; one that is running is a long query or batch to tune or move off-peak.
+  pt-BR: Comece pelo bloqueador do episódio mais longo. Um bloqueador em status "sleeping" com transações abertas costuma ser uma aplicação que esqueceu o commit; um que está executando é uma query ou rotina longa para otimizar ou tirar do horário de pico.
+verify:
+  en: Record again during the same hours after the fix. The episodes for that blocker must be gone or much shorter.
+  pt-BR: Grave de novo no mesmo horário depois da correção. Os episódios desse bloqueador devem sumir ou ficar bem mais curtos.
+caveat:
+  en: Samples are taken every 15 seconds, so blocking shorter than that may be missed, and an episode's length is accurate to about 15 seconds.
+  pt-BR: As amostras são feitas a cada 15 segundos, então bloqueios mais curtos podem passar despercebidos, e a duração de um episódio tem precisão de cerca de 15 segundos.
+saas_cta:
+  en: codeDB watches blocking around the clock and alerts you while it happens, not the day after.
+  pt-BR: O codeDB acompanha bloqueios 24 horas por dia e alerta enquanto acontecem, não no dia seguinte.

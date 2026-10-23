@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -267,7 +266,11 @@ func (c *Collector) Process(now time.Time, cols []string, rows [][]any) (s Sampl
 		if err != nil {
 			return s, false, err
 		}
-		sort.SliceStable(rows, func(i, j int) bool { a, _ := num(rows[i][oi]); b, _ := num(rows[j][oi]); return a > b })
+		sort.SliceStable(rows, func(i, j int) bool {
+			a, _ := engine.Number(rows[i][oi])
+			b, _ := engine.Number(rows[j][oi])
+			return a > b
+		})
 		rows = rows[:min(len(rows), c.KeepTop)]
 	}
 
@@ -294,8 +297,8 @@ func delta(cur, prev []any, cum []int) ([]any, bool) {
 	d := slices.Clone(cur)
 	changed := false
 	for _, i := range cum {
-		a, okA := num(cur[i])
-		b, okB := num(prev[i])
+		a, okA := engine.Number(cur[i])
+		b, okB := engine.Number(prev[i])
 		if !okA || !okB {
 			d[i] = nil
 			continue
@@ -325,28 +328,4 @@ func str(v any) string {
 		return ""
 	}
 	return fmt.Sprint(v)
-}
-
-// num reads the numeric types the drivers return; decimals arrive as strings.
-func num(v any) (float64, bool) {
-	switch x := v.(type) {
-	case int64:
-		return float64(x), true
-	case int32:
-		return float64(x), true
-	case int16:
-		return float64(x), true
-	case int:
-		return float64(x), true
-	case uint8:
-		return float64(x), true
-	case float64:
-		return x, true
-	case float32:
-		return float64(x), true
-	case string:
-		f, err := strconv.ParseFloat(x, 64)
-		return f, err == nil
-	}
-	return 0, false
 }

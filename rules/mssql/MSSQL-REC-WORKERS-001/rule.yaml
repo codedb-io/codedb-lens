@@ -1,0 +1,33 @@
+id: MSSQL-REC-WORKERS-001
+engine: mssql
+kind: series
+category: connections
+severity: high
+confidence: confirmed
+permission: VIEW SERVER STATE
+skip_on: [azure_sqldb]          # the workers collector does not run there
+source: workers
+measure: workers
+of: max_workers                 # percentage of max_workers_count
+threshold: {op: ">=", param: max_pct}
+sustain: 2                      # at least two samples in a row (about 30 s)
+params:
+  max_pct: 90
+title:
+  en: Worker threads near the limit
+  pt-BR: Threads de trabalho perto do limite
+impact:
+  en: SQL Server used 90% or more of its worker threads for at least 30 seconds. When they run out, new requests wait (THREADPOOL) and even new connections can fail, while the CPU may look idle.
+  pt-BR: O SQL Server usou 90% ou mais das suas threads de trabalho por pelo menos 30 segundos. Quando acabam, novas requisições esperam (THREADPOOL) e até novas conexões podem falhar, mesmo com a CPU parecendo ociosa.
+next_action:
+  en: The usual cause is blocking (many sessions stuck behind one) or heavy parallelism. Check the blocking and wait findings of the same period first; do not raise max worker threads before finding the cause.
+  pt-BR: A causa mais comum é bloqueio (muitas sessões presas atrás de uma) ou paralelismo excessivo. Veja primeiro os achados de bloqueio e de espera do mesmo período; não aumente o max worker threads antes de achar a causa.
+verify:
+  en: Record again during the same hours after the fix. Workers must stay well below max_workers.
+  pt-BR: Grave de novo no mesmo horário depois da correção. As threads devem ficar bem abaixo de max_workers.
+caveat:
+  en: Counts threads created by SQL Server, which stay around for a while after a peak.
+  pt-BR: Conta as threads criadas pelo SQL Server, que continuam existindo por um tempo depois de um pico.
+saas_cta:
+  en: codeDB alerts before worker threads run out, with the blocking chain that caused it.
+  pt-BR: O codeDB alerta antes de as threads acabarem, com a cadeia de bloqueio que causou o problema.

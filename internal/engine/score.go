@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"io/fs"
 	"math"
+	"strings"
 
 	"go.yaml.in/yaml/v3"
 )
@@ -40,8 +41,14 @@ type Score struct {
 func CatalogVersion(fsys fs.FS, engine string) (string, error) {
 	h := sha256.New()
 	err := fs.WalkDir(fsys, engine, func(p string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+		if err != nil {
 			return err
+		}
+		if d.IsDir() {
+			if strings.HasPrefix(d.Name(), "_") { // record collectors don't change what check measures
+				return fs.SkipDir
+			}
+			return nil
 		}
 		b, err := fs.ReadFile(fsys, p)
 		h.Write([]byte(p + "\x00"))

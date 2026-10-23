@@ -20,6 +20,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/codedb-io/codedb-lens/internal/adapter"
+	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/codedb-io/codedb-lens/internal/record"
 	"github.com/codedb-io/codedb-lens/rules"
 )
@@ -70,8 +71,20 @@ func everyCollector(t *testing.T, s adapter.Session, eng string, between func())
 				t.Errorf("first run: ok = %v for a %s collector", ok, c.Mode)
 			}
 			between()
-			if _, ok, _, _ := collect(t, s, c, now.Add(record.FastInterval)); !ok {
+			smp, ok, _, _ := collect(t, s, c, now.Add(record.FastInterval))
+			if !ok {
 				t.Error("second run produced no sample")
+			}
+			// every series rule reading this collector finds its columns on this server version
+			series, _ := engine.LoadSeries(rules.FS, eng)
+			for _, r := range series {
+				if r.Source != c.Name || r.Skips(s.Info().Platform) {
+					continue
+				}
+				res := engine.EvaluateSeries(r, []engine.Sample{{T: now, Cols: smp.Cols, Rows: smp.Rows}})
+				if res.Status == engine.StatusNoData {
+					t.Errorf("%s: %s", r.ID, res.Reason)
+				}
 			}
 			if c.TextSQL == "" {
 				return
@@ -109,6 +122,14 @@ func blocked(t *testing.T, s adapter.Session, eng string, block func() (release 
 	release()
 	if len(smp.Rows) == 0 || len(smp.Texts) == 0 {
 		t.Errorf("block not recorded: %d rows, %d texts", len(smp.Rows), len(smp.Texts))
+	}
+	series, _ := engine.LoadSeries(rules.FS, eng)
+	id := strings.ToUpper(map[string]string{"mssql": "MSSQL", "pg": "PG"}[eng]) + "-REC-BLOCKING-001"
+	j := slices.IndexFunc(series, func(r *engine.Rule) bool { return r.ID == id })
+	r := *series[j]
+	r.Params = map[string]float64{"min_wait_s": 1}
+	if res := engine.EvaluateSeries(&r, []engine.Sample{{T: time.Now(), Cols: smp.Cols, Rows: smp.Rows}}); res.Status != engine.StatusFinding {
+		t.Errorf("%s: %s (%s), want a finding", id, res.Status, res.Reason)
 	}
 }
 

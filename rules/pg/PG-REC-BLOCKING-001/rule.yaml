@@ -1,0 +1,31 @@
+id: PG-REC-BLOCKING-001
+engine: pg
+kind: series
+category: concurrency
+severity: high
+confidence: confirmed
+permission: pg_monitor (pg_read_all_stats)
+source: locks
+group_by: [blocker_pid]         # one episode per blocking backend
+measure: waiting_s
+threshold: {op: ">=", param: min_wait_s}
+params:
+  min_wait_s: 30   # a session waiting on a lock at least this long
+title:
+  en: Lock waits of 30 s or more during the recording
+  pt-BR: Esperas por lock de 30 s ou mais durante a gravação
+impact:
+  en: Sessions waited at least 30 seconds for a lock held by another backend. Users see timeouts and frozen screens while it lasts.
+  pt-BR: Sessões esperaram pelo menos 30 segundos um lock de outro backend. Enquanto dura, os usuários veem timeouts e telas travadas.
+next_action:
+  en: Start with the blocker of the longest episode. A blocker "idle in transaction" is an application that opened a transaction and did not finish it; set idle_in_transaction_session_timeout and fix the application. An active blocker is a long statement to tune or move off-peak.
+  pt-BR: Comece pelo bloqueador do episódio mais longo. Um bloqueador "idle in transaction" é uma aplicação que abriu uma transação e não terminou; configure idle_in_transaction_session_timeout e corrija a aplicação. Um bloqueador ativo é um comando longo para otimizar ou tirar do horário de pico.
+verify:
+  en: Record again during the same hours after the fix. The episodes for that blocker must be gone or much shorter.
+  pt-BR: Grave de novo no mesmo horário depois da correção. Os episódios desse bloqueador devem sumir ou ficar bem mais curtos.
+caveat:
+  en: Samples are taken every 15 seconds, so lock waits shorter than that may be missed, and an episode's length is accurate to about 15 seconds.
+  pt-BR: As amostras são feitas a cada 15 segundos, então esperas mais curtas podem passar despercebidas, e a duração de um episódio tem precisão de cerca de 15 segundos.
+saas_cta:
+  en: codeDB watches lock waits around the clock and alerts you while they happen, not the day after.
+  pt-BR: O codeDB acompanha esperas por lock 24 horas por dia e alerta enquanto acontecem, não no dia seguinte.
