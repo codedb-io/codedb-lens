@@ -17,6 +17,17 @@ type PG struct {
 	perDB map[string]*pgx.Conn // statistics are per database: one extra connection each, closed with the session
 }
 
+// Target is the server shown in "Connecting to ...": the host inside a DSN, never the DSN itself (it may hold a password).
+func (c Conn) Target() string {
+	if c.DSN == "" {
+		return c.Server
+	}
+	if cfg, err := pgx.ParseConfig(c.DSN); err == nil {
+		return cfg.Host
+	}
+	return "DSN"
+}
+
 func pgConfig(c Conn) (*pgx.ConnConfig, error) {
 	dsn := c.DSN
 	if dsn == "" {

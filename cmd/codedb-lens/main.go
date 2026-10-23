@@ -250,7 +250,7 @@ func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log fu
 		return nil, err
 	}
 	start := time.Now()
-	log(fmt.Sprintf(i18n.T(lang, "connecting"), c.Server))
+	log(fmt.Sprintf(i18n.T(lang, "connecting"), c.Target()))
 	sess, err := adapter.Open(ctx, c)
 	if err != nil {
 		if ctx.Err() != nil { // stopped while connecting: drivers wrap it as a dial error

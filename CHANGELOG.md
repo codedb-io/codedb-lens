@@ -5,6 +5,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-23
+
+### Added
+- Build provenance attestations for every release asset: `gh attestation verify <file> --repo codedb-io/codedb-lens`.
+- Scoop bucket: `scoop bucket add codedb https://github.com/codedb-io/codedb-lens`, then `scoop install codedb/codedb-lens`.
+- Docs page on the Windows SmartScreen warning and how to verify a download.
+
+### Fixed
+- With `--dsn-env`, the CLI said "Connecting to localhost..."; it now shows the host from the connection string.
+
 ## [0.6.0] - 2026-10-22
 
 ### Added

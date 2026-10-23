@@ -87,5 +87,7 @@ attaches it to a **draft** release. Review the draft, check the assets and the s
 - [ ] Install from the installer on a clean Windows machine: Start menu icon, GUI opens, `codedb-lens version` in a terminal.
 - [ ] From the previous version, `codedb-lens update` installs the new one (repository must be public, phase 2).
 - [ ] `Publish` workflow green: `bucket/codedb-lens.json` has the new version; winget PR opened (if `WINGET_TOKEN`).
-- [ ] Submit `codedb-lens.exe` and the installer to Microsoft as legitimate software
-      (https://www.microsoft.com/wdsi/filesubmission), so Defender doesn't flag the unsigned build.
+- [ ] Upload the installer and the Windows zip (downloaded from the release) to https://www.virustotal.com and link
+      the results in the release notes. The unsigned Go build can trip machine-learning heuristics: report each
+      detection to its vendor (https://docs.virustotal.com/docs/false-positive-contacts). Only if Microsoft Defender
+      detects it, use https://www.microsoft.com/wdsi/filesubmission ("Incorrectly detected", with the detection name).
