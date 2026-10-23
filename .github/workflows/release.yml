@@ -10,6 +10,10 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest   # Inno Setup is preinstalled; GoReleaser cross-builds Linux from here
+    permissions:
+      contents: write
+      id-token: write       # build provenance attestations (Sigstore)
+      attestations: write
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -42,6 +46,17 @@ jobs:
           gh release upload "${{ github.ref_name }}" dist\codedb-lens_windows_amd64_setup.exe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The binaries are not code-signed yet: this proves they were built by this workflow from this repository.
+      # Check with: gh attestation verify <file> --repo codedb-io/codedb-lens
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*.deb
+            dist/*.rpm
+            dist/checksums.txt
+            dist/codedb-lens_windows_amd64_setup.exe
 
   image:
     needs: release

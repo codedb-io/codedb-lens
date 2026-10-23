@@ -56,14 +56,8 @@ nfpms:
 
 # The ghcr.io image is built by the release workflow on Linux (this run is on Windows), see Dockerfile.
 
-# After Windows code signing (SignPath): uncomment winget and chocolateys.
-# winget:
-#   - name: codeDB Lens
-#     publisher: codeDB
-#     package_identifier: codeDB.Lens
-#     license: Apache-2.0
-#     short_description: Free, read-only health check for SQL Server and PostgreSQL.
-#     repository: { owner: codedb-io, name: winget-pkgs }
+# Scoop (bucket/ in this repo) and winget are updated by .github/workflows/publish.yml once the draft is published.
+# After Windows code signing: consider chocolateys (its moderation flags unsigned binaries).
 # chocolateys:
 #   - name: codedb-lens
 #     title: codeDB Lens

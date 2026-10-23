@@ -7,8 +7,12 @@
 2. GitHub Pages: Settings → Pages → Source "GitHub Actions", custom domain `lens.codedb.com.br` (DNS: `CNAME lens` →
    `codedb-io.github.io`), then "Enforce HTTPS". The `Docs` workflow publishes on every change to `docs/`.
 3. After the first image push: make the `codedb-lens` package on ghcr.io public (Package settings → Change visibility).
-4. After Windows code signing (SignPath Foundation; Azure Trusted Signing as plan B): uncomment `winget` and
-   `chocolateys` in `.goreleaser.yaml`.
+4. winget: the first version (`codeDB.Lens` 0.6.0) was submitted by hand to `microsoft/winget-pkgs`. For later
+   versions, `publish.yml` runs `winget-releaser` when the repository secret `WINGET_TOKEN` exists: a classic PAT
+   (`public_repo`) of an account that has a fork of `microsoft/winget-pkgs`. Without the secret, the job does nothing.
+5. Scoop needs no setup: `publish.yml` rewrites `bucket/codedb-lens.json` on `main` when a release is published.
+6. Windows code signing: not available for now (SignPath Foundation refused on 2026-10-22 for lack of public visibility;
+   reapply later. Azure Artifact Signing does not serve Brazil). Chocolatey waits for signing.
 
 ## Before tagging
 
@@ -82,3 +86,6 @@ attaches it to a **draft** release. Review the draft, check the assets and the s
 
 - [ ] Install from the installer on a clean Windows machine: Start menu icon, GUI opens, `codedb-lens version` in a terminal.
 - [ ] From the previous version, `codedb-lens update` installs the new one (repository must be public, phase 2).
+- [ ] `Publish` workflow green: `bucket/codedb-lens.json` has the new version; winget PR opened (if `WINGET_TOKEN`).
+- [ ] Submit `codedb-lens.exe` and the installer to Microsoft as legitimate software
+      (https://www.microsoft.com/wdsi/filesubmission), so Defender doesn't flag the unsigned build.

@@ -12,8 +12,12 @@ Baixe os arquivos em [GitHub Releases](https://github.com/codedb-io/codedb-lens/
 
 - **Windows:** execute `codedb-lens_windows_amd64_setup.exe`. Ele instala só para o seu usuário (sem admin) e
   coloca o **codeDB Lens** no menu Iniciar. Também há um `.zip` portátil. O instalador ainda não tem assinatura de
-  código, então o SmartScreen do Windows pode avisar: escolha **Mais informações → Executar assim mesmo**.
-- **Linux (x64 / arm64):** extraia o `.tar.gz` e coloque o `codedb-lens` no `PATH`.
+  código, então o SmartScreen do Windows pode avisar: escolha **Mais informações → Executar assim mesmo**. Veja
+  [Por que o Windows mostra um aviso](windows-warning.md) para o motivo, como verificar o download e alternativas sem o aviso.
+- **Windows (Scoop):** `scoop bucket add codedb https://github.com/codedb-io/codedb-lens` e depois
+  `scoop install codedb/codedb-lens`.
+- **Linux (x64 / arm64):** instale o `.deb` ou `.rpm`, ou extraia o `.tar.gz` e coloque o `codedb-lens` no `PATH`.
+- **Docker:** `docker run --rm -e PG_DSN -v "$PWD:/out" ghcr.io/codedb-io/codedb-lens check --engine pg --dsn-env PG_DSN --out /out`.
 
 ## 3. Rode
 

@@ -12,8 +12,12 @@ Download the files from [GitHub Releases](https://github.com/codedb-io/codedb-le
 
 - **Windows:** run `codedb-lens_windows_amd64_setup.exe`. It installs for your user only (no admin) and adds
   **codeDB Lens** to the Start menu. A portable `.zip` is also available. The installer is not code-signed yet, so
-  Windows SmartScreen may warn: choose **More info → Run anyway**.
-- **Linux (x64 / arm64):** extract the `.tar.gz` and put `codedb-lens` in your `PATH`.
+  Windows SmartScreen may warn: choose **More info → Run anyway**. See [Why Windows shows a warning](windows-warning.md)
+  for the reason, how to verify the download and alternatives without the warning.
+- **Windows (Scoop):** `scoop bucket add codedb https://github.com/codedb-io/codedb-lens`, then
+  `scoop install codedb/codedb-lens`.
+- **Linux (x64 / arm64):** install the `.deb` or `.rpm`, or extract the `.tar.gz` and put `codedb-lens` in your `PATH`.
+- **Docker:** `docker run --rm -e PG_DSN -v "$PWD:/out" ghcr.io/codedb-io/codedb-lens check --engine pg --dsn-env PG_DSN --out /out`.
 
 ## 3. Run
 

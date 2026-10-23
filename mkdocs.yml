@@ -29,12 +29,14 @@ plugins:
             Privacy: Privacidade
             Rules: Regras
             Getting started: Primeiros passos
+            Why Windows shows a warning: Por que o Windows mostra um aviso
             Compare and free key: Comparação e chave grátis
             How the grade works: Como a nota é calculada
 
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - Why Windows shows a warning: windows-warning.md
   - Compare and free key: compare.md
   - How the grade works: methodology.md
   - Permissions: permissions.md

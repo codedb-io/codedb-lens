@@ -13,13 +13,38 @@
   <a href="https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github">Website</a> · English · <a href="README.pt-BR.md">Português (Brasil)</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/codedb-io/codedb-lens/releases/latest"><img src="https://img.shields.io/github/v/release/codedb-io/codedb-lens?label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
+  <img src="https://img.shields.io/badge/database%20access-read--only-brightgreen" alt="Read-only">
+  <img src="https://img.shields.io/badge/telemetry-none-brightgreen" alt="No telemetry">
+  <a href="https://github.com/codedb-io/codedb-lens/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/codedb-io/codedb-lens/ci.yml?label=CI" alt="CI status"></a>
+</p>
+
+<p align="center">
+  <a href="https://lens.codedb.com.br/demo/report.html"><img src="assets/screenshots/report-summary.png" width="760" alt="codeDB Lens report summary: A-F grade, coverage seal and top risks"></a><br>
+  <sub>Report summary (demo data). <a href="https://lens.codedb.com.br/demo/report.html">Open the full demo report</a>.</sub>
+</p>
+
 ---
 
-> **v0.6:** `check` (with an executive summary and `--redact` for sharing) and `compare`. Screenshots, FAQ and downloads on the [website](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
+> **v0.6:** `check` (with an executive summary and `--redact` for sharing) and `compare`, 26 rules. FAQ and more on the [website](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
 
 codeDB Lens connects to your instance with a **read-only** login, runs a catalog of evidence-based
 rules and writes a self-contained HTML + JSON report with an **A–F grade** and a **coverage seal**
 (the share of rules that could actually run). Nothing about your database leaves your machine.
+
+## Install
+
+| Where | How |
+|---|---|
+| **Windows** | [Installer (per user, no admin)](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64_setup.exe) or [portable .zip](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64.zip) |
+| **Windows (Scoop)** | `scoop bucket add codedb https://github.com/codedb-io/codedb-lens` then `scoop install codedb/codedb-lens` |
+| **Linux** | `.deb` / `.rpm` from the [latest release](https://github.com/codedb-io/codedb-lens/releases/latest), or the tarball for [x64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_amd64.tar.gz) / [arm64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_arm64.tar.gz) |
+| **Docker** | `docker run --rm -e PG_DSN -v "$PWD:/out" ghcr.io/codedb-io/codedb-lens check --engine pg --dsn-env PG_DSN --out /out` |
+
+The Windows binaries are open source but not code-signed yet, so SmartScreen may show a warning.
+[Why, and how to verify the download](https://lens.codedb.com.br/windows-warning/).
 
 ## Why another tool?
 
@@ -51,11 +76,8 @@ Each rule has a [documentation page](docs/en/rules/) with what it checks, why it
 
 ## Quick start
 
-Download: [Windows installer](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64_setup.exe) · [Windows portable .zip](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_windows_amd64.zip) ·
-[Linux x64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_amd64.tar.gz) · [Linux arm64](https://github.com/codedb-io/codedb-lens/releases/latest/download/codedb-lens_linux_arm64.tar.gz) ·
-[all releases](https://github.com/codedb-io/codedb-lens/releases). On Windows, open **codeDB Lens** from the Start menu.
-Pick the engine, enter the server and run the diagnosis. Connection profiles are saved; passwords go to
-the Windows Credential Manager.
+On Windows, open **codeDB Lens** from the Start menu. Pick the engine, enter the server and run the diagnosis.
+Connection profiles are saved; passwords go to the Windows Credential Manager.
 
 Command line (Windows and Linux):
 
@@ -105,20 +127,16 @@ key, one registration request with the name and e-mail you type (or, when renewi
 Lens shows a snapshot. [**codeDB**](https://codedb.com.br/?utm_source=lens&utm_medium=github&utm_campaign=readme)
 watches your SQL Server and PostgreSQL instances around the clock, with history, baselines and alerts on Teams, Slack and e-mail.
 
-## Code signing policy
+## Windows code signing
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
-[SignPath Foundation](https://signpath.org).
-
-- Windows binaries and the installer are built by GitHub Actions from this repository and signed only from tagged releases.
-- Committers and reviewers: [members of the codedb-io organization](https://github.com/orgs/codedb-io/people).
-- Approver of each signing request: the project maintainer ([@josivanl](https://github.com/josivanl)).
-- Privacy: this program does not transfer any information to other networked systems unless specifically requested by
-  the user or the person installing or operating it (see [Privacy](#privacy)).
+Windows binaries are built by GitHub Actions from this repository and are not code-signed yet (certificates are paid and
+this is a free project). Details, how to verify a download and warning-free alternatives:
+[Why Windows shows a warning](https://lens.codedb.com.br/windows-warning/).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). New rules are especially welcome.
+New rules are especially welcome. A rule is a YAML file plus a SQL query, so you don't need to touch the Go code:
+see [CONTRIBUTING.md](CONTRIBUTING.md), or just [open an issue](https://github.com/codedb-io/codedb-lens/issues/new/choose) with a rule idea.
 
 ## License
 
