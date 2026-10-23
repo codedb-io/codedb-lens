@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-22
+
 ### Added
 - Executive summary: the HTML report opens on a **Summary** tab (grade and coverage, highest open severity, top 3 risks,
   evolution against the previous run of the same instance) with a one-page A4 **Print summary**; the full report is on

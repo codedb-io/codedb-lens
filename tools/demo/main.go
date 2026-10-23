@@ -85,7 +85,7 @@ func main() {
 			results = append(results, engine.Result{Rule: r, Status: f.status, Confidence: f.conf, Columns: f.cols,
 				Rows: f.rows, Reason: f.reason, Duration: "120ms", CollectedAt: at})
 		}
-		rep := report.New("0.5.0", lang, info, scoring.Compute(results), results)
+		rep := report.New("0.6.0", lang, info, scoring.Compute(results), results)
 		rep.GeneratedAt, rep.CatalogVersion, rep.Duration = at, version, "14s"
 		return rep
 	}
@@ -95,7 +95,7 @@ func main() {
 		before, after := run(older(), at.AddDate(0, 0, -7), lang), run(demo, at, lang)
 		dir := filepath.Join("docs", lang, "demo")
 		check(os.MkdirAll(dir, 0o755))
-		cmp, err := report.Compare("0.5.0", lang, before, after, "2026-10-15_093000.json", "2026-10-22_093000.json")
+		cmp, err := report.Compare("0.6.0", lang, before, after, "2026-10-15_093000.json", "2026-10-22_093000.json")
 		check(err)
 		cmp.GeneratedAt = at
 		// The demo shows the summary as a key holder sees it: compared with the run a week before.

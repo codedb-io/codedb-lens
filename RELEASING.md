@@ -65,7 +65,8 @@ Capture every statement Lens sends and confirm there is no DDL/DML.
   `sqlserver.client_app_name = N'codeDB Lens'`, ring buffer target; run `check` and read the target. Expected:
   `SELECT`/`WITH`, session `SET`, `USE <db>` and the driver's `exec sp_reset_connection`.
 
-Last run: 0.5.1 candidate, 2026-10-22, PostgreSQL 17 (18 statements) and SQL Server 2022 (20 statements): no DDL/DML.
+Last run: 0.6.0 candidate, 2026-10-22, PostgreSQL 17 (18 statements) and SQL Server 2022 (18 statements): no DDL/DML.
+(sqlcmd reading the ring buffer needs `-I`: the XML methods require QUOTED_IDENTIFIER ON.)
 
 ## Tag and publish
 
