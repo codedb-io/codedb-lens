@@ -28,7 +28,7 @@
 
 ---
 
-> **v0.6:** `check` (com resumo executivo e `--redact` para compartilhar) e `compare`, 26 regras. Perguntas frequentes e mais no [site](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
+> **v0.8:** `check` (com resumo executivo e `--redact` para compartilhar), `compare`, e `record` + `report` para acompanhar uma instância por até 24 horas ([como](https://lens.codedb.com.br/pt-BR/record/)). 26 regras e mais 8 para gravações. Perguntas frequentes e mais no [site](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
 
 O codeDB Lens conecta na sua instância com um login **somente leitura**, executa um catálogo de regras
 baseadas em evidências e gera um relatório HTML autônomo + JSON com **nota de A a F** e **selo de

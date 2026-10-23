@@ -21,7 +21,9 @@
 - [ ] Lifecycle and build tables still correct (`MSSQL-VERSION-001`/`002`, `PG-VERSION-001`/`002` queries).
 - [ ] Local dry run: `goreleaser release --snapshot --clean --skip=publish,sign`.
 - [ ] Managed-services checklist below, at least for services touched by this release.
-- [ ] Read-only audit below, when rules or the adapters' session setup changed.
+- [ ] Read-only audit below, when rules, collectors (`rules/<engine>/_collect`) or the adapters' session setup changed.
+- [ ] Recorder overhead below, when collectors changed: run the `Overhead` workflow (30 min) and update the table here
+      and in `docs/*/record.md`.
 - [ ] Free key: `license.ConsentVersion` matches the consent text in `internal/license/consent.go` and the version
       agreed with the codeDB backend (a new text needs a new version); `license.Keys` has only production kids.
 - [ ] Free key, against production with a test e-mail: `register` returns a key that `license status` accepts,
@@ -71,6 +73,34 @@ Capture every statement Lens sends and confirm there is no DDL/DML.
 
 Last run: 0.6.0 candidate, 2026-10-22, PostgreSQL 17 (18 statements) and SQL Server 2022 (18 statements): no DDL/DML.
 (sqlcmd reading the ring buffer needs `-I`: the XML methods require QUOTED_IDENTIFIER ON.)
+
+For `record`, do the same with a recording of a few minutes: the collectors must show only `SELECT`/`WITH` too.
+Last run for `record`: 0.8.0 candidate, 2026-10-23, 35 s recordings: PostgreSQL 17 (15 statements, all `SELECT`) and
+SQL Server 2022 (19 `SELECT`s plus the session `SET`s): no DDL/DML.
+
+## Recorder overhead
+
+Target (Q5): the recorder uses less than 1% of the server's CPU. `tools/overhead` runs a synthetic OLTP load without
+recording, with `codedb-lens record`, and without again, and reports the server time of the recorder's queries (they all
+carry `/* codeDB Lens */`), the load's throughput and the recording size per hour.
+
+```bash
+CODEDB_LENS_PASSWORD=... go run ./tools/overhead -engine pg -server localhost -port 15417 -lens ./codedb-lens -minutes 30
+```
+
+Last run:
+
+| | SQL Server 2022 | PostgreSQL 17 |
+|---|---|---|
+| Recorder share of the server's CPU | **0.003%** | **0.0001%** (execution time, an upper bound) |
+| Recorder server time per hour | about 1.9 s | about 0.06 s |
+| Load throughput without / with recording | 1953 / 1896 ops/s | 6879 / 6548 ops/s |
+| Recording size on these test servers | about 0.04 MB per hour | about 0.04 MB per hour |
+
+Measured on 2026-10-23 on one workstation (20 cores, Docker Desktop), 10 minutes recording between two 5-minute
+periods without, both engines at the same time. On that machine the load generator, the databases and Lens share the
+CPU, and throughput varied from +7% to −5% between runs with or without recording, so the server time of the
+recorder's own queries is the direct measure. A busy server writes more per hour (more sessions and queries per sample).
 
 ## Tag and publish
 

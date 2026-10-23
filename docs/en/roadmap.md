@@ -4,7 +4,7 @@
 |---|---|---|---|
 | **0.1** | `check` | One-off, evidence-based diagnosis with grade and coverage | Free, no sign-up |
 | 0.5 | `compare` | Compares two saved runs: new, resolved and persistent findings | Free key by e-mail |
-| 0.8 | `record` | Samples waits, locks, sessions and top queries into a 24-hour ring buffer; incident report for any time window | Free key by e-mail |
+| 0.8 | `record` | Records sessions, blocking, waits and top queries every 15 s for up to 24 hours, then reports any time window ([how](record.md)) | 1 hour free; 24 hours with the free key |
 | 1.0 | `share` | Publishes a report as a link on codeDB, or a branded PDF | codeDB account |
 | 1.0 | `connect` | Sends continuous data to codeDB and starts the trial | codeDB trial |
 

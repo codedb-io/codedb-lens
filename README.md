@@ -28,7 +28,7 @@
 
 ---
 
-> **v0.6:** `check` (with an executive summary and `--redact` for sharing) and `compare`, 26 rules. FAQ and more on the [website](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
+> **v0.8:** `check` (with an executive summary and `--redact` for sharing), `compare`, and `record` + `report` to watch an instance for up to 24 hours ([how](https://lens.codedb.com.br/record/)). 26 rules plus 8 for recordings. FAQ and more on the [website](https://app.codedb.com.br/lens?utm_source=lens&utm_medium=github).
 
 codeDB Lens connects to your instance with a **read-only** login, runs a catalog of evidence-based
 rules and writes a self-contained HTML + JSON report with an **A–F grade** and a **coverage seal**

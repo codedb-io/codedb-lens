@@ -5,6 +5,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- `record`: samples the instance every 15 s (sessions, blocking, waits, counters, worker threads or connections) and
+  every 5 min (top queries by delta) into hourly `.jsonl.gz` segments, for 1 hour, or 24 hours with the free key (one
+  instance per key, like `compare`). Same read-only permissions as `check`; nothing is created on the server. Reconnects
+  by itself (gaps become *No data*), stops cleanly on Ctrl+C or `SIGTERM`, at the deadline or at 500 MB. One recording
+  at a time per computer; Windows does not sleep while it records.
+- `report <folder> [--from --to] [--redact]`: self-contained HTML + JSON of a recording, also while it runs: time with
+  data (the recording's coverage seal), findings as episodes, charts over time with no-data and episode bands, and the
+  top queries of the period. Every technical number has an **i** button explaining it (native popover, en/pt-BR).
+- 8 series rules (`*-REC-BLOCKING-001`, `*-REC-WAITS-001`, `*-REC-LONGQUERY-001`, `MSSQL-REC-WORKERS-001`,
+  `PG-REC-CONN-001`): YAML that says which collector to read, what to measure and the limit. No A–F grade for recordings.
+- GUI: the **Record** tab (1 or 24 hours, live progress, stop, report, list of recordings, command to copy for a server).
+- `tools/overhead` and the manual `Overhead` workflow measure the recorder's cost under load.
+
+### Changed
+- The check catalog version ignores `rules/<engine>/_collect`, so editing a collector does not change it.
+
 ## [0.7.0] - 2026-10-23
 
 ### Added

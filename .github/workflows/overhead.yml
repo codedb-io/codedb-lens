@@ -1,0 +1,49 @@
+name: Overhead
+
+# Manual: measures what `codedb-lens record` costs a server under load (tools/overhead). The result goes to the job
+# summary; copy it to RELEASING.md and docs/*/record.md when it changes.
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: Minutes recording (plus the same without, split before and after)
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  overhead:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { engine: mssql, image: "mcr.microsoft.com/mssql/server:2022-latest", port: 1433, password: Lens_ci_Passw0rd! }
+          - { engine: pg, image: "postgres:17", port: 5432, password: lens_ci }
+    name: overhead (${{ matrix.image }})
+    env:
+      MSSQL_SA_PASSWORD: Lens_ci_Passw0rd!
+      LENS_MSSQL_SERVER: localhost,1433
+      LENS_PG_DSN: postgres://postgres:lens_ci@localhost:5432/postgres?sslmode=disable
+      CODEDB_LENS_PASSWORD: ${{ matrix.password }}
+      CODEDB_LENS_NO_UPDATE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - name: Start database
+        run: |
+          if [ "${{ matrix.engine }}" = mssql ]; then
+            docker run -d --name db -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$MSSQL_SA_PASSWORD" "${{ matrix.image }}"
+          else
+            docker run -d --name db -p 5432:5432 -e POSTGRES_PASSWORD=lens_ci "${{ matrix.image }}" \
+              postgres -c shared_preload_libraries=pg_stat_statements -c track_io_timing=on
+          fi
+          go build -o /tmp/wait ./tools/waitdb && /tmp/wait "${{ matrix.engine }}"
+      - name: Measure
+        run: |
+          go build -o /tmp/codedb-lens ./cmd/codedb-lens
+          go run ./tools/overhead -engine ${{ matrix.engine }} -server localhost -port ${{ matrix.port }} \
+            -lens /tmp/codedb-lens -minutes ${{ inputs.minutes }} -cores "$(nproc)" | tee -a "$GITHUB_STEP_SUMMARY"

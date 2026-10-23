@@ -4,7 +4,7 @@
 |---|---|---|---|
 | **0.1** | `check` | Diagnóstico pontual baseado em evidências, com nota e cobertura | Grátis, sem cadastro |
 | 0.5 | `compare` | Compara duas execuções salvas: achados novos, resolvidos e persistentes | Chave grátis por e-mail |
-| 0.8 | `record` | Amostra esperas, bloqueios, sessões e top queries num buffer circular de 24 horas; relatório de incidente para qualquer janela | Chave grátis por e-mail |
+| 0.8 | `record` | Grava sessões, bloqueios, esperas e top queries a cada 15 s por até 24 horas e gera o relatório de qualquer janela de tempo ([como](record.md)) | 1 hora grátis; 24 horas com a chave grátis |
 | 1.0 | `share` | Publica o relatório como link no codeDB, ou PDF com marca própria | Conta no codeDB |
 | 1.0 | `connect` | Envia dados contínuos ao codeDB e inicia o trial | Trial do codeDB |
 
