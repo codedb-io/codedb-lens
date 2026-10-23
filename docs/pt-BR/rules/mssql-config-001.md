@@ -27,6 +27,10 @@ EXEC sp_configure 'max server memory (MB)', <valor>; RECONFIGURE;
 
 Mude uma configuração por vez e observe o efeito.
 
+## Como validar
+
+Confira o valor em uso, não só o configurado: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. O `value_in_use` deve mostrar o número novo (rode `RECONFIGURE` se não mostrar). Depois acompanhe CPU e memória por alguns dias.
+
 ## Limitações
 
 São pontos de partida comuns, não respostas universais. Hosts com outros serviços (SSIS, SSRS, aplicações) precisam de

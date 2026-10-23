@@ -53,6 +53,7 @@ nav:
           - MSSQL-TOPQUERY-001: rules/mssql-topquery-001.md
           - MSSQL-UNUSEDIDX-001: rules/mssql-unusedidx-001.md
           - MSSQL-VERSION-001: rules/mssql-version-001.md
+          - MSSQL-VERSION-002: rules/mssql-version-002.md
           - MSSQL-WAITS-001: rules/mssql-waits-001.md
       - PostgreSQL:
           - PG-AUTOVAC-001: rules/pg-autovac-001.md
@@ -66,6 +67,7 @@ nav:
           - PG-SLOTS-001: rules/pg-slots-001.md
           - PG-TOPQUERY-001: rules/pg-topquery-001.md
           - PG-VERSION-001: rules/pg-version-001.md
+          - PG-VERSION-002: rules/pg-version-002.md
           - PG-WRAPAROUND-001: rules/pg-wraparound-001.md
 
 extra:

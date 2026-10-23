@@ -26,6 +26,10 @@ ALTER DATABASE tempdb ADD FILE (NAME = temp2, FILENAME = '<path>\tempdb2.ndf', S
 
 Size changes that shrink a file take effect after a restart.
 
+## How to verify
+
+List the files with `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: data files must have the same size, fixed growth in MB (`is_percent_growth = 0`) and one file per logical CPU up to 8. New files and growth changes apply right away; shrinking or resizing existing files may need a restart. Then watch for PAGELATCH waits on tempdb.
+
 ## Limitations
 
 Eight files is a starting point; heavy contention may need more, in multiples of 4.

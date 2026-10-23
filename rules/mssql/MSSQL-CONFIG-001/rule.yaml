@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.
   pt-BR: Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.
+verify:
+  en: "Check the value in use, not just the configured one: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. `value_in_use` must show the new number (run `RECONFIGURE` if it does not). Then watch CPU and memory for a few days."
+  pt-BR: "Confira o valor em uso, não só o configurado: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. O `value_in_use` deve mostrar o número novo (rode `RECONFIGURE` se não mostrar). Depois acompanhe CPU e memória por alguns dias."
 caveat:
   en: Recommendations are common starting points, not universal rules. Hosts running other services may need different values.
   pt-BR: As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores.

@@ -24,6 +24,10 @@ Each index is maintained on every insert, update and delete, is backed up and re
 Watch it through a full business cycle (month-end closing, quarterly reports) before acting. Script the index, then
 disable it (`ALTER INDEX … DISABLE`) for a while before dropping it.
 
+## How to verify
+
+Before dropping, check the index in `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` vs `user_updates`): zero reads over a full business cycle confirms it. After dropping or disabling, watch the application for a few days (slow queries, new missing index hints); if something regresses, recreate the index from the script you saved. Writes on the table should get cheaper.
+
 ## Limitations
 
 - Usage resets on restart. Check the *Server up since* card in the report: a few days of uptime is not enough.

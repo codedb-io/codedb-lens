@@ -19,6 +19,10 @@ partitioning and index cleanup pay off.
 For each table: can old rows be archived or partitioned by date? Are all its indexes used (`PG-INDEXES-001`)? Is it bloated
 (`PG-BLOAT-001`)?
 
+## How to verify
+
+Measure the size again after archiving or partitioning: `SELECT pg_size_pretty(pg_total_relation_size('schema.table'))`. Space only goes back to the operating system after a rewrite (`DROP` of old partitions returns it at once; `DELETE` plus VACUUM does not), so check the dropped partitions or the `pg_repack` result, not just the row count.
+
 ## Limitations
 
 Shows current size, not growth: projecting when a disk fills needs history. Free disk space isn't visible through SQL.

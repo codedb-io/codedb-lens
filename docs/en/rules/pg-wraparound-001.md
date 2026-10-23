@@ -24,6 +24,10 @@ WHERE c.relkind IN ('r', 'm', 't') ORDER BY 2 DESC LIMIT 20;
 Run `VACUUM (FREEZE, VERBOSE)` on them and look for what blocks autovacuum: long transactions,
 abandoned replication slots, old prepared transactions.
 
+## How to verify
+
+Run `SELECT datname, age(datfrozenxid) FROM pg_database ORDER BY 2 DESC`: once VACUUM (FREEZE) finishes, the age must be well below `autovacuum_freeze_max_age` (default 200 million). Check again after a day: if autovacuum keeps it low, what held it back (old transactions, slots, prepared transactions) is gone.
+
 ## Limitations
 
 A snapshot shows the current age, not the consumption rate. How many days are left needs history.

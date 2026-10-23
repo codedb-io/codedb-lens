@@ -26,6 +26,10 @@ Procure scans sequenciais em tabelas grandes, estimativas de linhas muito longe 
 o disco. Veja também se ela roda mais do que a aplicação precisa (poucas *linhas por chamada* com *chamadas* enormes
 sugere o padrão N+1).
 
+## Como validar
+
+Depois da correção, compare com `SELECT calls, mean_exec_time, total_exec_time FROM pg_stat_statements WHERE queryid = <id>`; o tempo médio por chamada deve cair. Os totais acumulam, então chame antes `pg_stat_statements_reset(userid, dbid, queryid)` para essa consulta, ou compare duas amostras com algumas horas de intervalo. A parcela dela no tempo total deve ficar abaixo do limite.
+
 ## Limitações
 
 Os totais acumulam desde o último `pg_stat_statements_reset()` ou restart, então não dá para saber desde quando a consulta

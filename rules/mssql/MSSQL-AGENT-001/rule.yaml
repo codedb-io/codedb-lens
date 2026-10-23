@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Open the job history for each job, fix the failing step and set up an operator to be notified on failure.
   pt-BR: Abra o histórico de cada job, corrija o passo que falha e configure um operador para ser notificado em caso de falha.
+verify:
+  en: "Run the failing job manually (`EXEC msdb.dbo.sp_start_job N'job name'`) and check that its last outcome in the job history is Succeeded. Then wait for the next scheduled run: the job stops appearing here once its latest outcome is a success."
+  pt-BR: "Execute o job manualmente (`EXEC msdb.dbo.sp_start_job N'nome do job'`) e confirme no histórico que o último resultado é Succeeded. Depois espere a próxima execução agendada: o job deixa de aparecer aqui quando o resultado mais recente é sucesso."
 caveat:
   en: Shows enabled jobs whose last run failed within the window. Not available on Express or Azure SQL Database (no Agent).
   pt-BR: Mostra jobs habilitados cuja última execução falhou dentro da janela. Não existe no Express nem no Azure SQL Database (sem Agent).

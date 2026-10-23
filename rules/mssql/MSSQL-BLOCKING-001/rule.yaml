@@ -15,6 +15,9 @@ impact:
 next_action:
   en: Look at the blocker first. A blocker in "sleeping" status with an open transaction is usually an application that forgot to commit. Talk to its owner before considering KILL.
   pt-BR: Olhe primeiro para quem bloqueia. Um bloqueador em status "sleeping" com transação aberta costuma ser uma aplicação que esqueceu o commit. Fale com o responsável antes de pensar em KILL.
+verify:
+  en: "Re-check the blocking chain: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id <> 0`. It must come back empty, or with waits well below the threshold. One check is not enough: repeat it during the busy hours, since blocking comes and goes."
+  pt-BR: "Verifique a cadeia de bloqueio de novo: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id <> 0`. O resultado deve vir vazio, ou com esperas bem abaixo do limite. Uma checagem só não basta: repita nos horários de pico, porque o bloqueio vem e vai."
 caveat:
   en: A snapshot only sees blocking happening at the moment of the check.
   pt-BR: Um retrato só vê bloqueios que estão acontecendo no momento da verificação.

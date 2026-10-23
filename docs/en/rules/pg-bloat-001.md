@@ -28,6 +28,10 @@ inside the table but doesn't return it.
 Confirm with `pgstattuple_approx('<table>')` first. Reclaim space online with `pg_repack` or `pg_squeeze`; `VACUUM FULL`
 holds an exclusive lock for the whole run. Then fix the cause (`PG-AUTOVAC-001`, `PG-LONGTX-001`).
 
+## How to verify
+
+Measure after reclaiming space: `SELECT pg_size_pretty(pg_total_relation_size('schema.table'))` must be clearly smaller, and `SELECT * FROM pgstattuple('schema.table')` should show low `dead_tuple_percent` and `free_percent`. Then watch the size over a few days; if it bloats again, the cause (PG-AUTOVAC-001, PG-LONGTX-001) is not fixed.
+
 ## Limitations
 
 Heap only (indexes not estimated). The estimate assumes no row-level alignment surprises and current statistics; run

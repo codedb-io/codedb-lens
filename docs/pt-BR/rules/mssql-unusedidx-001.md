@@ -25,6 +25,10 @@ Cada índice é mantido em todo insert, update e delete, entra no backup e na ma
 Observe durante um ciclo completo do negócio (fechamento de mês, relatórios trimestrais) antes de agir. Gere o script do
 índice e desabilite (`ALTER INDEX … DISABLE`) por um tempo antes de remover.
 
+## Como validar
+
+Antes de remover, veja o índice em `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` contra `user_updates`): zero leituras em um ciclo completo de negócio confirma. Depois de remover ou desabilitar, acompanhe a aplicação por alguns dias (consultas lentas, novas sugestões de índice faltando); se algo piorar, recrie o índice pelo script que você guardou. As escritas na tabela devem ficar mais baratas.
+
 ## Limitações
 
 - O uso zera no restart. Veja o cartão *Servidor no ar desde* no relatório: poucos dias no ar não bastam.

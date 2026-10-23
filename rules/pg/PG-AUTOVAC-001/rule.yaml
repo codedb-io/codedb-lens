@@ -18,6 +18,9 @@ impact:
 next_action:
   en: Check what holds vacuum back (PG-LONGTX-001, PG-SLOTS-001). For hot tables, lower autovacuum_vacuum_scale_factor per table (e.g. 0.02) and raise autovacuum_vacuum_cost_limit. A manual VACUUM (VERBOSE) on the table helps right away.
   pt-BR: "Veja o que segura o vacuum (PG-LONGTX-001, PG-SLOTS-001). Em tabelas muito alteradas, reduza o autovacuum_vacuum_scale_factor da tabela (ex.: 0.02) e aumente o autovacuum_vacuum_cost_limit. Um VACUUM (VERBOSE) manual na tabela ajuda na hora."
+verify:
+  en: "Check the table: `SELECT n_dead_tup, last_autovacuum, last_vacuum FROM pg_stat_user_tables WHERE relname = 'table'`. After the vacuum, `n_dead_tup` must drop sharply and `last_autovacuum` or `last_vacuum` must be recent. Then watch it for a day: if dead rows climb back above the threshold, autovacuum still can't keep up and the cause (old transactions, slots, settings) remains."
+  pt-BR: "Confira a tabela: `SELECT n_dead_tup, last_autovacuum, last_vacuum FROM pg_stat_user_tables WHERE relname = 'tabela'`. Depois do vacuum, `n_dead_tup` deve cair bastante e `last_autovacuum` ou `last_vacuum` deve ser recente. Depois acompanhe por um dia: se as linhas mortas voltarem a subir acima do limite, o autovacuum ainda não dá conta e a causa (transações antigas, slots, parâmetros) continua."
 caveat:
   en: Counters reset with pg_stat_reset() and after a crash. Runs in each database the login can connect to.
   pt-BR: Os contadores zeram com pg_stat_reset() e após um crash. Roda em cada banco em que o login consegue conectar.

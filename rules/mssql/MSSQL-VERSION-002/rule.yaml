@@ -1,0 +1,24 @@
+id: MSSQL-VERSION-002
+engine: mssql
+category: version
+severity: medium
+confidence: confirmed
+skip_on: [azure_sqldb, azure_mi]   # versionless services
+permission: public
+params:
+  max_age_days: 180   # finding when the installed CU is older than this, measured against the latest CU
+title:
+  en: SQL Server build is behind the latest cumulative or security update
+  pt-BR: Build do SQL Server atrás da última atualização cumulativa ou de segurança
+impact:
+  en: Cumulative updates carry the bug and security fixes for your version. A build many months behind keeps known issues open and makes the next patch a bigger jump.
+  pt-BR: As atualizações cumulativas trazem as correções de bugs e de segurança da sua versão. Um build muitos meses atrasado mantém problemas conhecidos em aberto e torna o próximo patch um salto maior.
+next_action:
+  en: Test the latest cumulative update, plus the security update (GDR) released on top of it if there is one, in a non-production copy and schedule it in a maintenance window.
+  pt-BR: Teste a última atualização cumulativa, mais a atualização de segurança (GDR) lançada sobre ela, se houver, numa cópia fora de produção e agende a aplicação numa janela de manutenção.
+verify:
+  en: "After patching, run `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductUpdateLevel')` and confirm the build matches the target CU or GDR. Check the SQL Server error log for startup errors and that jobs and replication or AG members came back healthy. Re-run codeDB Lens: the rule should be OK."
+  pt-BR: "Depois de aplicar o patch, rode `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductUpdateLevel')` e confirme que o build bate com o CU ou GDR alvo. Confira no error log do SQL Server se não há erros na subida e se jobs e membros de replicação ou AG voltaram saudáveis. Rode o codeDB Lens de novo: a regra deve ficar OK."
+caveat:
+  en: Builds come from the Microsoft version history bundled in this Lens version. When the installed build is newer than the table, the result is only a hint; update Lens to refresh it. Security-only (GDR) builds are matched to the CU below them.
+  pt-BR: Os builds vêm do histórico de versões da Microsoft embutido nesta versão do Lens. Quando o build instalado é mais novo que a tabela, o resultado é só um indício; atualize o Lens para renová-la. Builds só de segurança (GDR) são associados à CU imediatamente anterior.

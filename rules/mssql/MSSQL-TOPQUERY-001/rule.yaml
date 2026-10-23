@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Start from the first query in the evidence (the top 5 are listed). Look at its execution plan, missing indexes and whether it runs more often than it should.
   pt-BR: Comece pela primeira consulta da evidência (as 5 maiores aparecem). Veja o plano de execução, os índices faltando e se ela roda mais vezes do que deveria.
+verify:
+  en: "After the change (index, rewrite, plan fix), compare the query before and after in the plan cache: `SELECT total_worker_time / execution_count AS avg_cpu_us, total_logical_reads / execution_count AS avg_reads FROM sys.dm_exec_query_stats WHERE query_hash = <hash>`. Average CPU and reads per execution should drop, and its share of the total CPU should fall below the threshold. Give it a few hours of normal load: a recompiled query starts its counters over."
+  pt-BR: "Depois da mudança (índice, reescrita, correção de plano), compare a consulta antes e depois no plan cache: `SELECT total_worker_time / execution_count AS avg_cpu_us, total_logical_reads / execution_count AS avg_reads FROM sys.dm_exec_query_stats WHERE query_hash = <hash>`. O CPU médio e as leituras por execução devem cair, e a parcela dela no CPU total deve ficar abaixo do limite. Dê algumas horas de carga normal: uma consulta recompilada zera os contadores."
 caveat:
   en: Based on the plan cache, which is cleared on restart and under memory pressure. Queries with OPTION (RECOMPILE) may not appear.
   pt-BR: Baseado no plan cache, que é limpo no restart e sob pressão de memória. Consultas com OPTION (RECOMPILE) podem não aparecer.

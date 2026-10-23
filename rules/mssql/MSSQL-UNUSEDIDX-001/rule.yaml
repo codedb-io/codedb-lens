@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Confirm over a full business cycle (month-end, reports) before dropping. Script the index first so it can be recreated, or disable it instead of dropping.
   pt-BR: Confirme durante um ciclo completo do negócio (fechamento de mês, relatórios) antes de remover. Gere o script do índice antes, para poder recriá-lo, ou desabilite em vez de remover.
+verify:
+  en: "Before dropping, check the index in `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` vs `user_updates`): zero reads over a full business cycle confirms it. After dropping or disabling, watch the application for a few days (slow queries, new missing index hints); if something regresses, recreate the index from the script you saved. Writes on the table should get cheaper."
+  pt-BR: "Antes de remover, veja o índice em `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` contra `user_updates`): zero leituras em um ciclo completo de negócio confirma. Depois de remover ou desabilitar, acompanhe a aplicação por alguns dias (consultas lentas, novas sugestões de índice faltando); se algo piorar, recrie o índice pelo script que você guardou. As escritas na tabela devem ficar mais baratas."
 caveat:
   en: Usage statistics reset on restart; the longer the instance has been up, the more reliable this is. Replicas and readable secondaries have their own usage.
   pt-BR: As estatísticas de uso zeram no restart; quanto mais tempo a instância está no ar, mais confiável. Réplicas e secundárias legíveis têm uso próprio.

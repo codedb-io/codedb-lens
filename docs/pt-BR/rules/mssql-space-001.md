@@ -26,6 +26,10 @@ Trate o `log_reuse_wait_desc`:
 | `ACTIVE_TRANSACTION` | Encontre a transação aberta: `DBCC OPENTRAN` |
 | `REPLICATION` / `AVAILABILITY_REPLICA` | Verifique o log reader ou a réplica secundária |
 
+## Como validar
+
+Nos volumes, o espaço livre deve passar dos limites: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. Nos logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` deve mostrar NOTHING depois do próximo backup de log ou checkpoint, e `DBCC SQLPERF(LOGSPACE)` deve mostrar percentual de uso menor.
+
 ## Limitações
 
 Um retrato mostra o quanto está cheio, não a velocidade de crescimento. Projetar quando um volume enche exige histórico.

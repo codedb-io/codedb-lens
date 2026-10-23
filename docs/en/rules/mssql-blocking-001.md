@@ -20,6 +20,10 @@ threads (`THREADPOOL`).
   application; as an emergency, talk to the owner before `KILL <session>`.
 - Blocker **running**: a long query or batch. Check its plan and whether it can run off-peak.
 
+## How to verify
+
+Re-check the blocking chain: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id <> 0`. It must come back empty, or with waits well below the threshold. One check is not enough: repeat it during the busy hours, since blocking comes and goes.
+
 ## Limitations
 
 A snapshot only sees what is blocked at the moment of the check. Blocking that happened at 03:00 is invisible here.

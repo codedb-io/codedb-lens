@@ -19,6 +19,10 @@ arquivamento, particionamento e limpeza de índices compensam.
 Para cada tabela: dá para arquivar ou particionar por data as linhas antigas? Todos os índices são usados (`PG-INDEXES-001`)?
 Ela está inchada (`PG-BLOAT-001`)?
 
+## Como validar
+
+Meça o tamanho de novo depois de arquivar ou particionar: `SELECT pg_size_pretty(pg_total_relation_size('schema.tabela'))`. O espaço só volta ao sistema operacional após uma reescrita (`DROP` de partições antigas devolve na hora; `DELETE` mais VACUUM não), então verifique as partições removidas ou o resultado do `pg_repack`, não só a contagem de linhas.
+
 ## Limitações
 
 Mostra o tamanho atual, não o crescimento: projetar quando o disco enche exige histórico. O espaço livre em disco não é

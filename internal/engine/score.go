@@ -13,8 +13,9 @@ type Scoring struct {
 	Weights      map[Severity]float64 `yaml:"weights"`
 	Grades       []Grade              `yaml:"grades"` // highest first
 	PartialBelow float64              `yaml:"partial_below"`
-	// MinApplicable: below this share of the catalog applying to the platform, there is no grade (letter "?").
-	MinApplicable float64 `yaml:"min_applicable"`
+	// MinApplicable: with fewer rules applying to the platform, there is no grade (letter "?"). A count, not a share of
+	// the catalog, so a new rule that never applies somewhere (Azure SQL Database) does not take that platform's grade away.
+	MinApplicable int     `yaml:"min_applicable_rules"`
 	HintCredit    float64 `yaml:"hint_credit"`
 }
 
@@ -101,7 +102,7 @@ func (s Scoring) Compute(results []Result) Score {
 			break
 		}
 	}
-	sc.Limited = float64(sc.Applies) < s.MinApplicable*float64(sc.Rules)
+	sc.Limited = sc.Applies < s.MinApplicable
 	if sc.Executed == 0 || sc.Limited {
 		sc.Letter = "?"
 	}

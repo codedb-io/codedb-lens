@@ -17,6 +17,9 @@ impact:
 next_action:
   en: For a slot nobody uses anymore, drop it with pg_drop_replication_slot('name'). For a lagging replica, check its disk, CPU and network, and long queries on it that delay replay.
   pt-BR: Para um slot que ninguém usa mais, remova com pg_drop_replication_slot('nome'). Para uma réplica atrasada, verifique disco, CPU e rede dela, e consultas longas que atrasam o replay.
+verify:
+  en: "Run `SELECT slot_name, active, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained FROM pg_replication_slots`: the dropped slot must be gone and the others must be active with small retention. For replicas, `SELECT application_name, replay_lag FROM pg_stat_replication` must stay under the threshold. The WAL directory shrinks at the next checkpoint, not instantly."
+  pt-BR: "Rode `SELECT slot_name, active, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained FROM pg_replication_slots`: o slot removido deve ter sumido e os demais devem estar ativos com retenção pequena. Nas réplicas, `SELECT application_name, replay_lag FROM pg_stat_replication` deve ficar abaixo do limite. O diretório de WAL encolhe no próximo checkpoint, não na hora."
 caveat:
   en: Checked on the primary only. A slot can be briefly inactive while its consumer reconnects.
   pt-BR: Verificado só no primário. Um slot pode ficar inativo por pouco tempo enquanto o consumidor reconecta.

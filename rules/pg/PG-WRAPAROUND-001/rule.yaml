@@ -16,6 +16,9 @@ impact:
 next_action:
   en: In the listed databases, find the oldest tables (age(relfrozenxid)) and run VACUUM (FREEZE) on them. Check what blocks autovacuum (long transactions, replication slots, prepared transactions).
   pt-BR: Nos bancos listados, encontre as tabelas mais antigas (age(relfrozenxid)) e rode VACUUM (FREEZE) nelas. Verifique o que trava o autovacuum (transações longas, slots de replicação, prepared transactions).
+verify:
+  en: "Run `SELECT datname, age(datfrozenxid) FROM pg_database ORDER BY 2 DESC`: once VACUUM (FREEZE) finishes, the age must be well below `autovacuum_freeze_max_age` (default 200 million). Check again after a day: if autovacuum keeps it low, what held it back (old transactions, slots, prepared transactions) is gone."
+  pt-BR: "Rode `SELECT datname, age(datfrozenxid) FROM pg_database ORDER BY 2 DESC`: quando o VACUUM (FREEZE) terminar, a idade deve ficar bem abaixo de `autovacuum_freeze_max_age` (padrão 200 milhões). Confira de novo depois de um dia: se o autovacuum a mantém baixa, o que a segurava (transações antigas, slots, transações preparadas) saiu."
 caveat:
   en: A snapshot shows the current age, not how fast XIDs are consumed. The speed needs history.
   pt-BR: Um retrato mostra a idade atual, não a velocidade de consumo de XIDs. A velocidade exige histórico.

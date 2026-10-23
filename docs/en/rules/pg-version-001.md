@@ -17,7 +17,11 @@ Out-of-support versions get no security or bug fixes. Major upgrades need planni
 
 Plan a major upgrade: `pg_upgrade`, logical replication, or your cloud provider's upgrade path.
 
+## How to verify
+
+After the upgrade, run `SHOW server_version` and confirm the major version is within community support. Then run `ANALYZE` (pg_upgrade does not keep planner statistics), check extensions with `SELECT extname, extversion FROM pg_extension` and let the application run a full cycle before removing the old cluster.
+
 ## Limitations
 
 - Cloud providers may offer paid extended support beyond the community date.
-- Minor-version currency is not checked yet.
+- Minor-version currency is checked by [PG-VERSION-002](pg-version-002.md).

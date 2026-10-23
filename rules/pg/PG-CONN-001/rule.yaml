@@ -18,6 +18,9 @@ impact:
 next_action:
   en: Put a connection pooler in front of the database (PgBouncer, RDS Proxy, or the application pool sized correctly) instead of raising max_connections.
   pt-BR: Coloque um pooler de conexões na frente do banco (PgBouncer, RDS Proxy, ou o pool da aplicação bem dimensionado) em vez de aumentar o max_connections.
+verify:
+  en: "Compare the counts at peak hours: `SELECT state, count(*) FROM pg_stat_activity WHERE backend_type = 'client backend' GROUP BY state`, against `SHOW max_connections`. Total connections must stay well below the limit (under 80%) and idle ones must drop to a small pool. One check at a quiet hour proves nothing; check during the busy period."
+  pt-BR: "Compare as contagens nos horários de pico: `SELECT state, count(*) FROM pg_stat_activity WHERE backend_type = 'client backend' GROUP BY state`, com `SHOW max_connections`. O total deve ficar bem abaixo do limite (menos de 80%) e as ociosas devem cair para um pool pequeno. Checar uma vez em horário calmo não prova nada; confira no período de pico."
 caveat:
   en: A snapshot shows the connections at this moment. Peaks usually happen at specific hours.
   pt-BR: Um retrato mostra as conexões neste momento. Os picos costumam acontecer em horários específicos.

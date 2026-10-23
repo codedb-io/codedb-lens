@@ -26,6 +26,10 @@ DROP INDEX CONCURRENTLY <index>;   -- invalid or duplicate
 
 For unused indexes, confirm over a full business cycle and check `pg_stat_user_indexes` on each replica before dropping.
 
+## How to verify
+
+After dropping, confirm the index is gone: `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid` must return nothing, and `SELECT relname, indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan` should no longer list the dropped ones. Watch query times and the slow log for a few days; if one regresses, recreate the index. Counters reset with `pg_stat_reset()`, so judge usage over a full business cycle.
+
 ## Limitations
 
 Usage counters reset with `pg_stat_reset()`; replicas keep their own counters.

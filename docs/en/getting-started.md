@@ -42,7 +42,7 @@ codedb-lens check --profile prod
 ```
 
 Useful flags: `--lang en|pt-BR`, `--out <folder>`, `--trust-server-cert` (self-signed SQL Server certificates),
-`--sslmode` (PostgreSQL), `--no-update-check`.
+`--sslmode` (PostgreSQL), `--redact` (see [below](#5-share-a-report-safely)), `--no-update-check`.
 
 ## 4. Read the report
 
@@ -50,7 +50,38 @@ Reports are saved as HTML and JSON in `Documents\codeDB Lens\reports\<profile>` 
 `~/codedb-lens/reports/<profile>` (Linux). See [how to read the grade and coverage](index.md#how-to-read-the-report).
 Each finding links to its rule page with the reasoning, the limits and what to do next.
 
-## 5. Use it in CI or a scheduled job
+The HTML report opens on a **Summary** tab: grade and coverage, the highest open severity, the top 3 risks (by severity,
+then confirmed before hint) and the evolution against the previous run of the same instance in the same folder. The
+evolution needs the [free key](compare.md), the same as `compare`; without it the summary shows a short invitation, and
+the first run says "First diagnosis". **Print summary** prints only that tab on one A4 page (use the browser's
+print-to-PDF to send it to a manager or client). The **Technical** tab has the full report, and each finding has a
+**How to verify the fix** note. The JSON gains an `evolution` field.
+
+## 5. Share a report safely
+
+Reports contain server, database, object and login names. To send one to a consultant, a vendor or a client, add
+`--redact` (command line only):
+
+```bash
+codedb-lens check --profile prod --redact
+```
+
+With `--redact`, **only** `<timestamp>.redacted.html` and `.redacted.json` are written; the unmasked report is not saved.
+
+- **Masked** with stable tokens such as `db-3fa91c07`: host, databases (system databases stay visible), schemas,
+  tables, indexes, logins, users, applications, client addresses, SQL Agent jobs, replication slots, and file paths.
+  The same name always gets the same token within a report, so the evidence still reads coherently.
+- **Removed:** query texts and SQL Agent step messages become `[redacted]`. Raw error messages get the same masking.
+- **Not masked:** versions, numbers, severities, dates, the rule SQL, and system database names.
+- **Salt:** tokens are an HMAC with a random per-machine salt stored in `redact.salt` next to `profiles.json`, so they
+  can't be reversed by guessing names. The same machine produces the same tokens in every run, which keeps
+  [`compare`](compare.md) working; redacted runs only compare with redacted runs. Delete the file to rotate the tokens.
+- **Caveat:** masking covers the columns of the built-in rules. A custom rule loaded with `--rules-dir` that uses other
+  column names, or free text, is not masked. Review the file before sharing it.
+
+Nothing is uploaded either way. The HTML shows a "redacted" badge and the JSON has `redacted: true`.
+
+## 6. Use it in CI or a scheduled job
 
 `check` exits with a code a pipeline can act on. By default findings never fail the run; set a policy:
 

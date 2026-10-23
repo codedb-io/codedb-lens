@@ -1,0 +1,21 @@
+id: PG-VERSION-002
+engine: pg
+category: version
+severity: medium
+confidence: confirmed
+permission: public
+title:
+  en: PostgreSQL minor version is behind the latest release
+  pt-BR: Versão minor do PostgreSQL atrás da última release
+impact:
+  en: Minor releases fix security issues, data corruption and frequent bugs, and are drop-in updates within the same major. Running behind leaves known issues open.
+  pt-BR: As releases minor corrigem problemas de segurança, corrupção de dados e bugs frequentes, e são atualizações diretas dentro do mesmo major. Ficar atrás mantém problemas conhecidos em aberto.
+next_action:
+  en: Update to the latest minor release (a binary swap and restart, no dump or pg_upgrade). Read the release notes for the minors you skip.
+  pt-BR: Atualize para a última release minor (troca de binários e restart, sem dump nem pg_upgrade). Leia as notas de release das minors que você pula.
+verify:
+  en: "After the restart, run `SHOW server_version` and confirm the new minor is the target. Check the server log for startup errors, run `ALTER EXTENSION name UPDATE` if the release notes ask for it, and confirm replicas were updated too. Re-run codeDB Lens: the rule should be OK."
+  pt-BR: "Depois do restart, rode `SHOW server_version` e confirme que a nova minor é a desejada. Veja no log do servidor se não há erros na subida, rode `ALTER EXTENSION nome UPDATE` se as notas de release pedirem e confirme que as réplicas também foram atualizadas. Rode o codeDB Lens de novo: a regra deve ficar OK."
+caveat:
+  en: Latest minors come from the PostgreSQL versioning page bundled in this Lens version. Managed services often lag behind community releases; if the provider has no newer minor, there is nothing to apply yet. When the installed minor is newer than the table, the result is only a hint; update Lens to refresh it.
+  pt-BR: As últimas minors vêm da página de versões do PostgreSQL embutida nesta versão do Lens. Serviços gerenciados costumam atrasar em relação às releases da comunidade; se o provedor não tem minor mais nova, ainda não há o que aplicar. Quando a minor instalada é mais nova que a tabela, o resultado é só um indício; atualize o Lens para renová-la.

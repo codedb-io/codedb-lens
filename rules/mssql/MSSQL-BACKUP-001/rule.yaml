@@ -17,6 +17,9 @@ impact:
 next_action:
   en: Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.
   pt-BR: Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.
+verify:
+  en: "After the backup finishes, confirm it in msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Each database must show a recent D (full) and, in FULL recovery, an L (log) newer than 24 hours. Also run `RESTORE VERIFYONLY` on the file."
+  pt-BR: "Quando o backup terminar, confirme no msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Cada banco deve mostrar um D (full) recente e, em recovery FULL, um L (log) com menos de 24 horas. Rode também um `RESTORE VERIFYONLY` no arquivo."
 caveat:
   en: Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.
   pt-BR: Baseado no histórico do msdb desta instância. Backups de ferramentas externas sem histórico no msdb não aparecem.

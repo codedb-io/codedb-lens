@@ -26,6 +26,10 @@ DROP INDEX CONCURRENTLY <índice>;   -- inválido ou duplicado
 
 Para os não usados, confirme durante um ciclo completo do negócio e confira `pg_stat_user_indexes` em cada réplica antes de remover.
 
+## Como validar
+
+Depois de remover, confirme que o índice saiu: `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid` deve voltar vazio, e `SELECT relname, indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan` não deve mais listar os removidos. Acompanhe o tempo das consultas e o log de lentas por alguns dias; se alguma piorar, recrie o índice. Os contadores zeram com `pg_stat_reset()`, então avalie o uso ao longo de um ciclo completo de negócio.
+
 ## Limitações
 
 Os contadores de uso zeram com `pg_stat_reset()`; réplicas têm contadores próprios.

@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Plan an upgrade to a supported version. Check application compatibility and the compatibility level of each database.
   pt-BR: Planeje o upgrade para uma versão suportada. Verifique a compatibilidade das aplicações e o compatibility level de cada banco.
+verify:
+  en: "After the upgrade, run `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductLevel')` and confirm the major version is still inside support. Check each database with `SELECT name, compatibility_level FROM sys.databases` and let the application run a full cycle (including month-end jobs) before you decommission the old server."
+  pt-BR: "Depois do upgrade, rode `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductLevel')` e confirme que a versão major ainda está dentro do suporte. Confira cada banco com `SELECT name, compatibility_level FROM sys.databases` e deixe a aplicação passar por um ciclo completo (incluindo rotinas de fechamento de mês) antes de desligar o servidor antigo."
 caveat:
   en: Dates come from the Microsoft lifecycle table bundled in this Lens version. Update Lens to refresh them.
   pt-BR: As datas vêm da tabela de ciclo de vida da Microsoft embutida nesta versão do Lens. Atualize o Lens para renová-las.

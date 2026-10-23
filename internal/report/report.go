@@ -43,6 +43,21 @@ type Report struct {
 	Server         engine.ServerInfo `json:"server"`
 	Score          engine.Score      `json:"score"`
 	Results        []engine.Result   `json:"results"`
+	// Evolution compares with the previous run of the same instance in the same folder; set by SetEvolution.
+	Evolution *Evolution `json:"evolution,omitempty"`
+	// Redacted marks a report whose names were masked by Redact; it is saved as <timestamp>.redacted.*.
+	Redacted bool `json:"redacted,omitempty"`
+}
+
+// Evolution feeds the executive summary. State is "first" (no previous run), "locked" (previous run exists
+// but no valid free key, so no comparison) or "compared".
+type Evolution struct {
+	State        string    `json:"state"`
+	PrevAt       time.Time `json:"previous_at,omitzero"`
+	PrevLetter   string    `json:"previous_letter,omitempty"`
+	PrevCoverage float64   `json:"previous_coverage,omitempty"`
+	New          int       `json:"new,omitempty"`
+	Resolved     int       `json:"resolved,omitempty"`
 }
 
 var severityOrder = map[engine.Severity]int{engine.Critical: 0, engine.High: 1, engine.Medium: 2, engine.Low: 3}
@@ -82,6 +97,75 @@ func (r *Report) Findings() []engine.Result {
 	return out
 }
 
+// Top returns the n most urgent findings: severity, then Confirmed before Hint, then rule ID.
+func (r *Report) Top(n int) []engine.Result {
+	f := r.Findings()
+	sort.SliceStable(f, func(i, j int) bool {
+		a, b := f[i], f[j]
+		if sa, sb := severityOrder[a.Rule.Severity], severityOrder[b.Rule.Severity]; sa != sb {
+			return sa < sb
+		}
+		if ca, cb := a.Confidence == engine.Confirmed, b.Confidence == engine.Confirmed; ca != cb {
+			return ca
+		}
+		return a.Rule.ID < b.Rule.ID
+	})
+	return f[:min(n, len(f))]
+}
+
+// Highest is the severity of the most urgent finding, "" when there are none.
+func (r *Report) Highest() engine.Severity {
+	if t := r.Top(1); len(t) > 0 {
+		return t[0].Rule.Severity
+	}
+	return ""
+}
+
+// SetEvolution fills Evolution from the newest earlier JSON report of the same instance in dir.
+// allowed = the free key is valid (the same gate as compare); without it only the existence of a previous run is told.
+func (r *Report) SetEvolution(dir string, allowed bool) {
+	prev := previous(dir, r)
+	switch {
+	case prev == nil:
+		r.Evolution = &Evolution{State: "first"}
+	case !allowed:
+		r.Evolution = &Evolution{State: "locked"}
+	default:
+		c, err := Compare(r.ToolVersion, r.Lang, prev, r, "", "")
+		if err != nil { // unreachable: previous() already matched the instance
+			return
+		}
+		r.Evolution = &Evolution{State: "compared", PrevAt: prev.GeneratedAt, PrevLetter: prev.Score.Letter,
+			PrevCoverage: prev.Score.Coverage, New: len(c.New), Resolved: len(c.Resolved)}
+	}
+}
+
+// previous is the newest report in dir from before cur, same instance (and same masking: tokens never match real names). ponytail: reads at most the 20 newest files.
+func previous(dir string, cur *Report) *Report {
+	for i, f := range jsonFiles(dir) {
+		if i == 20 {
+			break
+		}
+		if p, err := Load(f); err == nil && SameInstance(p.Server, cur.Server) && p.Redacted == cur.Redacted && p.GeneratedAt.Before(cur.GeneratedAt) {
+			return p
+		}
+	}
+	return nil
+}
+
+// jsonFiles lists the run reports in dir (not comparisons), newest first.
+func jsonFiles(dir string) []string {
+	all, _ := filepath.Glob(filepath.Join(dir, "*.json"))
+	sort.Sort(sort.Reverse(sort.StringSlice(all))) // names are timestamps
+	var files []string
+	for _, f := range all {
+		if !strings.HasPrefix(filepath.Base(f), "compare_") {
+			files = append(files, f)
+		}
+	}
+	return files
+}
+
 // CountSev counts findings with any of the given severities.
 func (r *Report) CountSev(sev ...string) int {
 	n := 0
@@ -109,9 +193,22 @@ var funcs = template.FuncMap{
 	"tf": func(key string, args ...any) template.HTML {
 		return both(func(l string) string { return fmt.Sprintf(i18n.T(l, key), args...) })
 	},
-	"tx":       func(t engine.Text) template.HTML { return both(func(l string) string { return t[l] }) },
+	"tx": func(t engine.Text) template.HTML { return both(func(l string) string { return t[l] }) },
+	// txc is tx with `inline code` rendered as <code> (escaped first, so the tags are the only markup).
+	"txc": func(t engine.Text) template.HTML {
+		var b strings.Builder
+		for _, l := range engine.Languages {
+			parts := strings.Split(html.EscapeString(t[l]), "`")
+			for i := 1; i < len(parts); i += 2 {
+				parts[i] = "<code>" + parts[i] + "</code>"
+			}
+			fmt.Fprintf(&b, `<span lang="%s">%s</span>`, l, strings.Join(parts, ""))
+		}
+		return template.HTML(b.String())
+	},
 	"landing":  func(campaign string) string { return saas.Link(saas.Landing, "report", campaign) },
 	"register": func(campaign string) string { return saas.Link(saas.Register, "report", campaign) },
+	"sumlink":  func(campaign string) string { return saas.Link(saas.Register, "summary", campaign) },
 	"docpt":    func(u string) string { return strings.Replace(u, "/rules/", "/pt-BR/rules/", 1) },
 	"pct":      func(f float64) string { return fmt.Sprintf("%.0f%%", f*100) },
 	"str": func(v any) string {
@@ -160,9 +257,12 @@ func (r *Report) JSON(w io.Writer) error {
 	return enc.Encode(r)
 }
 
-// Save writes <dir>/<YYYY-MM-DD_HHMMSS>.html and .json and returns the HTML path.
+// Save writes <dir>/<YYYY-MM-DD_HHMMSS>.html and .json (.redacted.html/.json when masked) and returns the HTML path.
 func (r *Report) Save(dir string) (string, error) {
 	base := filepath.Join(dir, r.GeneratedAt.Format("2006-01-02_150405")) // seconds: two runs in a minute must not overwrite
+	if r.Redacted {
+		base += ".redacted"
+	}
 	return base + ".html", writeAll(dir, base, map[string]func(io.Writer) error{".html": r.HTML, ".json": r.JSON})
 }
 
@@ -225,15 +325,10 @@ type Summary struct {
 
 // History lists the newest runs in dir (at most n), newest first.
 func History(dir string, n int) []Summary {
-	files, _ := filepath.Glob(filepath.Join(dir, "*.json"))
-	sort.Sort(sort.Reverse(sort.StringSlice(files))) // names are timestamps
 	var out []Summary
-	for _, f := range files {
+	for _, f := range jsonFiles(dir) {
 		if len(out) == n {
 			break
-		}
-		if strings.HasPrefix(filepath.Base(f), "compare_") {
-			continue
 		}
 		raw, err := os.ReadFile(f)
 		if err != nil {

@@ -24,6 +24,10 @@ DBCC CHECKDB (N'<db>') WITH NO_INFOMSGS, ALL_ERRORMSGS;
 Schedule it weekly (Ola Hallengren's `DatabaseIntegrityCheck` is a common choice). For large databases with short
 windows, run it on a restored copy of the backup.
 
+## How to verify
+
+After DBCC CHECKDB completes without errors, confirm the date: `SELECT DATABASEPROPERTYEX(N'db', 'LastGoodCheckDbTime')` must be today. Then check that the schedule really runs: the value should renew at least once a week.
+
 ## Limitations
 
 - `LastGoodCheckDbTime` only records runs that finished without errors: a run that found corruption doesn't update it.

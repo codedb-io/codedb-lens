@@ -42,7 +42,7 @@ codedb-lens check --profile prod
 ```
 
 Flags úteis: `--lang en|pt-BR`, `--out <pasta>`, `--trust-server-cert` (certificado autoassinado no SQL Server),
-`--sslmode` (PostgreSQL), `--no-update-check`.
+`--sslmode` (PostgreSQL), `--redact` (veja [abaixo](#5-compartilhe-um-relatorio-com-seguranca)), `--no-update-check`.
 
 ## 4. Leia o relatório
 
@@ -50,7 +50,39 @@ Os relatórios ficam em HTML e JSON em `Documentos\codeDB Lens\reports\<perfil>`
 `~/codedb-lens/reports/<perfil>` (Linux). Veja [como ler a nota e a cobertura](index.md#como-ler-o-relatorio).
 Cada achado leva à página da regra, com o raciocínio, os limites e o que fazer.
 
-## 5. Use em CI ou num job agendado
+O relatório HTML abre na aba **Resumo**: nota e cobertura, a maior severidade em aberto, os 3 principais riscos (por
+severidade, depois confirmados antes de indícios) e a evolução em relação à execução anterior da mesma instância na
+mesma pasta. A evolução exige a [chave grátis](compare.md), como o `compare`; sem ela o resumo mostra um convite curto,
+e a primeira execução diz "Primeiro diagnóstico". **Imprimir resumo** imprime só essa aba em uma página A4 (use o
+imprimir como PDF do navegador para enviar a um gestor ou cliente). A aba **Técnico** traz o relatório completo, e cada
+achado tem uma nota **Como validar a correção**. O JSON ganha o campo `evolution`.
+
+## 5. Compartilhe um relatório com segurança
+
+Os relatórios contêm nomes de servidor, bancos, objetos e logins. Para enviar a um consultor, fornecedor ou cliente,
+acrescente `--redact` (só na linha de comando):
+
+```bash
+codedb-lens check --profile prod --redact
+```
+
+Com `--redact`, **só** `<timestamp>.redacted.html` e `.redacted.json` são gravados; o relatório sem máscara não é salvo.
+
+- **Mascarados** com tokens estáveis como `db-3fa91c07`: host, bancos (os bancos de sistema continuam visíveis),
+  schemas, tabelas, índices, logins, usuários, aplicações, endereços de cliente, jobs do SQL Agent, slots de replicação
+  e caminhos de arquivo. O mesmo nome recebe sempre o mesmo token no relatório, então a evidência continua coerente.
+- **Removidos:** textos de consulta e mensagens de passos do SQL Agent viram `[redacted]`. Mensagens de erro brutas
+  recebem a mesma máscara.
+- **Não mascarados:** versões, números, severidades, datas, o SQL da regra e nomes de bancos de sistema.
+- **Salt:** os tokens são um HMAC com um salt aleatório por máquina, guardado em `redact.salt` ao lado do
+  `profiles.json`, então não dá para reverter chutando nomes. A mesma máquina gera os mesmos tokens a cada execução, o
+  que mantém o [`compare`](compare.md) funcionando; execuções mascaradas só se comparam com mascaradas. Apague o
+  arquivo para trocar os tokens.
+- **Atenção:** a máscara cobre as colunas das regras embutidas. Uma regra própria carregada com `--rules-dir` que use
+  outros nomes de coluna, ou texto livre, não é mascarada. Revise o arquivo antes de compartilhar.
+
+Nada é enviado, com ou sem `--redact`. O HTML mostra um selo "mascarado" e o JSON tem `redacted: true`.
+## 6. Use em CI ou num job agendado
 
 O `check` termina com um código que o pipeline pode usar. Por padrão, achados nunca reprovam a execução; defina uma
 política:

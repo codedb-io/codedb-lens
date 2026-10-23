@@ -41,7 +41,7 @@ credit = 1 for OK, 0.5 for a Hint finding, 0 for a Confirmed finding
 | D | 40 or more |
 | F | below 40 |
 
-If no rule could run, the grade is **?**. It is also **?** (*No grade*) when fewer than half of the catalog's rules
+If no rule could run, the grade is **?**. It is also **?** (*No grade*) when fewer than 6 rules
 apply to the platform: a grade over two or three checks would look better than it is. The findings still show.
 
 ## Coverage

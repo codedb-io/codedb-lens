@@ -18,6 +18,9 @@ impact:
 next_action:
   en: "Volumes: free space or grow the disk. Azure SQL Database (kind database): raise the max size or the service tier, or free space. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica)."
   pt-BR: "Volumes: libere espaço ou aumente o disco. Azure SQL Database (tipo database): aumente o tamanho máximo ou o nível de serviço, ou libere espaço. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
+verify:
+  en: "For volumes, free space must rise above the thresholds: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. For logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` must show NOTHING after the next log backup or checkpoint, and `DBCC SQLPERF(LOGSPACE)` must show a lower used percentage."
+  pt-BR: "Nos volumes, o espaço livre deve passar dos limites: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. Nos logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` deve mostrar NOTHING depois do próximo backup de log ou checkpoint, e `DBCC SQLPERF(LOGSPACE)` deve mostrar percentual de uso menor."
 caveat:
   en: A snapshot shows how full things are now, not how fast they grow. Only volumes that hold database files are checked.
   pt-BR: Um retrato mostra o quanto está cheio agora, não a velocidade de crescimento. Só são verificados volumes com arquivos de banco.

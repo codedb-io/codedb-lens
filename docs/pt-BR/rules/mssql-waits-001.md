@@ -30,6 +30,10 @@ No Azure SQL Database lê `sys.dm_db_wait_stats` (só este banco) e também cont
 
 Comece pela primeira categoria e suas causas comuns. Compare com `MSSQL-TOPQUERY-001` e `MSSQL-BLOCKING-001` no mesmo relatório.
 
+## Como validar
+
+As esperas acumulam desde o último restart, então a correção só aparece como mudança ao longo do tempo. Colete duas vezes, com algumas horas de intervalo, e compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'a_espera'`. O crescimento por hora dessa espera deve ficar claramente menor que antes da mudança. Em instância de teste dá para zerar os contadores com `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`.
+
 ## Limitações
 
 Os totais acumulam desde o restart. Mostram o perfil de longo prazo, não o que acontece agora; só a diferença entre dois

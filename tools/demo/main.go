@@ -95,10 +95,13 @@ func main() {
 		before, after := run(older(), at.AddDate(0, 0, -7), lang), run(demo, at, lang)
 		dir := filepath.Join("docs", lang, "demo")
 		check(os.MkdirAll(dir, 0o755))
-		write(filepath.Join(dir, "report.html"), after.HTML)
 		cmp, err := report.Compare("0.5.0", lang, before, after, "2026-10-15_093000.json", "2026-10-22_093000.json")
 		check(err)
 		cmp.GeneratedAt = at
+		// The demo shows the summary as a key holder sees it: compared with the run a week before.
+		after.Evolution = &report.Evolution{State: "compared", PrevAt: before.GeneratedAt, PrevLetter: before.Score.Letter,
+			PrevCoverage: before.Score.Coverage, New: len(cmp.New), Resolved: len(cmp.Resolved)}
+		write(filepath.Join(dir, "report.html"), after.HTML)
 		write(filepath.Join(dir, "compare.html"), cmp.HTML)
 		if lang == "en" {
 			write(filepath.Join(dir, "report.json"), after.JSON)

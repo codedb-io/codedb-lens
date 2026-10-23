@@ -41,8 +41,8 @@ crédito = 1 para OK, 0,5 para achado Indício, 0 para achado Confirmado
 | D | 40 ou mais |
 | F | abaixo de 40 |
 
-Se nenhuma regra pôde rodar, a nota é **?**. Também é **?** (*Sem nota*) quando menos da metade das regras do catálogo
-se aplica à plataforma: uma nota sobre duas ou três verificações pareceria melhor do que é. Os achados continuam aparecendo.
+Se nenhuma regra pôde rodar, a nota é **?**. Também é **?** (*Sem nota*) quando menos de 6 regras
+se aplicam à plataforma: uma nota sobre duas ou três verificações pareceria melhor do que é. Os achados continuam aparecendo.
 
 ## Cobertura
 

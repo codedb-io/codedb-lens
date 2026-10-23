@@ -24,6 +24,10 @@ ALTER SYSTEM SET idle_in_transaction_session_timeout = '10min';
 SELECT pg_reload_conf();
 ```
 
+## How to verify
+
+Re-run `SELECT pid, state, now() - xact_start AS age FROM pg_stat_activity WHERE xact_start IS NOT NULL ORDER BY xact_start`. The oldest transaction must be below the threshold and no session should stay `idle in transaction` for long. Confirm the safety net with `SHOW idle_in_transaction_session_timeout` (not 0).
+
 ## Limitations
 
 A snapshot only sees transactions open at the moment of the check.

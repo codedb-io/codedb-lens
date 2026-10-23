@@ -29,6 +29,10 @@ FROM msdb.dbo.backupset WHERE database_name = N'<banco>' ORDER BY backup_finish_
 
 Verifique os jobs de backup (SQL Agent, Ola Hallengren, sua ferramenta de backup) e faça um backup manual agora.
 
+## Como validar
+
+Quando o backup terminar, confirme no msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Cada banco deve mostrar um D (full) recente e, em recovery FULL, um L (log) com menos de 24 horas. Rode também um `RESTORE VERIFYONLY` no arquivo.
+
 ## Limitações
 
 - Backups de ferramentas que não gravam histórico no `msdb` não aparecem. Nesse caso, o achado é um falso positivo.

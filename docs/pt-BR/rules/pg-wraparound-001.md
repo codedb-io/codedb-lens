@@ -24,6 +24,10 @@ WHERE c.relkind IN ('r', 'm', 't') ORDER BY 2 DESC LIMIT 20;
 Rode `VACUUM (FREEZE, VERBOSE)` nelas e procure o que trava o autovacuum: transações longas,
 slots de replicação abandonados, prepared transactions antigas.
 
+## Como validar
+
+Rode `SELECT datname, age(datfrozenxid) FROM pg_database ORDER BY 2 DESC`: quando o VACUUM (FREEZE) terminar, a idade deve ficar bem abaixo de `autovacuum_freeze_max_age` (padrão 200 milhões). Confira de novo depois de um dia: se o autovacuum a mantém baixa, o que a segurava (transações antigas, slots, transações preparadas) saiu.
+
 ## Limitações
 
 Um retrato mostra a idade atual, não a velocidade de consumo. Quantos dias faltam exige histórico.

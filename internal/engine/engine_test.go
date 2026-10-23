@@ -91,7 +91,7 @@ func (f fake) Query(ctx context.Context, q string) ([]string, [][]any, error) {
 func rule(id string, sev engine.Severity, sql string) *engine.Rule {
 	txt := engine.Text{"en": "x", "pt-BR": "x"}
 	return &engine.Rule{ID: id, Severity: sev, Confidence: engine.Confirmed, SQL: sql, Timeout: 50 * time.Millisecond,
-		Title: txt, Impact: txt, NextAction: txt}
+		Title: txt, Impact: txt, NextAction: txt, Verify: txt}
 }
 
 func TestRunStatusesAndScore(t *testing.T) {
@@ -132,6 +132,7 @@ func TestRunStatusesAndScore(t *testing.T) {
 	}
 
 	sc, _ := engine.LoadScoring(rules.FS)
+	sc.MinApplicable = 0 // 5 applicable rules here; the minimum has its own test (TestLimitedGrade)
 	s := sc.Compute(res)
 	// (10 + 0 + 1) / 17 = 64.7 -> C ; coverage 3/5 -> partial
 	if s.Value != 64.7 || s.Letter != "C" || s.Executed != 3 || s.Applies != 5 || !s.Partial {
@@ -203,7 +204,7 @@ func TestLimitedGrade(t *testing.T) {
 	sc, _ := engine.LoadScoring(rules.FS)
 	res := func(applicable int) []engine.Result {
 		var out []engine.Result
-		for i := 0; i < 12; i++ {
+		for i := 0; i < 13; i++ {
 			st := engine.StatusNotApplies
 			if i < applicable {
 				st = engine.StatusOK
@@ -212,10 +213,11 @@ func TestLimitedGrade(t *testing.T) {
 		}
 		return out
 	}
-	if s := sc.Compute(res(1)); s.Letter != "?" || !s.Limited || s.Rules != 12 {
-		t.Errorf("1 of 12 applicable: %+v", s)
+	if s := sc.Compute(res(5)); s.Letter != "?" || !s.Limited || s.Rules != 13 {
+		t.Errorf("5 of 13 applicable: %+v", s)
 	}
+	// Azure SQL Database in v0.6: 6 of 13. A share of the catalog (50%) took its grade away when VERSION-002 came in.
 	if s := sc.Compute(res(6)); s.Letter != "A" || s.Limited {
-		t.Errorf("6 of 12 applicable: %+v", s)
+		t.Errorf("6 of 13 applicable: %+v", s)
 	}
 }

@@ -21,6 +21,10 @@ Each row is a query the optimizer compiled while wishing an index existed. Those
 Don't create the suggestions as they are. For each table: compare with the existing indexes, merge overlapping
 suggestions into one, put equality columns first, and test on a copy before production.
 
+## How to verify
+
+After creating the index, run the query that motivated it and compare logical reads and duration with `SET STATISTICS IO, TIME ON` (or the actual plan: a seek on the new index instead of a scan). Later, confirm it is used: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'index_name'`. The suggestion leaves the DMV after the next restart or index change.
+
 ## Limitations
 
 - Always a hint: the DMV doesn't look at similar existing indexes and often suggests overlapping ones.

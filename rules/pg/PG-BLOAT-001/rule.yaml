@@ -17,6 +17,9 @@ impact:
 next_action:
   en: Confirm with pgstattuple before acting. To reclaim space without long locks, use pg_repack or pg_squeeze; VACUUM FULL locks the table for the whole run. Then fix the cause (PG-AUTOVAC-001, PG-LONGTX-001).
   pt-BR: Confirme com o pgstattuple antes de agir. Para recuperar espaço sem locks longos, use pg_repack ou pg_squeeze; o VACUUM FULL trava a tabela durante toda a execução. Depois corrija a causa (PG-AUTOVAC-001, PG-LONGTX-001).
+verify:
+  en: "Measure after reclaiming space: `SELECT pg_size_pretty(pg_total_relation_size('schema.table'))` must be clearly smaller, and `SELECT * FROM pgstattuple('schema.table')` should show low `dead_tuple_percent` and `free_percent`. Then watch the size over a few days; if it bloats again, the cause (PG-AUTOVAC-001, PG-LONGTX-001) is not fixed."
+  pt-BR: "Meça depois de recuperar o espaço: `SELECT pg_size_pretty(pg_total_relation_size('schema.tabela'))` deve ficar claramente menor, e `SELECT * FROM pgstattuple('schema.tabela')` deve mostrar `dead_tuple_percent` e `free_percent` baixos. Depois acompanhe o tamanho por alguns dias; se inchar de novo, a causa (PG-AUTOVAC-001, PG-LONGTX-001) não foi resolvida."
 caveat:
   en: Always an estimate from planner statistics (pg_stats). Tables never analyzed are skipped. If the login can't see the statistics of large tables (no SELECT), the rule reports No data instead of guessing.
   pt-BR: É sempre uma estimativa a partir das estatísticas do planejador (pg_stats). Tabelas nunca analisadas são ignoradas. Se o login não enxerga as estatísticas de tabelas grandes (sem SELECT), a regra fica Sem dados em vez de chutar.

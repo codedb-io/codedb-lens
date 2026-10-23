@@ -22,6 +22,10 @@ EXEC msdb.dbo.sp_help_jobhistory @job_name = N'<job>', @mode = N'FULL';
 
 Fix the failing step and configure an operator with `@notify_level_email = 2` (on failure).
 
+## How to verify
+
+Run the failing job manually (`EXEC msdb.dbo.sp_start_job N'job name'`) and check that its last outcome in the job history is Succeeded. Then wait for the next scheduled run: the job stops appearing here once its latest outcome is a success.
+
 ## Limitations
 
 - A job that recovered (last run succeeded) is not reported, even if it failed earlier in the window.

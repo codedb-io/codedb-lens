@@ -27,6 +27,10 @@ EXEC sp_configure 'max server memory (MB)', <value>; RECONFIGURE;
 
 Change one setting at a time and watch the effect.
 
+## How to verify
+
+Check the value in use, not just the configured one: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. `value_in_use` must show the new number (run `RECONFIGURE` if it does not). Then watch CPU and memory for a few days.
+
 ## Limitations
 
 These are common starting points, not universal answers. Hosts that run other services (SSIS, SSRS, applications) need

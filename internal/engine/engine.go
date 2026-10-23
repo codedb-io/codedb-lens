@@ -56,6 +56,7 @@ type Rule struct {
 	Title      Text               `yaml:"title" json:"title"`
 	Impact     Text               `yaml:"impact" json:"impact"`
 	NextAction Text               `yaml:"next_action" json:"next_action"`
+	Verify     Text               `yaml:"verify" json:"verify"`
 	Caveat     Text               `yaml:"caveat" json:"caveat,omitempty"`
 	SaaSCTA    Text               `yaml:"saas_cta" json:"saas_cta,omitempty"`
 	DocURL     string             `json:"doc_url"`
@@ -176,7 +177,7 @@ func (r *Rule) Validate(engine, dir string) error {
 	if r.Confidence != Confirmed && r.Confidence != Hint {
 		errs = append(errs, fmt.Errorf("confidence must be confirmed or hint"))
 	}
-	required := map[string]Text{"title": r.Title, "impact": r.Impact, "next_action": r.NextAction}
+	required := map[string]Text{"title": r.Title, "impact": r.Impact, "next_action": r.NextAction, "verify": r.Verify}
 	optional := map[string]Text{"caveat": r.Caveat, "saas_cta": r.SaaSCTA}
 	for name, t := range required {
 		if t == nil {

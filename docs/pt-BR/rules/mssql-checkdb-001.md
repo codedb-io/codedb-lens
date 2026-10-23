@@ -24,6 +24,10 @@ DBCC CHECKDB (N'<banco>') WITH NO_INFOMSGS, ALL_ERRORMSGS;
 Agende semanalmente (o `DatabaseIntegrityCheck` do Ola Hallengren é uma escolha comum). Em bancos grandes com janela
 curta, rode numa cópia restaurada do backup.
 
+## Como validar
+
+Depois que o DBCC CHECKDB terminar sem erros, confirme a data: `SELECT DATABASEPROPERTYEX(N'banco', 'LastGoodCheckDbTime')` deve ser hoje. Depois confira se o agendamento roda de fato: o valor deve se renovar pelo menos uma vez por semana.
+
 ## Limitações
 
 - O `LastGoodCheckDbTime` só registra execuções concluídas sem erros: uma execução que encontrou corrupção não o atualiza.

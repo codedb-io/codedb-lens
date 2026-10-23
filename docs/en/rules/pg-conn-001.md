@@ -21,6 +21,10 @@ hundreds of idle ones waste RAM and slow down snapshots for everyone.
 Use a pooler (PgBouncer in transaction mode, RDS Proxy, or a right-sized application pool) rather than raising
 `max_connections`. Also set `idle_session_timeout` for clients that leave connections open.
 
+## How to verify
+
+Compare the counts at peak hours: `SELECT state, count(*) FROM pg_stat_activity WHERE backend_type = 'client backend' GROUP BY state`, against `SHOW max_connections`. Total connections must stay well below the limit (under 80%) and idle ones must drop to a small pool. One check at a quiet hour proves nothing; check during the busy period.
+
 ## Limitations
 
 A snapshot sees the current moment; connection peaks usually happen at specific times of day.

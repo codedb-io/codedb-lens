@@ -1,4 +1,4 @@
--- Microsoft lifecycle (extended support end). Source: learn.microsoft.com/lifecycle/products
+-- Microsoft lifecycle (extended support end). Source: learn.microsoft.com/lifecycle/products (SQL Server 2025: mainstream 2031-01-07, extended 2036-01-07)
 WITH lifecycle (major, product, extended_end) AS (
     SELECT * FROM (VALUES
         (11, 'SQL Server 2012', CAST('2022-07-12' AS date)),
@@ -6,7 +6,8 @@ WITH lifecycle (major, product, extended_end) AS (
         (13, 'SQL Server 2016', CAST('2026-07-14' AS date)),
         (14, 'SQL Server 2017', CAST('2027-10-12' AS date)),
         (15, 'SQL Server 2019', CAST('2030-01-08' AS date)),
-        (16, 'SQL Server 2022', CAST('2033-01-11' AS date))
+        (16, 'SQL Server 2022', CAST('2033-01-11' AS date)),
+        (17, 'SQL Server 2025', CAST('2036-01-07' AS date))
     ) v (major, product, extended_end)
 ),
 s AS (

@@ -16,6 +16,9 @@ impact:
 next_action:
   en: For each table, check whether old data can be archived or partitioned by date, and whether its indexes are all used (see the unused index rule).
   pt-BR: Para cada tabela, veja se dados antigos podem ser arquivados ou particionados por data, e se todos os índices dela são usados (veja a regra de índices não usados).
+verify:
+  en: "Measure the size again after archiving or partitioning: `SELECT pg_size_pretty(pg_total_relation_size('schema.table'))`. Space only goes back to the operating system after a rewrite (`DROP` of old partitions returns it at once; `DELETE` plus VACUUM does not), so check the dropped partitions or the `pg_repack` result, not just the row count."
+  pt-BR: "Meça o tamanho de novo depois de arquivar ou particionar: `SELECT pg_size_pretty(pg_total_relation_size('schema.tabela'))`. O espaço só volta ao sistema operacional após uma reescrita (`DROP` de partições antigas devolve na hora; `DELETE` mais VACUUM não), então verifique as partições removidas ou o resultado do `pg_repack`, não só a contagem de linhas."
 caveat:
   en: Shows size now, not growth. Free disk space isn't visible through SQL.
   pt-BR: Mostra o tamanho agora, não o crescimento. O espaço livre em disco não é visível por SQL.

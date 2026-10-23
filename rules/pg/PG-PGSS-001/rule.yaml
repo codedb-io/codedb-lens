@@ -13,6 +13,9 @@ impact:
 next_action:
   en: Add pg_stat_statements to shared_preload_libraries (needs a restart), then run CREATE EXTENSION pg_stat_statements in the database Lens connects to. On RDS, Aurora and Azure it is enabled through the parameter group / server parameters.
   pt-BR: Inclua pg_stat_statements em shared_preload_libraries (exige restart) e rode CREATE EXTENSION pg_stat_statements no banco em que o Lens conecta. No RDS, Aurora e Azure, isso se ativa pelo parameter group / parâmetros do servidor.
+verify:
+  en: "After the restart and `CREATE EXTENSION`, run `SELECT count(*) FROM pg_stat_statements`: it must work without error and start returning rows as queries run. `SHOW shared_preload_libraries` must list `pg_stat_statements`. Give it some hours of load before reading the top queries, since it only counts from the moment it is enabled."
+  pt-BR: "Depois do restart e do `CREATE EXTENSION`, rode `SELECT count(*) FROM pg_stat_statements`: deve funcionar sem erro e passar a retornar linhas conforme as consultas rodam. `SHOW shared_preload_libraries` deve listar `pg_stat_statements`. Dê algumas horas de carga antes de ler as top queries, pois ela só conta a partir do momento em que é habilitada."
 caveat:
   en: Checks the database Lens connects to. Query rules (top queries) lose coverage while this is missing.
   pt-BR: Verifica o banco em que o Lens conecta. As regras de consultas (top queries) perdem cobertura enquanto isso faltar.

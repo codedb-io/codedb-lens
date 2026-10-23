@@ -26,6 +26,10 @@ Act on `log_reuse_wait_desc`:
 | `ACTIVE_TRANSACTION` | Find the open transaction: `DBCC OPENTRAN` |
 | `REPLICATION` / `AVAILABILITY_REPLICA` | Check the log reader or the secondary replica |
 
+## How to verify
+
+For volumes, free space must rise above the thresholds: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. For logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` must show NOTHING after the next log backup or checkpoint, and `DBCC SQLPERF(LOGSPACE)` must show a lower used percentage.
+
 ## Limitations
 
 A snapshot tells how full things are, not how fast they grow. Projecting when a volume fills up needs history.

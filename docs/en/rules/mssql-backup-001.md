@@ -29,6 +29,10 @@ FROM msdb.dbo.backupset WHERE database_name = N'<db>' ORDER BY backup_finish_dat
 
 Check the backup jobs (SQL Agent, Ola Hallengren, your backup tool) and run a manual backup now.
 
+## How to verify
+
+After the backup finishes, confirm it in msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Each database must show a recent D (full) and, in FULL recovery, an L (log) newer than 24 hours. Also run `RESTORE VERIFYONLY` on the file.
+
 ## Limitations
 
 - Backups taken by tools that don't write to `msdb` history are invisible. If that is your case, the finding is a false positive.

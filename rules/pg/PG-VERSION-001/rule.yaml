@@ -15,6 +15,9 @@ impact:
 next_action:
   en: Plan a major upgrade (pg_upgrade, logical replication or your cloud provider's upgrade path).
   pt-BR: Planeje o upgrade de major (pg_upgrade, replicação lógica ou o caminho de upgrade do seu provedor de nuvem).
+verify:
+  en: "After the upgrade, run `SHOW server_version` and confirm the major version is within community support. Then run `ANALYZE` (pg_upgrade does not keep planner statistics), check extensions with `SELECT extname, extversion FROM pg_extension` and let the application run a full cycle before removing the old cluster."
+  pt-BR: "Depois do upgrade, rode `SHOW server_version` e confirme que a versão major está dentro do suporte da comunidade. Em seguida rode `ANALYZE` (o pg_upgrade não preserva as estatísticas do planner), confira as extensões com `SELECT extname, extversion FROM pg_extension` e deixe a aplicação passar por um ciclo completo antes de remover o cluster antigo."
 caveat:
   en: Dates come from the PostgreSQL versioning policy bundled in this Lens version. Cloud providers may offer extended support.
   pt-BR: As datas vêm da política de versões do PostgreSQL embutida nesta versão do Lens. Provedores de nuvem podem oferecer suporte estendido.

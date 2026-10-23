@@ -5,6 +5,27 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- Executive summary: the HTML report opens on a **Summary** tab (grade and coverage, highest open severity, top 3 risks,
+  evolution against the previous run of the same instance) with a one-page A4 **Print summary**; the full report is on
+  the **Technical** tab. Evolution needs the free key; the JSON gains `evolution`.
+- `check --redact` (CLI): writes only `<timestamp>.redacted.html/.json`, masking host, databases, objects, logins,
+  applications, client addresses, Agent jobs, slots and paths with deterministic tokens (HMAC with a per-machine salt in
+  `redact.salt`) and replacing query texts and Agent step messages with `[redacted]`. Redacted runs compare only with
+  redacted runs. JSON gets `redacted: true`.
+- Every rule has a `verify` field ("How to verify the fix"), shown in the report and JSON and on each rule page.
+- Rules MSSQL-VERSION-002 (build behind the latest CU/GDR) and PG-VERSION-002 (minor version behind the latest), with
+  bundled build tables as of 2026-10-22. The catalog now has 26 rules (13 per engine).
+
+### Changed
+- No grade (**?**) now means fewer than 6 applicable rules, instead of fewer than half of the catalog: Azure SQL Database
+  (6 of 13) keeps its grade as rules that never apply there are added.
+
+### Fixed
+- MSSQL-VERSION-001 now recognizes SQL Server 2025.
+- Windows app: clicking a finding in the report's lists opened a broken page instead of scrolling to it, and **Print
+  summary** did nothing.
+
 ## [0.5.1] - 2026-10-22
 
 ### Added

@@ -25,6 +25,10 @@ ALTER TABLE <tabela> SET (autovacuum_vacuum_scale_factor = 0.02, autovacuum_vacu
 
 3. Aumente o `autovacuum_vacuum_cost_limit` se o autovacuum roda mas nunca dá conta.
 
+## Como validar
+
+Confira a tabela: `SELECT n_dead_tup, last_autovacuum, last_vacuum FROM pg_stat_user_tables WHERE relname = 'tabela'`. Depois do vacuum, `n_dead_tup` deve cair bastante e `last_autovacuum` ou `last_vacuum` deve ser recente. Depois acompanhe por um dia: se as linhas mortas voltarem a subir acima do limite, o autovacuum ainda não dá conta e a causa (transações antigas, slots, parâmetros) continua.
+
 ## Limitações
 
 Os contadores zeram com `pg_stat_reset()` e após um crash. Uma tabela com `autovacuum_enabled = false` aparece como qualquer outra.

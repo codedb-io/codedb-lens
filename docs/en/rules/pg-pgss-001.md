@@ -27,6 +27,10 @@ CREATE EXTENSION pg_stat_statements;
 On RDS/Aurora use the parameter group; on Azure Flexible Server, the `shared_preload_libraries` server parameter. Both already
 preload it by default on recent versions; only `CREATE EXTENSION` is needed.
 
+## How to verify
+
+After the restart and `CREATE EXTENSION`, run `SELECT count(*) FROM pg_stat_statements`: it must work without error and start returning rows as queries run. `SHOW shared_preload_libraries` must list `pg_stat_statements`. Give it some hours of load before reading the top queries, since it only counts from the moment it is enabled.
+
 ## Limitations
 
 Only the database Lens connects to is checked for the extension.

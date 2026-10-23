@@ -345,7 +345,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg><span data-t="gui_open_folder"></span></button>
   </div>
   <div class="promo wide"><div><b data-t="gui_promo_title"></b><span data-t="gui_promo"></span></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
-  <iframe id="frame" sandbox="allow-scripts allow-same-origin" title="report"></iframe>
+  <iframe id="frame" sandbox="allow-scripts allow-same-origin allow-modals" title="report"></iframe>
 </div>
 
 <script>
@@ -639,7 +639,8 @@ $('#back').onclick = () => { $('#view').hidden = true; $('#keyview').hidden = tr
 $('#again').onclick = () => { $('#view').hidden = true; run(lastProfile); };
 $('#browser').onclick = () => api().OpenReport(lastPath);
 $('#folder').onclick = () => api().OpenFolder(lastPath);
-$('#frame').onload = () => $('#frame').contentDocument.addEventListener('click', e => {
+// addEventListener, not onload: showReport sets onload on every report and would drop this handler
+$('#frame').addEventListener('load', () => $('#frame').contentDocument.addEventListener('click', e => {
   const a = e.target.closest('a[href]'); if (!a) return;
   const href = a.getAttribute('href');
   if (href.startsWith('#')) { // srcdoc resolves "#id" against the app URL: scroll instead of navigating away
@@ -647,7 +648,7 @@ $('#frame').onload = () => $('#frame').contentDocument.addEventListener('click',
     const el = $('#frame').contentDocument.getElementById(decodeURIComponent(href.slice(1)));
     if (el) el.scrollIntoView({ block: 'start' });
   } else if (/^https?:/i.test(href)) { e.preventDefault(); api().OpenURL(a.href); }
-});
+}));
 $('#uilang').onchange = async e => {
   uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts();
   const p = (state.profiles || []).find(x => x.name === current);

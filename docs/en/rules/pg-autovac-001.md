@@ -25,6 +25,10 @@ ALTER TABLE <table> SET (autovacuum_vacuum_scale_factor = 0.02, autovacuum_vacuu
 
 3. Raise `autovacuum_vacuum_cost_limit` if autovacuum runs but never keeps up.
 
+## How to verify
+
+Check the table: `SELECT n_dead_tup, last_autovacuum, last_vacuum FROM pg_stat_user_tables WHERE relname = 'table'`. After the vacuum, `n_dead_tup` must drop sharply and `last_autovacuum` or `last_vacuum` must be recent. Then watch it for a day: if dead rows climb back above the threshold, autovacuum still can't keep up and the cause (old transactions, slots, settings) remains.
+
 ## Limitations
 
 Counters reset with `pg_stat_reset()` and after a crash. A table with `autovacuum_enabled = false` is reported like any other.

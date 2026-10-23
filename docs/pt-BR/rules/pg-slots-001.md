@@ -25,6 +25,10 @@ SELECT pg_drop_replication_slot('<nome_do_slot>');
 Para réplicas atrasadas, verifique disco e CPU da réplica, a rede, e consultas longas na réplica que atrasam o replay
 (`max_standby_streaming_delay`). Considere `max_slot_wal_keep_size` como limite de segurança.
 
+## Como validar
+
+Rode `SELECT slot_name, active, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained FROM pg_replication_slots`: o slot removido deve ter sumido e os demais devem estar ativos com retenção pequena. Nas réplicas, `SELECT application_name, replay_lag FROM pg_stat_replication` deve ficar abaixo do limite. O diretório de WAL encolhe no próximo checkpoint, não na hora.
+
 ## Limitações
 
 Só faz sentido no primário. Um slot pode ficar inativo por alguns segundos enquanto o consumidor reconecta.

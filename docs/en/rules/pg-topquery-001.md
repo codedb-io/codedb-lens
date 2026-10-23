@@ -25,6 +25,10 @@ EXPLAIN (ANALYZE, BUFFERS) <query with real parameters>;
 Look for sequential scans on large tables, row estimates far from reality, and sorts or hashes spilling to disk. Also
 check whether it runs more often than the application needs (a low *rows per call* with huge *calls* suggests an N+1 pattern).
 
+## How to verify
+
+After the fix, compare with `SELECT calls, mean_exec_time, total_exec_time FROM pg_stat_statements WHERE queryid = <id>`; mean time per call must drop. Totals accumulate, so first call `pg_stat_statements_reset(userid, dbid, queryid)` for that query, or compare two samples taken hours apart. Its share of the total time should fall below the threshold.
+
 ## Limitations
 
 Totals accumulate since the last `pg_stat_statements_reset()` or restart, so you can't tell when a query started dominating.

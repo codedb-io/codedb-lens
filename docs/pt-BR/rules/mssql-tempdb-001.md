@@ -26,6 +26,10 @@ ALTER DATABASE tempdb ADD FILE (NAME = temp2, FILENAME = '<caminho>\tempdb2.ndf'
 
 Reduções de tamanho só valem depois de um restart.
 
+## Como validar
+
+Liste os arquivos com `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: os arquivos de dados devem ter o mesmo tamanho, crescimento fixo em MB (`is_percent_growth = 0`) e um arquivo por CPU lógica, até 8. Arquivos novos e mudanças de crescimento valem na hora; reduzir ou redimensionar arquivos existentes pode exigir restart. Depois acompanhe as esperas PAGELATCH no tempdb.
+
 ## Limitações
 
 Oito arquivos é um ponto de partida; contenção pesada pode exigir mais, em múltiplos de 4.

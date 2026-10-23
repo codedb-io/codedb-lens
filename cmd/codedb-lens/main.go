@@ -133,6 +133,7 @@ func check(args []string) (int, error) {
 	fs.StringVar(&o.rulesDir, "rules-dir", "", "use rules from this folder instead of the built-in catalog")
 	fs.StringVar(&o.profile, "profile", "", "use a saved profile (connection flags are ignored)")
 	save := fs.String("save", "", "save these connection settings as a profile with this name")
+	redact := fs.Bool("redact", false, "mask host, database, object, login and file names and drop query text; writes only <timestamp>.redacted.html/.json")
 	noUpdate := fs.Bool("no-update-check", false, "skip the daily version check")
 	failOn := fs.String("fail-on", "", "exit 1 if a finding has this severity or higher: critical, high, medium, low")
 	minCoverage := fs.Float64("min-coverage", 0, "exit 3 if coverage is below this percentage (0-100)")
@@ -199,7 +200,7 @@ func check(args []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	path, err := rep.Save(firstNonEmpty(o.out, report.DefaultDir(firstNonEmpty(o.profile, o.conn.Server))))
+	path, err := saveReport(rep, firstNonEmpty(o.out, report.DefaultDir(firstNonEmpty(o.profile, o.conn.Server))), *redact)
 	if err != nil {
 		return 0, err
 	}

@@ -22,6 +22,10 @@ tabela esperarem também.
   de `pg_terminate_backend(<pid>)` (fecha a sessão).
 - Para DDL em produção, use `SET lock_timeout = '3s'` para a migração desistir em vez de travar a tabela.
 
+## Como validar
+
+Rode de novo `SELECT pid, pg_blocking_pids(pid), wait_event FROM pg_stat_activity WHERE wait_event_type = 'Lock'`. O resultado deve vir vazio (ou com esperas curtas) quando o bloqueador der commit, rollback ou for encerrado. Repita nos horários de pico: se a mesma aplicação continua bloqueando, a causa está no tratamento de transações dela, não nessa sessão.
+
 ## Limitações
 
 Um retrato só vê bloqueios no momento da verificação.

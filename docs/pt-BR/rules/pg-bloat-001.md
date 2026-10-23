@@ -28,6 +28,10 @@ reutilizável dentro da tabela, mas não o devolve.
 Confirme antes com `pgstattuple_approx('<tabela>')`. Recupere o espaço sem parar a tabela com `pg_repack` ou `pg_squeeze`;
 o `VACUUM FULL` segura um lock exclusivo durante toda a execução. Depois corrija a causa (`PG-AUTOVAC-001`, `PG-LONGTX-001`).
 
+## Como validar
+
+Meça depois de recuperar o espaço: `SELECT pg_size_pretty(pg_total_relation_size('schema.tabela'))` deve ficar claramente menor, e `SELECT * FROM pgstattuple('schema.tabela')` deve mostrar `dead_tuple_percent` e `free_percent` baixos. Depois acompanhe o tamanho por alguns dias; se inchar de novo, a causa (PG-AUTOVAC-001, PG-LONGTX-001) não foi resolvida.
+
 ## Limitações
 
 Só a tabela (índices não são estimados). A estimativa assume estatísticas atuais; rode `ANALYZE` se estiverem antigas.

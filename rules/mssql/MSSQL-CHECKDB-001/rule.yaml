@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.
   pt-BR: Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.
+verify:
+  en: "After DBCC CHECKDB completes without errors, confirm the date: `SELECT DATABASEPROPERTYEX(N'db', 'LastGoodCheckDbTime')` must be today. Then check that the schedule really runs: the value should renew at least once a week."
+  pt-BR: "Depois que o DBCC CHECKDB terminar sem erros, confirme a data: `SELECT DATABASEPROPERTYEX(N'banco', 'LastGoodCheckDbTime')` deve ser hoje. Depois confira se o agendamento roda de fato: o valor deve se renovar pelo menos uma vez por semana."
 caveat:
   en: Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.
   pt-BR: Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados.

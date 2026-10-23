@@ -22,6 +22,10 @@ EXEC msdb.dbo.sp_help_jobhistory @job_name = N'<job>', @mode = N'FULL';
 
 Corrija o passo que falha e configure um operador com `@notify_level_email = 2` (em caso de falha).
 
+## Como validar
+
+Execute o job manualmente (`EXEC msdb.dbo.sp_start_job N'nome do job'`) e confirme no histórico que o último resultado é Succeeded. Depois espere a próxima execução agendada: o job deixa de aparecer aqui quando o resultado mais recente é sucesso.
+
 ## Limitações
 
 - Um job que se recuperou (última execução com sucesso) não aparece, mesmo que tenha falhado antes na janela.

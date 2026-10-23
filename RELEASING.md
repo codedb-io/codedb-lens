@@ -14,7 +14,7 @@
 
 - [ ] CI green on `main` (unit, full SQL Server and PostgreSQL matrix, docs).
 - [ ] `CHANGELOG.md`: move *Unreleased* to the new version with today's date.
-- [ ] Lifecycle tables still correct (`MSSQL-VERSION-001`, `PG-VERSION-001` queries).
+- [ ] Lifecycle and build tables still correct (`MSSQL-VERSION-001`/`002`, `PG-VERSION-001`/`002` queries).
 - [ ] Local dry run: `goreleaser release --snapshot --clean --skip=publish,sign`.
 - [ ] Managed-services checklist below, at least for services touched by this release.
 - [ ] Read-only audit below, when rules or the adapters' session setup changed.
@@ -40,7 +40,7 @@ Run `codedb-lens check` with the minimum-permission login from `docs/en/permissi
 | Amazon RDS for PostgreSQL | Platform `rds` | All rules run; `PG-BLOAT-001` may be *No data* without `pg_read_all_data` |
 | Aurora PostgreSQL | Platform `aurora` | Slots rule runs; size works per database |
 | Azure Database for PostgreSQL Flexible | Platform `azure_flex` | All rules run |
-| Azure SQL Database | Platform `azure_sqldb` | 6 of 12 rules run; no grade when few rules apply |
+| Azure SQL Database | Platform `azure_sqldb` | 6 of 13 rules run; no grade when few rules apply |
 
 For each: coverage %, any *No data* and its reason, and anything surprising (open an issue).
 

@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.
   pt-BR: Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.
+verify:
+  en: "After creating the index, run the query that motivated it and compare logical reads and duration with `SET STATISTICS IO, TIME ON` (or the actual plan: a seek on the new index instead of a scan). Later, confirm it is used: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'index_name'`. The suggestion leaves the DMV after the next restart or index change."
+  pt-BR: "Depois de criar o índice, rode a consulta que o motivou e compare leituras lógicas e duração com `SET STATISTICS IO, TIME ON` (ou o plano real: seek no índice novo em vez de scan). Mais tarde, confirme que ele é usado: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'nome_do_indice'`. A sugestão sai da DMV depois do próximo restart ou de mudança no índice."
 caveat:
   en: Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.
   pt-BR: Sempre um indício. A DMV ignora índices parecidos que já existem, sugere índices sobrepostos e é zerada no restart.

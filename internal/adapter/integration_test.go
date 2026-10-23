@@ -303,13 +303,25 @@ func TestMSSQL(t *testing.T) {
 
 	t.Run("MSSQL-VERSION-001", func(t *testing.T) {
 		r := *rs["MSSQL-VERSION-001"]
-		if s.Info().Major > 16 {
-			t.Skip("no lifecycle date yet for major", s.Info().Major)
-		}
 		r.Params = map[string]float64{"warn_days": 0} // supported today -> OK
 		expect(t, s, &r, engine.StatusOK, "")
 		r.Params = map[string]float64{"warn_days": 100000}
 		expect(t, s, &r, engine.StatusFinding, engine.Hint)
+	})
+
+	t.Run("MSSQL-VERSION-002", func(t *testing.T) {
+		r := *rs["MSSQL-VERSION-002"]
+		// A build newer than the table is a hint, never a silent OK.
+		r.Params = map[string]float64{"max_age_days": 100000}
+		res := engine.Run(context.Background(), s, []*engine.Rule{&r}, nil)[0]
+		if res.Status == engine.StatusNoData || (res.Status == engine.StatusFinding && res.Confidence != engine.Hint) {
+			t.Errorf("max_age_days=100000: got %s/%s (%s)", res.Status, res.Confidence, res.Reason)
+		}
+		r.Params = map[string]float64{"max_age_days": -1} // any build older than the latest CU, or newer than the table
+		res = engine.Run(context.Background(), s, []*engine.Rule{&r}, nil)[0]
+		if res.Status == engine.StatusNoData {
+			t.Errorf("max_age_days=-1: %s", res.Reason)
+		}
 	})
 }
 
@@ -328,6 +340,14 @@ func TestPG(t *testing.T) {
 		expect(t, s, &r, engine.StatusOK, "")
 		r.Params = map[string]float64{"warn_days": 100000}
 		expect(t, s, &r, engine.StatusFinding, "")
+	})
+
+	t.Run("PG-VERSION-002", func(t *testing.T) {
+		r := *rs["PG-VERSION-002"]
+		res := engine.Run(context.Background(), s, []*engine.Rule{&r}, nil)[0]
+		if res.Status == engine.StatusNoData || (res.Status == engine.StatusFinding && len(res.Rows) != 1) {
+			t.Errorf("got %s/%s (%s), %d rows", res.Status, res.Confidence, res.Reason, len(res.Rows))
+		}
 	})
 
 	t.Run("PG-WRAPAROUND-001", func(t *testing.T) {

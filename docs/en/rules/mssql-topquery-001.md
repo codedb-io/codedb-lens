@@ -21,6 +21,10 @@ Tuning a database is rarely tuning everything. When one query dominates, fixing 
 Get the plan for the top query (`sys.dm_exec_query_plan`, or Query Store if enabled), look for scans, missing indexes,
 implicit conversions and bad estimates. Also check whether it runs more often than the application needs.
 
+## How to verify
+
+After the change (index, rewrite, plan fix), compare the query before and after in the plan cache: `SELECT total_worker_time / execution_count AS avg_cpu_us, total_logical_reads / execution_count AS avg_reads FROM sys.dm_exec_query_stats WHERE query_hash = <hash>`. Average CPU and reads per execution should drop, and its share of the total CPU should fall below the threshold. Give it a few hours of normal load: a recompiled query starts its counters over.
+
 ## Limitations
 
 The plan cache is emptied on restart and under memory pressure; `OPTION (RECOMPILE)` queries may be missing. Without

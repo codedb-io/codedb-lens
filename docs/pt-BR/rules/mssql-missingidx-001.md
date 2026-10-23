@@ -22,6 +22,10 @@ e seguram locks por mais tempo.
 Não crie as sugestões como vêm. Para cada tabela: compare com os índices existentes, junte sugestões sobrepostas numa só,
 coloque as colunas de igualdade primeiro e teste numa cópia antes de produção.
 
+## Como validar
+
+Depois de criar o índice, rode a consulta que o motivou e compare leituras lógicas e duração com `SET STATISTICS IO, TIME ON` (ou o plano real: seek no índice novo em vez de scan). Mais tarde, confirme que ele é usado: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'nome_do_indice'`. A sugestão sai da DMV depois do próximo restart ou de mudança no índice.
+
 ## Limitações
 
 - Sempre indício: a DMV não olha índices parecidos que já existem e costuma sugerir índices sobrepostos.

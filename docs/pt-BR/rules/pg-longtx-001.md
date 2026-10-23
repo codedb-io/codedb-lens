@@ -24,6 +24,10 @@ ALTER SYSTEM SET idle_in_transaction_session_timeout = '10min';
 SELECT pg_reload_conf();
 ```
 
+## Como validar
+
+Rode de novo `SELECT pid, state, now() - xact_start AS age FROM pg_stat_activity WHERE xact_start IS NOT NULL ORDER BY xact_start`. A transação mais antiga deve ficar abaixo do limite e nenhuma sessão deve ficar `idle in transaction` por muito tempo. Confirme a rede de segurança com `SHOW idle_in_transaction_session_timeout` (diferente de 0).
+
 ## Limitações
 
 Um retrato só vê as transações abertas no momento da verificação.

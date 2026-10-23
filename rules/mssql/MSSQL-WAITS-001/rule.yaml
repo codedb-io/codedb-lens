@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Start with the top row. The meaning column says which resource to look at; the rule's documentation page lists the usual causes for each wait.
   pt-BR: Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.
+verify:
+  en: "Waits are cumulative since the last restart, so a fix only shows as a change over time. Sample twice, some hours apart, and compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'the_wait'`. The growth per hour of that wait must be clearly lower than before the change. On a test instance you can zero the counters with `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`."
+  pt-BR: "As esperas acumulam desde o último restart, então a correção só aparece como mudança ao longo do tempo. Colete duas vezes, com algumas horas de intervalo, e compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'a_espera'`. O crescimento por hora dessa espera deve ficar claramente menor que antes da mudança. Em instância de teste dá para zerar os contadores com `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`."
 caveat:
   en: Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.
   pt-BR: Os totais acumulam desde o último restart, então mostram o perfil de longo prazo, não o que acontece agora. Só diferenças ao longo do tempo mostram o presente.

@@ -2,7 +2,7 @@
   "tool": "codeDB Lens",
   "tool_version": "0.5.0",
   "generated_at": "2026-10-22T09:30:00Z",
-  "catalog_version": "96acafc9f92b",
+  "catalog_version": "9e931e87726a",
   "duration": "14s",
   "lang": "en",
   "server": {
@@ -13,13 +13,13 @@
     "host": "sql-demo-01"
   },
   "score": {
-    "value": 54.7,
+    "value": 56.7,
     "letter": "D",
-    "coverage": 0.8333333333333334,
+    "coverage": 0.8461538461538461,
     "partial": false,
-    "executed": 10,
-    "applicable": 12,
-    "rules": 12
+    "executed": 11,
+    "applicable": 13,
+    "rules": 13
   },
   "results": [
     {
@@ -44,6 +44,10 @@
         "next_action": {
           "en": "Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.",
           "pt-BR": "Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log."
+        },
+        "verify": {
+          "en": "After the backup finishes, confirm it in msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Each database must show a recent D (full) and, in FULL recovery, an L (log) newer than 24 hours. Also run `RESTORE VERIFYONLY` on the file.",
+          "pt-BR": "Quando o backup terminar, confirme no msdb: `SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type`. Cada banco deve mostrar um D (full) recente e, em recovery FULL, um L (log) com menos de 24 horas. Rode também um `RESTORE VERIFYONLY` no arquivo."
         },
         "caveat": {
           "en": "Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.",
@@ -109,6 +113,10 @@
           "en": "Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.",
           "pt-BR": "Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta."
         },
+        "verify": {
+          "en": "After DBCC CHECKDB completes without errors, confirm the date: `SELECT DATABASEPROPERTYEX(N'db', 'LastGoodCheckDbTime')` must be today. Then check that the schedule really runs: the value should renew at least once a week.",
+          "pt-BR": "Depois que o DBCC CHECKDB terminar sem erros, confirme a data: `SELECT DATABASEPROPERTYEX(N'banco', 'LastGoodCheckDbTime')` deve ser hoje. Depois confira se o agendamento roda de fato: o valor deve se renovar pelo menos uma vez por semana."
+        },
         "caveat": {
           "en": "Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.",
           "pt-BR": "Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados."
@@ -167,6 +175,10 @@
         "next_action": {
           "en": "Start with the top row. The meaning column says which resource to look at; the rule's documentation page lists the usual causes for each wait.",
           "pt-BR": "Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera."
+        },
+        "verify": {
+          "en": "Waits are cumulative since the last restart, so a fix only shows as a change over time. Sample twice, some hours apart, and compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'the_wait'`. The growth per hour of that wait must be clearly lower than before the change. On a test instance you can zero the counters with `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`.",
+          "pt-BR": "As esperas acumulam desde o último restart, então a correção só aparece como mudança ao longo do tempo. Colete duas vezes, com algumas horas de intervalo, e compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'a_espera'`. O crescimento por hora dessa espera deve ficar claramente menor que antes da mudança. Em instância de teste dá para zerar os contadores com `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`."
         },
         "caveat": {
           "en": "Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.",
@@ -232,6 +244,10 @@
           "en": "Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.",
           "pt-BR": "Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe."
         },
+        "verify": {
+          "en": "Check the value in use, not just the configured one: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. `value_in_use` must show the new number (run `RECONFIGURE` if it does not). Then watch CPU and memory for a few days.",
+          "pt-BR": "Confira o valor em uso, não só o configurado: `SELECT name, value, value_in_use FROM sys.configurations WHERE name IN ('max server memory (MB)', 'max degree of parallelism', 'cost threshold for parallelism', 'optimize for ad hoc workloads')`. O `value_in_use` deve mostrar o número novo (rode `RECONFIGURE` se não mostrar). Depois acompanhe CPU e memória por alguns dias."
+        },
         "caveat": {
           "en": "Recommendations are common starting points, not universal rules. Hosts running other services may need different values.",
           "pt-BR": "As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores."
@@ -286,6 +302,10 @@
         "next_action": {
           "en": "Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.",
           "pt-BR": "Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção."
+        },
+        "verify": {
+          "en": "After creating the index, run the query that motivated it and compare logical reads and duration with `SET STATISTICS IO, TIME ON` (or the actual plan: a seek on the new index instead of a scan). Later, confirm it is used: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'index_name'`. The suggestion leaves the DMV after the next restart or index change.",
+          "pt-BR": "Depois de criar o índice, rode a consulta que o motivou e compare leituras lógicas e duração com `SET STATISTICS IO, TIME ON` (ou o plano real: seek no índice novo em vez de scan). Mais tarde, confirme que ele é usado: `SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N'nome_do_indice'`. A sugestão sai da DMV depois do próximo restart ou de mudança no índice."
         },
         "caveat": {
           "en": "Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.",
@@ -345,6 +365,10 @@
           "en": "Open the job history for each job, fix the failing step and set up an operator to be notified on failure.",
           "pt-BR": "Abra o histórico de cada job, corrija o passo que falha e configure um operador para ser notificado em caso de falha."
         },
+        "verify": {
+          "en": "Run the failing job manually (`EXEC msdb.dbo.sp_start_job N'job name'`) and check that its last outcome in the job history is Succeeded. Then wait for the next scheduled run: the job stops appearing here once its latest outcome is a success.",
+          "pt-BR": "Execute o job manualmente (`EXEC msdb.dbo.sp_start_job N'nome do job'`) e confirme no histórico que o último resultado é Succeeded. Depois espere a próxima execução agendada: o job deixa de aparecer aqui quando o resultado mais recente é sucesso."
+        },
         "caveat": {
           "en": "Shows enabled jobs whose last run failed within the window. Not available on Express or Azure SQL Database (no Agent).",
           "pt-BR": "Mostra jobs habilitados cuja última execução falhou dentro da janela. Não existe no Express nem no Azure SQL Database (sem Agent)."
@@ -384,6 +408,10 @@
           "en": "Confirm over a full business cycle (month-end, reports) before dropping. Script the index first so it can be recreated, or disable it instead of dropping.",
           "pt-BR": "Confirme durante um ciclo completo do negócio (fechamento de mês, relatórios) antes de remover. Gere o script do índice antes, para poder recriá-lo, ou desabilite em vez de remover."
         },
+        "verify": {
+          "en": "Before dropping, check the index in `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` vs `user_updates`): zero reads over a full business cycle confirms it. After dropping or disabling, watch the application for a few days (slow queries, new missing index hints); if something regresses, recreate the index from the script you saved. Writes on the table should get cheaper.",
+          "pt-BR": "Antes de remover, veja o índice em `sys.dm_db_index_usage_stats` (`user_seeks + user_scans + user_lookups` contra `user_updates`): zero leituras em um ciclo completo de negócio confirma. Depois de remover ou desabilitar, acompanhe a aplicação por alguns dias (consultas lentas, novas sugestões de índice faltando); se algo piorar, recrie o índice pelo script que você guardou. As escritas na tabela devem ficar mais baratas."
+        },
         "caveat": {
           "en": "Usage statistics reset on restart; the longer the instance has been up, the more reliable this is. Replicas and readable secondaries have their own usage.",
           "pt-BR": "As estatísticas de uso zeram no restart; quanto mais tempo a instância está no ar, mais confiável. Réplicas e secundárias legíveis têm uso próprio."
@@ -417,6 +445,10 @@
         "next_action": {
           "en": "Look at the blocker first. A blocker in \"sleeping\" status with an open transaction is usually an application that forgot to commit. Talk to its owner before considering KILL.",
           "pt-BR": "Olhe primeiro para quem bloqueia. Um bloqueador em status \"sleeping\" com transação aberta costuma ser uma aplicação que esqueceu o commit. Fale com o responsável antes de pensar em KILL."
+        },
+        "verify": {
+          "en": "Re-check the blocking chain: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id \u003c\u003e 0`. It must come back empty, or with waits well below the threshold. One check is not enough: repeat it during the busy hours, since blocking comes and goes.",
+          "pt-BR": "Verifique a cadeia de bloqueio de novo: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id \u003c\u003e 0`. O resultado deve vir vazio, ou com esperas bem abaixo do limite. Uma checagem só não basta: repita nos horários de pico, porque o bloqueio vem e vai."
         },
         "caveat": {
           "en": "A snapshot only sees blocking happening at the moment of the check.",
@@ -458,6 +490,10 @@
           "en": "Volumes: free space or grow the disk. Azure SQL Database (kind database): raise the max size or the service tier, or free space. Logs: act on log_reuse_wait (LOG_BACKUP: take log backups; ACTIVE_TRANSACTION: find the open transaction; REPLICATION / AVAILABILITY_REPLICA: check the replica).",
           "pt-BR": "Volumes: libere espaço ou aumente o disco. Azure SQL Database (tipo database): aumente o tamanho máximo ou o nível de serviço, ou libere espaço. Logs: trate o log_reuse_wait (LOG_BACKUP: faça backup de log; ACTIVE_TRANSACTION: ache a transação aberta; REPLICATION / AVAILABILITY_REPLICA: verifique a réplica)."
         },
+        "verify": {
+          "en": "For volumes, free space must rise above the thresholds: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. For logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` must show NOTHING after the next log backup or checkpoint, and `DBCC SQLPERF(LOGSPACE)` must show a lower used percentage.",
+          "pt-BR": "Nos volumes, o espaço livre deve passar dos limites: `SELECT DISTINCT s.volume_mount_point, s.available_bytes / 1048576 AS free_mb FROM sys.master_files f CROSS APPLY sys.dm_os_volume_stats(f.database_id, f.file_id) s`. Nos logs, `SELECT name, log_reuse_wait_desc FROM sys.databases` deve mostrar NOTHING depois do próximo backup de log ou checkpoint, e `DBCC SQLPERF(LOGSPACE)` deve mostrar percentual de uso menor."
+        },
         "caveat": {
           "en": "A snapshot shows how full things are now, not how fast they grow. Only volumes that hold database files are checked.",
           "pt-BR": "Um retrato mostra o quanto está cheio agora, não a velocidade de crescimento. Só são verificados volumes com arquivos de banco."
@@ -495,12 +531,16 @@
           "en": "Plan an upgrade to a supported version. Check application compatibility and the compatibility level of each database.",
           "pt-BR": "Planeje o upgrade para uma versão suportada. Verifique a compatibilidade das aplicações e o compatibility level de cada banco."
         },
+        "verify": {
+          "en": "After the upgrade, run `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductLevel')` and confirm the major version is still inside support. Check each database with `SELECT name, compatibility_level FROM sys.databases` and let the application run a full cycle (including month-end jobs) before you decommission the old server.",
+          "pt-BR": "Depois do upgrade, rode `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductLevel')` e confirme que a versão major ainda está dentro do suporte. Confira cada banco com `SELECT name, compatibility_level FROM sys.databases` e deixe a aplicação passar por um ciclo completo (incluindo rotinas de fechamento de mês) antes de desligar o servidor antigo."
+        },
         "caveat": {
           "en": "Dates come from the Microsoft lifecycle table bundled in this Lens version. Update Lens to refresh them.",
           "pt-BR": "As datas vêm da tabela de ciclo de vida da Microsoft embutida nesta versão do Lens. Atualize o Lens para renová-las."
         },
         "doc_url": "https://lens.codedb.com.br/rules/mssql-version-001/",
-        "query": "-- Microsoft lifecycle (extended support end). Source: learn.microsoft.com/lifecycle/products\nWITH lifecycle (major, product, extended_end) AS (\n    SELECT * FROM (VALUES\n        (11, 'SQL Server 2012', CAST('2022-07-12' AS date)),\n        (12, 'SQL Server 2014', CAST('2024-07-09' AS date)),\n        (13, 'SQL Server 2016', CAST('2026-07-14' AS date)),\n        (14, 'SQL Server 2017', CAST('2027-10-12' AS date)),\n        (15, 'SQL Server 2019', CAST('2030-01-08' AS date)),\n        (16, 'SQL Server 2022', CAST('2033-01-11' AS date))\n    ) v (major, product, extended_end)\n),\ns AS (\n    SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS int) AS major,\n           CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(32)) AS build,\n           CAST(SERVERPROPERTY('ProductUpdateLevel') AS nvarchar(32)) AS update_level,\n           CAST(SERVERPROPERTY('Edition') AS nvarchar(128)) AS edition\n)\nSELECT l.product,\n       s.build,\n       s.update_level,\n       s.edition,\n       l.extended_end AS extended_support_end,\n       DATEDIFF(day, GETDATE(), l.extended_end) AS days_left,\n       CASE WHEN l.extended_end \u003c GETDATE() THEN 'confirmed' ELSE 'hint' END AS _confidence\nFROM s\nJOIN lifecycle l ON l.major = s.major\nWHERE l.extended_end \u003c DATEADD(day, {{warn_days}}, GETDATE());\n"
+        "query": "-- Microsoft lifecycle (extended support end). Source: learn.microsoft.com/lifecycle/products (SQL Server 2025: mainstream 2031-01-07, extended 2036-01-07)\nWITH lifecycle (major, product, extended_end) AS (\n    SELECT * FROM (VALUES\n        (11, 'SQL Server 2012', CAST('2022-07-12' AS date)),\n        (12, 'SQL Server 2014', CAST('2024-07-09' AS date)),\n        (13, 'SQL Server 2016', CAST('2026-07-14' AS date)),\n        (14, 'SQL Server 2017', CAST('2027-10-12' AS date)),\n        (15, 'SQL Server 2019', CAST('2030-01-08' AS date)),\n        (16, 'SQL Server 2022', CAST('2033-01-11' AS date)),\n        (17, 'SQL Server 2025', CAST('2036-01-07' AS date))\n    ) v (major, product, extended_end)\n),\ns AS (\n    SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS int) AS major,\n           CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(32)) AS build,\n           CAST(SERVERPROPERTY('ProductUpdateLevel') AS nvarchar(32)) AS update_level,\n           CAST(SERVERPROPERTY('Edition') AS nvarchar(128)) AS edition\n)\nSELECT l.product,\n       s.build,\n       s.update_level,\n       s.edition,\n       l.extended_end AS extended_support_end,\n       DATEDIFF(day, GETDATE(), l.extended_end) AS days_left,\n       CASE WHEN l.extended_end \u003c GETDATE() THEN 'confirmed' ELSE 'hint' END AS _confidence\nFROM s\nJOIN lifecycle l ON l.major = s.major\nWHERE l.extended_end \u003c DATEADD(day, {{warn_days}}, GETDATE());\n"
       },
       "status": "ok",
       "duration": "120ms",
@@ -524,6 +564,10 @@
         "next_action": {
           "en": "Use one data file per logical CPU up to 8, all with the same size and the same fixed growth in MB.",
           "pt-BR": "Use um arquivo de dados por CPU lógica, até 8, todos com o mesmo tamanho e o mesmo crescimento fixo em MB."
+        },
+        "verify": {
+          "en": "List the files with `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: data files must have the same size, fixed growth in MB (`is_percent_growth = 0`) and one file per logical CPU up to 8. New files and growth changes apply right away; shrinking or resizing existing files may need a restart. Then watch for PAGELATCH waits on tempdb.",
+          "pt-BR": "Liste os arquivos com `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: os arquivos de dados devem ter o mesmo tamanho, crescimento fixo em MB (`is_percent_growth = 0`) e um arquivo por CPU lógica, até 8. Arquivos novos e mudanças de crescimento valem na hora; reduzir ou redimensionar arquivos existentes pode exigir restart. Depois acompanhe as esperas PAGELATCH no tempdb."
         },
         "doc_url": "https://lens.codedb.com.br/rules/mssql-tempdb-001/",
         "query": "WITH f AS (SELECT name, type_desc, size, growth, is_percent_growth FROM sys.master_files WHERE database_id = 2),\n     d AS (SELECT COUNT(*) AS n, MIN(size) AS mn, MAX(size) AS mx FROM f WHERE type_desc = 'ROWS'),\n     s AS (SELECT CASE WHEN cpu_count \u003e 8 THEN 8 ELSE cpu_count END AS want FROM sys.dm_os_sys_info)\nSELECT 'data file count' AS issue, CAST(NULL AS sysname) AS [file], CAST(d.n AS varchar(20)) AS current_value, CAST(s.want AS varchar(20)) AS suggested\nFROM d CROSS JOIN s WHERE d.n \u003c s.want\nUNION ALL\nSELECT 'data files with different sizes', NULL,\n       CAST(d.mn * 8 / 1024 AS varchar(20)) + '-' + CAST(d.mx * 8 / 1024 AS varchar(20)) + ' MB', 'same size'\nFROM d WHERE d.mn \u003c\u003e d.mx\nUNION ALL\nSELECT 'growth in percent', f.name, CAST(f.growth AS varchar(20)) + '%', 'fixed MB'\nFROM f WHERE f.is_percent_growth = 1;\n"
@@ -555,6 +599,10 @@
           "en": "Start from the first query in the evidence (the top 5 are listed). Look at its execution plan, missing indexes and whether it runs more often than it should.",
           "pt-BR": "Comece pela primeira consulta da evidência (as 5 maiores aparecem). Veja o plano de execução, os índices faltando e se ela roda mais vezes do que deveria."
         },
+        "verify": {
+          "en": "After the change (index, rewrite, plan fix), compare the query before and after in the plan cache: `SELECT total_worker_time / execution_count AS avg_cpu_us, total_logical_reads / execution_count AS avg_reads FROM sys.dm_exec_query_stats WHERE query_hash = \u003chash\u003e`. Average CPU and reads per execution should drop, and its share of the total CPU should fall below the threshold. Give it a few hours of normal load: a recompiled query starts its counters over.",
+          "pt-BR": "Depois da mudança (índice, reescrita, correção de plano), compare a consulta antes e depois no plan cache: `SELECT total_worker_time / execution_count AS avg_cpu_us, total_logical_reads / execution_count AS avg_reads FROM sys.dm_exec_query_stats WHERE query_hash = \u003chash\u003e`. O CPU médio e as leituras por execução devem cair, e a parcela dela no CPU total deve ficar abaixo do limite. Dê algumas horas de carga normal: uma consulta recompilada zera os contadores."
+        },
         "caveat": {
           "en": "Based on the plan cache, which is cleared on restart and under memory pressure. Queries with OPTION (RECOMPILE) may not appear.",
           "pt-BR": "Baseado no plan cache, que é limpo no restart e sob pressão de memória. Consultas com OPTION (RECOMPILE) podem não aparecer."
@@ -569,6 +617,51 @@
       "status": "ok",
       "duration": "120ms",
       "collected_at": "2026-10-22T09:30:00Z"
+    },
+    {
+      "rule": {
+        "id": "MSSQL-VERSION-002",
+        "engine": "mssql",
+        "category": "version",
+        "severity": "medium",
+        "permission": "public",
+        "params": {
+          "max_age_days": 180
+        },
+        "title": {
+          "en": "SQL Server build is behind the latest cumulative or security update",
+          "pt-BR": "Build do SQL Server atrás da última atualização cumulativa ou de segurança"
+        },
+        "impact": {
+          "en": "Cumulative updates carry the bug and security fixes for your version. A build many months behind keeps known issues open and makes the next patch a bigger jump.",
+          "pt-BR": "As atualizações cumulativas trazem as correções de bugs e de segurança da sua versão. Um build muitos meses atrasado mantém problemas conhecidos em aberto e torna o próximo patch um salto maior."
+        },
+        "next_action": {
+          "en": "Test the latest cumulative update, plus the security update (GDR) released on top of it if there is one, in a non-production copy and schedule it in a maintenance window.",
+          "pt-BR": "Teste a última atualização cumulativa, mais a atualização de segurança (GDR) lançada sobre ela, se houver, numa cópia fora de produção e agende a aplicação numa janela de manutenção."
+        },
+        "verify": {
+          "en": "After patching, run `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductUpdateLevel')` and confirm the build matches the target CU or GDR. Check the SQL Server error log for startup errors and that jobs and replication or AG members came back healthy. Re-run codeDB Lens: the rule should be OK.",
+          "pt-BR": "Depois de aplicar o patch, rode `SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('ProductUpdateLevel')` e confirme que o build bate com o CU ou GDR alvo. Confira no error log do SQL Server se não há erros na subida e se jobs e membros de replicação ou AG voltaram saudáveis. Rode o codeDB Lens de novo: a regra deve ficar OK."
+        },
+        "caveat": {
+          "en": "Builds come from the Microsoft version history bundled in this Lens version. When the installed build is newer than the table, the result is only a hint; update Lens to refresh it. Security-only (GDR) builds are matched to the CU below them.",
+          "pt-BR": "Os builds vêm do histórico de versões da Microsoft embutido nesta versão do Lens. Quando o build instalado é mais novo que a tabela, o resultado é só um indício; atualize o Lens para renová-la. Builds só de segurança (GDR) são associados à CU imediatamente anterior."
+        },
+        "doc_url": "https://lens.codedb.com.br/rules/mssql-version-002/",
+        "query": "-- Build table as of 2026-10-22; update every release (see RELEASING.md).\n-- Source: Microsoft \"Latest updates and version history for SQL Server\":\n--   learn.microsoft.com/troubleshoot/sql/releases/download-and-install-latest-updates\n-- Rows: RTM, every CU, and the newest \"CU + GDR\" build of the latest CU. A build between two rows (GDR/security\n-- builds) matches the lower one. 2019 CU7 was withdrawn by Microsoft and is left out.\nWITH b (major, label, build, released) AS (\n    SELECT * FROM (VALUES\n        (14, 'RTM', '14.0.1000.169', '2017-09-29'),\n        (14, 'CU1', '14.0.3006.16', '2017-10-24'),\n        (14, 'CU2', '14.0.3008.27', '2017-11-28'),\n        (14, 'CU3', '14.0.3015.40', '2018-01-04'),\n        (14, 'CU4', '14.0.3022.28', '2018-02-20'),\n        (14, 'CU5', '14.0.3023.8', '2018-03-20'),\n        (14, 'CU6', '14.0.3025.34', '2018-04-17'),\n        (14, 'CU7', '14.0.3026.27', '2018-05-23'),\n        (14, 'CU8', '14.0.3029.16', '2018-06-21'),\n        (14, 'CU9', '14.0.3030.27', '2018-07-18'),\n        (14, 'CU10', '14.0.3037.1', '2018-08-27'),\n        (14, 'CU11', '14.0.3038.14', '2018-09-20'),\n        (14, 'CU12', '14.0.3045.24', '2018-10-24'),\n        (14, 'CU13', '14.0.3048.4', '2018-12-18'),\n        (14, 'CU14', '14.0.3076.1', '2019-03-25'),\n        (14, 'CU15', '14.0.3162.1', '2019-05-23'),\n        (14, 'CU16', '14.0.3223.3', '2019-08-01'),\n        (14, 'CU17', '14.0.3238.1', '2019-10-08'),\n        (14, 'CU18', '14.0.3257.3', '2019-12-09'),\n        (14, 'CU19', '14.0.3281.6', '2020-02-05'),\n        (14, 'CU20', '14.0.3294.2', '2020-04-07'),\n        (14, 'CU21', '14.0.3335.7', '2020-07-01'),\n        (14, 'CU22', '14.0.3356.20', '2020-09-10'),\n        (14, 'CU23', '14.0.3381.3', '2021-02-24'),\n        (14, 'CU24', '14.0.3391.2', '2021-05-10'),\n        (14, 'CU25', '14.0.3401.7', '2021-07-12'),\n        (14, 'CU26', '14.0.3411.3', '2021-09-14'),\n        (14, 'CU27', '14.0.3421.10', '2021-10-27'),\n        (14, 'CU28', '14.0.3430.2', '2022-01-13'),\n        (14, 'CU29', '14.0.3436.1', '2022-03-30'),\n        (14, 'CU30', '14.0.3451.2', '2022-07-13'),\n        (14, 'CU31', '14.0.3456.2', '2022-09-20'),\n        (14, 'CU31 + GDR', '14.0.3560.2', '2026-10-13'),\n        (15, 'RTM', '15.0.2000.5', '2019-11-04'),\n        (15, 'CU1', '15.0.4003.23', '2020-01-07'),\n        (15, 'CU2', '15.0.4013.40', '2020-02-13'),\n        (15, 'CU3', '15.0.4023.6', '2020-03-12'),\n        (15, 'CU4', '15.0.4033.1', '2020-03-31'),\n        (15, 'CU5', '15.0.4043.16', '2020-06-22'),\n        (15, 'CU6', '15.0.4053.23', '2020-08-04'),\n        (15, 'CU8', '15.0.4073.23', '2020-10-01'),\n        (15, 'CU9', '15.0.4102.2', '2021-02-11'),\n        (15, 'CU10', '15.0.4123.1', '2021-04-06'),\n        (15, 'CU11', '15.0.4138.2', '2021-06-10'),\n        (15, 'CU12', '15.0.4153.1', '2021-08-04'),\n        (15, 'CU13', '15.0.4178.1', '2021-10-05'),\n        (15, 'CU14', '15.0.4188.2', '2021-11-22'),\n        (15, 'CU15', '15.0.4198.2', '2022-01-27'),\n        (15, 'CU16', '15.0.4223.1', '2022-04-18'),\n        (15, 'CU17', '15.0.4249.2', '2022-08-11'),\n        (15, 'CU18', '15.0.4261.1', '2022-09-28'),\n        (15, 'CU19', '15.0.4298.1', '2023-02-16'),\n        (15, 'CU20', '15.0.4312.2', '2023-04-13'),\n        (15, 'CU21', '15.0.4316.3', '2023-06-15'),\n        (15, 'CU22', '15.0.4322.2', '2023-08-14'),\n        (15, 'CU23', '15.0.4335.1', '2023-10-12'),\n        (15, 'CU24', '15.0.4345.5', '2023-12-14'),\n        (15, 'CU25', '15.0.4355.3', '2024-02-15'),\n        (15, 'CU26', '15.0.4365.2', '2024-04-11'),\n        (15, 'CU27', '15.0.4375.4', '2024-06-13'),\n        (15, 'CU28', '15.0.4385.2', '2024-08-01'),\n        (15, 'CU29', '15.0.4405.4', '2024-10-31'),\n        (15, 'CU30', '15.0.4415.2', '2024-12-12'),\n        (15, 'CU31', '15.0.4420.2', '2025-02-13'),\n        (15, 'CU32', '15.0.4430.1', '2025-02-27'),\n        (15, 'CU32 + GDR', '15.0.4500.2', '2026-10-13'),\n        (16, 'RTM', '16.0.1000.6', '2022-11-16'),\n        (16, 'CU1', '16.0.4003.1', '2023-02-16'),\n        (16, 'CU2', '16.0.4015.1', '2023-03-15'),\n        (16, 'CU3', '16.0.4025.1', '2023-04-13'),\n        (16, 'CU4', '16.0.4035.4', '2023-05-11'),\n        (16, 'CU5', '16.0.4045.3', '2023-06-15'),\n        (16, 'CU6', '16.0.4055.4', '2023-07-13'),\n        (16, 'CU7', '16.0.4065.3', '2023-08-10'),\n        (16, 'CU8', '16.0.4075.1', '2023-09-14'),\n        (16, 'CU9', '16.0.4085.2', '2023-10-12'),\n        (16, 'CU10', '16.0.4095.4', '2023-11-16'),\n        (16, 'CU11', '16.0.4105.2', '2024-01-11'),\n        (16, 'CU12', '16.0.4115.5', '2024-03-14'),\n        (16, 'CU13', '16.0.4125.3', '2024-05-16'),\n        (16, 'CU14', '16.0.4135.4', '2024-07-23'),\n        (16, 'CU15', '16.0.4145.4', '2024-09-25'),\n        (16, 'CU16', '16.0.4165.4', '2024-11-14'),\n        (16, 'CU17', '16.0.4175.1', '2025-01-16'),\n        (16, 'CU18', '16.0.4185.3', '2025-03-13'),\n        (16, 'CU19', '16.0.4195.2', '2025-05-15'),\n        (16, 'CU20', '16.0.4205.1', '2025-07-10'),\n        (16, 'CU21', '16.0.4215.2', '2025-09-11'),\n        (16, 'CU22', '16.0.4225.2', '2025-11-13'),\n        (16, 'CU23', '16.0.4236.2', '2026-01-29'),\n        (16, 'CU24', '16.0.4245.2', '2026-03-12'),\n        (16, 'CU25', '16.0.4255.1', '2026-05-20'),\n        (16, 'CU26', '16.0.4265.3', '2026-07-16'),\n        (16, 'CU27', '16.0.4295.3', '2026-09-15'),\n        (16, 'CU27 + GDR', '16.0.4305.5', '2026-10-13'),\n        (17, 'RTM', '17.0.1000.7', '2025-11-18'),\n        (17, 'CU1', '17.0.4006.2', '2026-01-29'),\n        (17, 'CU2', '17.0.4015.4', '2026-02-12'),\n        (17, 'CU3', '17.0.4025.3', '2026-03-12'),\n        (17, 'CU4', '17.0.4035.5', '2026-04-16'),\n        (17, 'CU5', '17.0.4045.5', '2026-05-20'),\n        (17, 'CU6', '17.0.4055.5', '2026-06-17'),\n        (17, 'CU7', '17.0.4065.4', '2026-07-16'),\n        (17, 'CU8', '17.0.4075.5', '2026-08-13'),\n        (17, 'CU9', '17.0.5005.3', '2026-09-15'),\n        (17, 'CU10', '17.0.5035.5', '2026-10-22')\n    ) v (major, label, build, released)\n),\nt AS (  -- k: build number * 1000 + revision, so builds compare numerically, not as text\n    SELECT major, label, build, CAST(released AS date) AS released,\n           CAST(PARSENAME(build, 2) AS bigint) * 1000 + CAST(PARSENAME(build, 1) AS bigint) AS k\n    FROM b\n),\ni AS (\n    SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS int) AS major, v.build,\n           CAST(PARSENAME(v.build, 2) AS bigint) * 1000 + CAST(PARSENAME(v.build, 1) AS bigint) AS k\n    FROM (SELECT CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(32)) AS build) v\n),\nlatest AS (  -- newest CU of the installed major\n    SELECT TOP 1 t.* FROM t JOIN i ON i.major = t.major WHERE t.label NOT LIKE '%GDR%' ORDER BY t.k DESC\n),\ncur AS (  -- newest row at or below the installed build\n    SELECT TOP 1 t.* FROM t JOIN i ON i.major = t.major WHERE t.k \u003c= i.k ORDER BY t.k DESC\n),\nnewest AS (SELECT MAX(t.k) AS k FROM t JOIN i ON i.major = t.major)\nSELECT i.build AS installed_build,\n       cur.label AS installed_cu,\n       latest.label AS latest_cu,\n       latest.build AS latest_build,\n       latest.released AS latest_cu_date,\n       CASE WHEN i.k \u003e newest.k THEN NULL ELSE DATEDIFF(day, cur.released, latest.released) END AS days_behind,\n       CASE WHEN i.k \u003e newest.k THEN 'hint' ELSE 'confirmed' END AS _confidence\nFROM i\nJOIN latest ON 1 = 1\nJOIN newest ON 1 = 1\nLEFT JOIN cur ON 1 = 1\nWHERE i.k \u003e newest.k\n   OR DATEDIFF(day, cur.released, latest.released) \u003e {{max_age_days}};\n"
+      },
+      "status": "ok",
+      "duration": "120ms",
+      "collected_at": "2026-10-22T09:30:00Z"
     }
-  ]
+  ],
+  "evolution": {
+    "state": "compared",
+    "previous_at": "2026-10-15T09:30:00Z",
+    "previous_letter": "D",
+    "previous_coverage": 0.9230769230769231,
+    "new": 1,
+    "resolved": 1
+  }
 }

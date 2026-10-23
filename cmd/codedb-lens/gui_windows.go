@@ -211,7 +211,7 @@ func (a *App) Run(p profile.Profile, password string) (RunResult, error) {
 	if err != nil {
 		return RunResult{}, err
 	}
-	path, err := rep.Save(firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)))
+	path, err := saveReport(rep, firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)), false)
 	if err != nil {
 		return RunResult{}, err
 	}

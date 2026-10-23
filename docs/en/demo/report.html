@@ -61,7 +61,12 @@ pre { background: var(--navy-900); color: var(--on-dark); padding: var(--s4); bo
 button.lang { background: rgb(255 255 255 / 8%); color: #fff; border: 1px solid rgb(255 255 255 / 18%); border-radius: var(--r-pill); padding: 5px 12px; cursor: pointer; font: inherit; font-size: var(--fs-sm); }
 .hero h1 { font: 700 var(--fs-3xl)/1.15 var(--font-display); letter-spacing: -.02em; margin: var(--s6) 0 var(--s2); word-break: break-word; }
 .hero .sub { color: var(--on-dark); margin: 0; }
+.hero .sub .redacted { color: var(--sky-300); font-weight: 600; }
 .hero .sub > span + span::before { content: "·"; margin: 0 var(--s2); color: var(--on-dark-muted); }
+
+.tabs { display: flex; gap: var(--s2); margin-top: var(--s5); }
+.tabs button { background: rgb(255 255 255 / 8%); color: #fff; border: 1px solid rgb(255 255 255 / 18%); border-radius: var(--r-pill); padding: 6px 18px; cursor: pointer; font: inherit; font-size: var(--fs-sm); }
+.tabs button[aria-selected="true"] { background: #fff; color: var(--navy-900); font-weight: 600; }
 
 main { max-width: 1120px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s7); }
 h2.sec { font: 700 var(--fs-xl) var(--font-display); margin: var(--s6) 0 var(--s3); }
@@ -82,6 +87,15 @@ h2.sec .n { color: var(--muted); font-weight: 400; }
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 600; padding: 2px 10px; border-radius: var(--r-pill); white-space: nowrap; }
 .badge.partial { color: var(--high); background: var(--high-bg); }
 .t-crit { color: var(--crit); } .t-ok { color: var(--ok); }
+
+/* executive summary */
+.sum-high { margin: var(--s4) 0 0; }
+.sum-evo { margin: 0; }
+.attn .conf { margin-left: var(--s2); font-size: var(--fs-xs); font-weight: 600; }
+.sum-cta { margin-top: var(--s6); padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.sum-cta p { margin: 0 0 var(--s3); }
+.print-only { display: none; }
+.print-btn { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-pill); padding: 6px 16px; cursor: pointer; font: inherit; font-size: var(--fs-sm); }
 
 /* points of attention */
 .attn { display: grid; gap: var(--s2); }
@@ -143,12 +157,19 @@ tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 640px) { .hero h1 { font-size: var(--fs-2xl); } .story { padding: var(--s4); } .story h3 { font-size: var(--fs-xl); } }
 @media print {
-  body { background: #fff; } .hero-actions, .locked { display: none; } .story, .kpi { box-shadow: none; }
+  @page { size: A4; margin: 12mm; }
+  body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; } .hero-actions, .locked, .tabs, .print-btn { display: none; } .story, .kpi { box-shadow: none; }
+  .print-only { display: block; } .sum-cta .cta { padding-left: 0; } .sum-cta p { overflow-wrap: anywhere; }
+  .hero { background: none; color: var(--text); border-bottom: 1px solid var(--line); } .hero-in { padding: 0 0 var(--s3); }
+  .hero .brand, .hero .sub { color: var(--text); } .hero h1 { font-size: var(--fs-2xl); margin: var(--s3) 0 var(--s1); } .kpis { margin-top: var(--s3); }
+  main { padding: var(--s3) 0 0; } .bottom { padding: var(--s3) 0 0; }
+  body:has(#tab-summary:not([hidden])) .bottom { display: none; } /* summary fits one page */
   details { display: block; } details > summary { display: none; } .story { break-before: auto; }
 }
 </style>
 </head>
 <body>
+
 
 <header class="hero">
   <div class="hero-in">
@@ -161,22 +182,65 @@ tr:last-child td { border-bottom: 0; }
     </div>
     <h1><span lang="en">Database health check</span><span lang="pt-BR">Diagnóstico do banco</span> — sql-demo-01</h1>
     <p class="sub"><span>SQL Server 16.0.4135.4</span><span>onprem</span><span>2026-10-22 09:30</span><span><span lang="en">Read-only analysis</span><span lang="pt-BR">Análise somente leitura</span></span></p>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="btn-summary" aria-selected="true" onclick="showTab('summary')"><span lang="en">Summary</span><span lang="pt-BR">Resumo</span></button>
+      <button type="button" role="tab" id="btn-tech" aria-selected="false" onclick="showTab('tech')"><span lang="en">Technical</span><span lang="pt-BR">Técnico</span></button>
+    </div>
   </div>
 </header>
 
 <main>
+<div id="tab-summary">
 <section class="kpis">
+  
   <div class="kpi">
     <div class="lbl"><span lang="en">Grade</span><span lang="pt-BR">Nota</span></div>
-    <div class="val"><span class="grade-letter g-d">D</span>55<small>/100</small></div>
+    <div class="val"><span class="grade-letter g-d">D</span>57<small>/100</small></div>
     <div class="foot"><span lang="en">Weighted by severity</span><span lang="pt-BR">Ponderada pela severidade</span></div>
   </div>
   <div class="kpi">
     <div class="lbl"><span lang="en">Coverage</span><span lang="pt-BR">Cobertura</span></div>
-    <div class="val">83%</div>
-    <div class="bar"><i style="width:83%"></i></div>
-    <div class="foot"><span lang="en">10 of 12 applicable rules ran</span><span lang="pt-BR">10 de 12 regras aplicáveis executadas</span></div>
+    <div class="val">85%</div>
+    <div class="bar"><i style="width:85%"></i></div>
+    <div class="foot"><span lang="en">11 of 13 applicable rules ran</span><span lang="pt-BR">11 de 13 regras aplicáveis executadas</span></div>
   </div>
+
+</section>
+
+<p class="sum-high"><span lang="en">Highest open severity</span><span lang="pt-BR">Maior severidade aberta</span>: <span class="dot critical"></span> <b><span lang="en">Critical</span><span lang="pt-BR">Crítica</span></b></p>
+
+<h2 class="sec"><span lang="en">Top risks</span><span lang="pt-BR">Principais riscos</span></h2>
+<div class="attn">
+<a class="sev-critical" href="#MSSQL-BACKUP-001" onclick="showTab('tech')"><b><span lang="en">Databases with missing or old backups</span><span lang="pt-BR">Bancos com backup ausente ou antigo</span></b> <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span><small><span lang="en">Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.</span><span lang="pt-BR">Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.</span></small></a><a class="sev-high" href="#MSSQL-CHECKDB-001" onclick="showTab('tech')"><b><span lang="en">Databases without a recent clean DBCC CHECKDB</span><span lang="pt-BR">Bancos sem DBCC CHECKDB recente e sem erros</span></b> <span class="conf conf-confirmed"><span lang="en">Confirmed</span><span lang="pt-BR">Confirmado</span></span><small><span lang="en">Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.</span><span lang="pt-BR">Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.</span></small></a><a class="sev-high" href="#MSSQL-WAITS-001" onclick="showTab('tech')"><b><span lang="en">The instance spends a lot of time waiting on one resource</span><span lang="pt-BR">A instância passa muito tempo esperando por um recurso</span></b> <span class="conf conf-hint"><span lang="en">Hint</span><span lang="pt-BR">Indício</span></span><small><span lang="en">Start with the top row. The meaning column says which resource to look at; the rule&#39;s documentation page lists the usual causes for each wait.</span><span lang="pt-BR">Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.</span></small></a>
+</div>
+
+
+<h2 class="sec"><span lang="en">Since the previous diagnosis</span><span lang="pt-BR">Desde o diagnóstico anterior</span></h2>
+<p class="sum-evo"><span lang="en">2026-10-15 09:30: grade D (92% coverage) → D (85% coverage) · 1 new · 1 resolved</span><span lang="pt-BR">2026-10-15 09:30: nota D (cobertura 92%) → D (cobertura 85%) · novos: 1 · resolvidos: 1</span></p>
+
+<section class="sum-cta">
+  <p><span lang="en">Lens shows a snapshot. codeDB monitors around the clock, with history, baselines and alerts.</span><span lang="pt-BR">O Lens mostra um retrato do momento. O codeDB monitora 24 horas por dia, com histórico, baseline e alertas.</span></p>
+  <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=cta&amp;utm_medium=summary&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">Try codeDB</span><span lang="pt-BR">Conheça o codeDB</span> →</a>
+  <p class="print-only"><code>https://app.codedb.com.br/auth/register?utm_campaign=cta&amp;utm_medium=summary&amp;utm_source=lens</code></p>
+</section>
+<p><button type="button" class="print-btn" onclick="window.print()"><span lang="en">Print summary</span><span lang="pt-BR">Imprimir resumo</span></button></p>
+</div>
+
+<div id="tab-tech" hidden>
+<section class="kpis">
+  
+  <div class="kpi">
+    <div class="lbl"><span lang="en">Grade</span><span lang="pt-BR">Nota</span></div>
+    <div class="val"><span class="grade-letter g-d">D</span>57<small>/100</small></div>
+    <div class="foot"><span lang="en">Weighted by severity</span><span lang="pt-BR">Ponderada pela severidade</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl"><span lang="en">Coverage</span><span lang="pt-BR">Cobertura</span></div>
+    <div class="val">85%</div>
+    <div class="bar"><i style="width:85%"></i></div>
+    <div class="foot"><span lang="en">11 of 13 applicable rules ran</span><span lang="pt-BR">11 de 13 regras aplicáveis executadas</span></div>
+  </div>
+
   <div class="kpi">
     <div class="lbl"><span lang="en">Findings</span><span lang="pt-BR">Achados</span></div>
     <div class="val t-crit">5</div>
@@ -215,6 +279,7 @@ tr:last-child td { border-bottom: 0; }
   <div class="boxes">
     <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">A failure or mistake on these databases may lose more data than you expect, or be unrecoverable.</span><span lang="pt-BR">Uma falha ou erro nesses bancos pode perder mais dados do que você espera, ou não ter recuperação.</span></p></div>
     <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Check the backup jobs for these databases and run a manual backup now. In FULL recovery, schedule log backups too.</span><span lang="pt-BR">Verifique os jobs de backup desses bancos e faça um backup manual agora. Em recovery FULL, agende também backups de log.</span></p></div>
+    <div class="box"><h4><span lang="en">How to verify the fix</span><span lang="pt-BR">Como validar a correção</span></h4><p><span lang="en">After the backup finishes, confirm it in msdb: <code>SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type</code>. Each database must show a recent D (full) and, in FULL recovery, an L (log) newer than 24 hours. Also run <code>RESTORE VERIFYONLY</code> on the file.</span><span lang="pt-BR">Quando o backup terminar, confirme no msdb: <code>SELECT database_name, type, MAX(backup_finish_date) FROM msdb.dbo.backupset GROUP BY database_name, type</code>. Cada banco deve mostrar um D (full) recente e, em recovery FULL, um L (log) com menos de 24 horas. Rode também um <code>RESTORE VERIFYONLY</code> no arquivo.</span></p></div>
   </div>
   <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Based on msdb history on this instance. Backups taken by external tools without msdb history are not visible.</span><span lang="pt-BR">Baseado no histórico do msdb desta instância. Backups de ferramentas externas sem histórico no msdb não aparecem.</span></p>
   
@@ -273,6 +338,7 @@ ORDER BY d.name;
   <div class="boxes">
     <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Corruption can sit unnoticed for weeks and end up in every backup, leaving nothing clean to restore.</span><span lang="pt-BR">Uma corrupção pode passar semanas sem ser notada e entrar em todos os backups, sem deixar nada limpo para restaurar.</span></p></div>
     <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Schedule DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) at least weekly, or on a restored copy if the window is short.</span><span lang="pt-BR">Agende DBCC CHECKDB (WITH NO_INFOMSGS, ALL_ERRORMSGS) pelo menos semanalmente, ou numa cópia restaurada se a janela for curta.</span></p></div>
+    <div class="box"><h4><span lang="en">How to verify the fix</span><span lang="pt-BR">Como validar a correção</span></h4><p><span lang="en">After DBCC CHECKDB completes without errors, confirm the date: <code>SELECT DATABASEPROPERTYEX(N&#39;db&#39;, &#39;LastGoodCheckDbTime&#39;)</code> must be today. Then check that the schedule really runs: the value should renew at least once a week.</span><span lang="pt-BR">Depois que o DBCC CHECKDB terminar sem erros, confirme a data: <code>SELECT DATABASEPROPERTYEX(N&#39;banco&#39;, &#39;LastGoodCheckDbTime&#39;)</code> deve ser hoje. Depois confira se o agendamento roda de fato: o valor deve se renovar pelo menos uma vez por semana.</span></p></div>
   </div>
   <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Reads LastGoodCheckDbTime, which only records runs that finished without errors. Databases created in the last days are skipped.</span><span lang="pt-BR">Lê o LastGoodCheckDbTime, que só registra execuções concluídas sem erros. Bancos criados nos últimos dias são ignorados.</span></p>
   
@@ -309,6 +375,7 @@ ORDER BY d.name;
   <div class="boxes">
     <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Waits are where query time goes when it isn&#39;t running. A dominant wait points straight at the bottleneck (disk, locks, CPU, memory).</span><span lang="pt-BR">As esperas mostram para onde vai o tempo das consultas quando elas não estão executando. Uma espera dominante aponta direto para o gargalo (disco, bloqueios, CPU, memória).</span></p></div>
     <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Start with the top row. The meaning column says which resource to look at; the rule&#39;s documentation page lists the usual causes for each wait.</span><span lang="pt-BR">Comece pela primeira linha. A coluna de significado diz qual recurso investigar; a página da regra na documentação lista as causas comuns de cada espera.</span></p></div>
+    <div class="box"><h4><span lang="en">How to verify the fix</span><span lang="pt-BR">Como validar a correção</span></h4><p><span lang="en">Waits are cumulative since the last restart, so a fix only shows as a change over time. Sample twice, some hours apart, and compare: <code>SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N&#39;the_wait&#39;</code>. The growth per hour of that wait must be clearly lower than before the change. On a test instance you can zero the counters with <code>DBCC SQLPERF(&#39;sys.dm_os_wait_stats&#39;, CLEAR)</code>.</span><span lang="pt-BR">As esperas acumulam desde o último restart, então a correção só aparece como mudança ao longo do tempo. Colete duas vezes, com algumas horas de intervalo, e compare: <code>SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N&#39;a_espera&#39;</code>. O crescimento por hora dessa espera deve ficar claramente menor que antes da mudança. Em instância de teste dá para zerar os contadores com <code>DBCC SQLPERF(&#39;sys.dm_os_wait_stats&#39;, CLEAR)</code>.</span></p></div>
   </div>
   <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Totals accumulate since the last restart, so they show the long-term profile, not what is happening right now. Only deltas over time show the present.</span><span lang="pt-BR">Os totais acumulam desde o último restart, então mostram o perfil de longo prazo, não o que acontece agora. Só diferenças ao longo do tempo mostram o presente.</span></p>
   
@@ -372,6 +439,7 @@ ORDER BY c.ms DESC;
   <div class="boxes">
     <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">Default memory can starve the OS; default parallelism settings make small queries go parallel and fight for CPU.</span><span lang="pt-BR">A memória padrão pode sufocar o sistema operacional; o paralelismo padrão faz consultas pequenas rodarem em paralelo e disputarem CPU.</span></p></div>
     <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Review each setting with sp_configure, starting with max server memory. Change one at a time and observe.</span><span lang="pt-BR">Revise cada configuração com sp_configure, começando pelo max server memory. Mude uma por vez e observe.</span></p></div>
+    <div class="box"><h4><span lang="en">How to verify the fix</span><span lang="pt-BR">Como validar a correção</span></h4><p><span lang="en">Check the value in use, not just the configured one: <code>SELECT name, value, value_in_use FROM sys.configurations WHERE name IN (&#39;max server memory (MB)&#39;, &#39;max degree of parallelism&#39;, &#39;cost threshold for parallelism&#39;, &#39;optimize for ad hoc workloads&#39;)</code>. <code>value_in_use</code> must show the new number (run <code>RECONFIGURE</code> if it does not). Then watch CPU and memory for a few days.</span><span lang="pt-BR">Confira o valor em uso, não só o configurado: <code>SELECT name, value, value_in_use FROM sys.configurations WHERE name IN (&#39;max server memory (MB)&#39;, &#39;max degree of parallelism&#39;, &#39;cost threshold for parallelism&#39;, &#39;optimize for ad hoc workloads&#39;)</code>. O <code>value_in_use</code> deve mostrar o número novo (rode <code>RECONFIGURE</code> se não mostrar). Depois acompanhe CPU e memória por alguns dias.</span></p></div>
   </div>
   <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Recommendations are common starting points, not universal rules. Hosts running other services may need different values.</span><span lang="pt-BR">As recomendações são pontos de partida comuns, não regras universais. Hosts com outros serviços podem precisar de outros valores.</span></p>
   
@@ -411,6 +479,7 @@ FROM c WHERE c.name = &#39;optimize for ad hoc workloads&#39; AND c.v = 0;
   <div class="boxes">
     <div class="box"><h4><span lang="en">What it means</span><span lang="pt-BR">O que significa</span></h4><p><span lang="en">The optimizer recorded queries that would run much cheaper with an index that doesn&#39;t exist. They read more pages and hold locks longer than needed.</span><span lang="pt-BR">O otimizador registrou consultas que ficariam bem mais baratas com um índice que não existe. Elas leem mais páginas e seguram locks por mais tempo que o necessário.</span></p></div>
     <div class="box action"><h4><span lang="en">Recommended action</span><span lang="pt-BR">Ação recomendada</span></h4><p><span lang="en">Treat each row as a lead, not a command. Compare it with the existing indexes on the table, merge similar suggestions and test the index before creating it in production.</span><span lang="pt-BR">Trate cada linha como pista, não como ordem. Compare com os índices que já existem na tabela, junte sugestões parecidas e teste o índice antes de criar em produção.</span></p></div>
+    <div class="box"><h4><span lang="en">How to verify the fix</span><span lang="pt-BR">Como validar a correção</span></h4><p><span lang="en">After creating the index, run the query that motivated it and compare logical reads and duration with <code>SET STATISTICS IO, TIME ON</code> (or the actual plan: a seek on the new index instead of a scan). Later, confirm it is used: <code>SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N&#39;index_name&#39;</code>. The suggestion leaves the DMV after the next restart or index change.</span><span lang="pt-BR">Depois de criar o índice, rode a consulta que o motivou e compare leituras lógicas e duração com <code>SET STATISTICS IO, TIME ON</code> (ou o plano real: seek no índice novo em vez de scan). Mais tarde, confirme que ele é usado: <code>SELECT i.name, s.user_seeks, s.user_scans FROM sys.indexes i JOIN sys.dm_db_index_usage_stats s ON s.object_id = i.object_id AND s.index_id = i.index_id AND s.database_id = DB_ID() WHERE i.name = N&#39;nome_do_indice&#39;</code>. A sugestão sai da DMV depois do próximo restart ou de mudança no índice.</span></p></div>
   </div>
   <p class="caveat"><b><span lang="en">Caveat</span><span lang="pt-BR">Ressalva</span>:</b> <span lang="en">Always a hint. The DMV ignores existing similar indexes, suggests overlapping indexes, and is cleared on restart.</span><span lang="pt-BR">Sempre um indício. A DMV ignora índices parecidos que já existem, sugere índices sobrepostos e é zerada no restart.</span></p>
   
@@ -448,9 +517,9 @@ ORDER BY improvement DESC;
 </table></div>
 
 
-<h2 class="sec"><span lang="en">Passed</span><span lang="pt-BR">Sem problemas</span> <span class="n">5</span></h2>
+<h2 class="sec"><span lang="en">Passed</span><span lang="pt-BR">Sem problemas</span> <span class="n">6</span></h2>
 <ul class="passed">
-<li><span lang="en">Sessions blocked right now</span><span lang="pt-BR">Sessões bloqueadas neste momento</span></li><li><span lang="en">Disk or transaction log running out of space</span><span lang="pt-BR">Disco ou log de transações ficando sem espaço</span></li><li><span lang="en">SQL Server version out of support or close to it</span><span lang="pt-BR">Versão do SQL Server fora de suporte ou perto disso</span></li><li><span lang="en">TempDB files not laid out for concurrency</span><span lang="pt-BR">Arquivos do TempDB fora do padrão para concorrência</span></li><li><span lang="en">A single query dominates CPU usage</span><span lang="pt-BR">Uma única consulta domina o uso de CPU</span></li>
+<li><span lang="en">Sessions blocked right now</span><span lang="pt-BR">Sessões bloqueadas neste momento</span></li><li><span lang="en">Disk or transaction log running out of space</span><span lang="pt-BR">Disco ou log de transações ficando sem espaço</span></li><li><span lang="en">SQL Server version out of support or close to it</span><span lang="pt-BR">Versão do SQL Server fora de suporte ou perto disso</span></li><li><span lang="en">TempDB files not laid out for concurrency</span><span lang="pt-BR">Arquivos do TempDB fora do padrão para concorrência</span></li><li><span lang="en">A single query dominates CPU usage</span><span lang="pt-BR">Uma única consulta domina o uso de CPU</span></li><li><span lang="en">SQL Server build is behind the latest cumulative or security update</span><span lang="pt-BR">Build do SQL Server atrás da última atualização cumulativa ou de segurança</span></li>
 
 </ul>
 
@@ -462,13 +531,20 @@ ORDER BY improvement DESC;
     <a class="cta" href="https://app.codedb.com.br/auth/register?utm_campaign=baseline&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener"><span lang="en">Try codeDB</span><span lang="pt-BR">Conheça o codeDB</span> →</a>
   </div>
 </section>
+</div>
 </main>
 
 <footer class="bottom">
-  <span><span lang="en">Generated by codeDB Lens 0.5.0 on 2026-10-22 09:30</span><span lang="pt-BR">Gerado pelo codeDB Lens 0.5.0 em 2026-10-22 09:30</span> · <span lang="en">rule catalog</span><span lang="pt-BR">catálogo de regras</span> 96acafc9f92b · 14s</span>
+  <span><span lang="en">Generated by codeDB Lens 0.5.0 on 2026-10-22 09:30</span><span lang="pt-BR">Gerado pelo codeDB Lens 0.5.0 em 2026-10-22 09:30</span> · <span lang="en">rule catalog</span><span lang="pt-BR">catálogo de regras</span> 9e931e87726a · 14s</span>
   <span><span lang="en">Lens shows a snapshot. codeDB monitors around the clock, with history, baselines and alerts.</span><span lang="pt-BR">O Lens mostra um retrato do momento. O codeDB monitora 24 horas por dia, com histórico, baseline e alertas.</span> <a href="https://codedb.com.br/?utm_campaign=footer&amp;utm_medium=report&amp;utm_source=lens" target="_blank" rel="noopener">codedb.com.br</a></span>
 </footer>
 <script>
+function showTab(n) {
+  ['summary', 'tech'].forEach(function (t) {
+    document.getElementById('tab-' + t).hidden = t !== n;
+    document.getElementById('btn-' + t).setAttribute('aria-selected', t === n);
+  });
+}
 function toggleLang() {
   var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
   h.dataset.lang = l; h.lang = l;

@@ -20,6 +20,10 @@ esgotar as threads de trabalho (`THREADPOOL`).
   aplicação; numa emergência, fale com o responsável antes de `KILL <sessão>`.
 - Bloqueador **running**: uma consulta ou carga longa. Veja o plano e se pode rodar fora do horário de pico.
 
+## Como validar
+
+Verifique a cadeia de bloqueio de novo: `SELECT session_id, blocking_session_id, wait_time FROM sys.dm_exec_requests WHERE blocking_session_id <> 0`. O resultado deve vir vazio, ou com esperas bem abaixo do limite. Uma checagem só não basta: repita nos horários de pico, porque o bloqueio vem e vai.
+
 ## Limitações
 
 Um retrato só vê o que está bloqueado no momento da verificação. Um bloqueio que aconteceu às 03:00 não aparece aqui.

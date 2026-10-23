@@ -21,6 +21,10 @@ Locks queue: a single `ALTER TABLE` waiting behind an open transaction makes eve
   `pg_terminate_backend(<pid>)` (close the session).
 - For DDL in production, use `SET lock_timeout = '3s'` so a migration gives up instead of freezing the table.
 
+## How to verify
+
+Re-run `SELECT pid, pg_blocking_pids(pid), wait_event FROM pg_stat_activity WHERE wait_event_type = 'Lock'`. It must come back empty (or with short waits) once the blocker commits, rolls back or is terminated. Repeat it in the busy hours: if the same application keeps blocking, the cause is in its transaction handling, not in this one session.
+
 ## Limitations
 
 A snapshot only sees blocking at the moment of the check.

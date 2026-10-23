@@ -21,6 +21,10 @@ de conexões ociosas desperdiçam RAM e deixam os snapshots mais lentos para tod
 Use um pooler (PgBouncer em modo transaction, RDS Proxy, ou o pool da aplicação bem dimensionado) em vez de aumentar o
 `max_connections`. Configure também `idle_session_timeout` para clientes que deixam conexões abertas.
 
+## Como validar
+
+Compare as contagens nos horários de pico: `SELECT state, count(*) FROM pg_stat_activity WHERE backend_type = 'client backend' GROUP BY state`, com `SHOW max_connections`. O total deve ficar bem abaixo do limite (menos de 80%) e as ociosas devem cair para um pool pequeno. Checar uma vez em horário calmo não prova nada; confira no período de pico.
+
 ## Limitações
 
 Um retrato vê o momento atual; os picos de conexão costumam acontecer em horários específicos.

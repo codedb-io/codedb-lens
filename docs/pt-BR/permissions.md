@@ -31,7 +31,7 @@ GRANT VIEW DATABASE STATE TO codedb_lens;
 GRANT VIEW DEFINITION TO codedb_lens;
 ```
 
-Só 6 das 12 regras de SQL Server se aplicam: bloqueios, esperas, top queries, índices ausentes e sem uso, e espaço em
+Só 6 das 13 regras de SQL Server se aplicam: bloqueios, esperas, top queries, índices ausentes e sem uso, e espaço em
 relação ao tamanho máximo do banco. Backups, CHECKDB, SQL Agent, versão, configurações da instância e TempDB são
 gerenciados pelo Azure e aparecem como *Não se aplica*. Cada banco do servidor lógico é diagnosticado com a sua conexão.
 

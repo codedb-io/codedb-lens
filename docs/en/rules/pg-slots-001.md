@@ -25,6 +25,10 @@ SELECT pg_drop_replication_slot('<slot_name>');
 For lagging replicas, check the replica's disk and CPU, the network, and long queries on the replica that delay replay
 (`max_standby_streaming_delay`). Consider `max_slot_wal_keep_size` as a safety limit.
 
+## How to verify
+
+Run `SELECT slot_name, active, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained FROM pg_replication_slots`: the dropped slot must be gone and the others must be active with small retention. For replicas, `SELECT application_name, replay_lag FROM pg_stat_replication` must stay under the threshold. The WAL directory shrinks at the next checkpoint, not instantly.
+
 ## Limitations
 
 Only meaningful on the primary. A slot may be inactive for a few seconds while its consumer reconnects.

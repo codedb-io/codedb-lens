@@ -31,7 +31,7 @@ GRANT VIEW DATABASE STATE TO codedb_lens;
 GRANT VIEW DEFINITION TO codedb_lens;
 ```
 
-Only 6 of the 12 SQL Server rules apply: blocking, waits, top queries, missing and unused indexes, and space against
+Only 6 of the 13 SQL Server rules apply: blocking, waits, top queries, missing and unused indexes, and space against
 the database's max size. Backups, CHECKDB, SQL Agent, version, instance settings and TempDB are managed by Azure and
 show as *Not applicable*. Each database on the logical server is diagnosed with its own connection.
 

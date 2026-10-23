@@ -17,7 +17,11 @@ Versões fora de suporte não recebem correções de segurança nem de bugs. Upg
 
 Planeje o upgrade de major: `pg_upgrade`, replicação lógica ou o caminho de upgrade do seu provedor de nuvem.
 
+## Como validar
+
+Depois do upgrade, rode `SHOW server_version` e confirme que a versão major está dentro do suporte da comunidade. Em seguida rode `ANALYZE` (o pg_upgrade não preserva as estatísticas do planner), confira as extensões com `SELECT extname, extversion FROM pg_extension` e deixe a aplicação passar por um ciclo completo antes de remover o cluster antigo.
+
 ## Limitações
 
 - Provedores de nuvem podem oferecer suporte estendido pago além da data da comunidade.
-- A atualização de versão minor ainda não é verificada.
+- A atualização de versão minor é verificada por [PG-VERSION-002](pg-version-002.md).

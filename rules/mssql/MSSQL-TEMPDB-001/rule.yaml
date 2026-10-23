@@ -14,3 +14,6 @@ impact:
 next_action:
   en: Use one data file per logical CPU up to 8, all with the same size and the same fixed growth in MB.
   pt-BR: Use um arquivo de dados por CPU lógica, até 8, todos com o mesmo tamanho e o mesmo crescimento fixo em MB.
+verify:
+  en: "List the files with `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: data files must have the same size, fixed growth in MB (`is_percent_growth = 0`) and one file per logical CPU up to 8. New files and growth changes apply right away; shrinking or resizing existing files may need a restart. Then watch for PAGELATCH waits on tempdb."
+  pt-BR: "Liste os arquivos com `SELECT name, size * 8 / 1024 AS size_mb, growth, is_percent_growth FROM tempdb.sys.database_files`: os arquivos de dados devem ter o mesmo tamanho, crescimento fixo em MB (`is_percent_growth = 0`) e um arquivo por CPU lógica, até 8. Arquivos novos e mudanças de crescimento valem na hora; reduzir ou redimensionar arquivos existentes pode exigir restart. Depois acompanhe as esperas PAGELATCH no tempdb."

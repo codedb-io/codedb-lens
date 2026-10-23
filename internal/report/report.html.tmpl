@@ -8,23 +8,7 @@
 <style>{{css}}</style>
 </head>
 <body>
-{{$findings := .Findings}}{{$n := len $findings}}
-<header class="hero">
-  <div class="hero-in">
-    <div class="hero-top">
-      <a class="brand" href="{{landing "header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
-      <div class="hero-actions">
-        <a class="chip-link" href="{{landing "header"}}" target="_blank" rel="noopener">{{t "powered"}}</a>
-        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
-      </div>
-    </div>
-    <h1>{{t "report_title"}} — {{.Server.Host}}</h1>
-    <p class="sub"><span>{{engineName .Server.Engine}} {{.Server.Version}}</span><span>{{.Server.Platform}}</span><span>{{date .GeneratedAt}}</span><span>{{t "read_only"}}</span></p>
-  </div>
-</header>
-
-<main>
-<section class="kpis">
+{{define "gradecov"}}
   <div class="kpi">
     <div class="lbl">{{t "grade"}}</div>
     <div class="val"><span class="grade-letter g-{{lower .Score.Letter}}">{{.Score.Letter}}</span>{{if not .Score.Limited}}{{printf "%.0f" .Score.Value}}<small>/100</small>{{end}}</div>
@@ -36,6 +20,56 @@
     <div class="bar"><i style="width:{{pct .Score.Coverage}}"></i></div>
     <div class="foot">{{tf "rules_ran" .Score.Executed .Score.Applies}}</div>
   </div>
+{{end}}
+{{$findings := .Findings}}{{$n := len $findings}}
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <a class="brand" href="{{landing "header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <div class="hero-actions">
+        <a class="chip-link" href="{{landing "header"}}" target="_blank" rel="noopener">{{t "powered"}}</a>
+        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
+      </div>
+    </div>
+    <h1>{{t "report_title"}} — {{.Server.Host}}</h1>
+    <p class="sub"><span>{{engineName .Server.Engine}} {{.Server.Version}}</span><span>{{.Server.Platform}}</span><span>{{date .GeneratedAt}}</span><span>{{t "read_only"}}</span>{{if .Redacted}}<span class="redacted">{{t "redacted"}}</span>{{end}}</p>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="btn-summary" aria-selected="true" onclick="showTab('summary')">{{t "tab_summary"}}</button>
+      <button type="button" role="tab" id="btn-tech" aria-selected="false" onclick="showTab('tech')">{{t "tab_tech"}}</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div id="tab-summary">
+<section class="kpis">
+  {{template "gradecov" .}}
+</section>
+{{if .Score.Limited}}<p class="caveat">{{tf "limited_help" .Score.Applies .Score.Rules .Server.Platform}}</p>{{else if .Score.Partial}}<p class="caveat">{{t "partial_help"}}</p>{{end}}
+<p class="sum-high">{{t "sum_highest"}}: {{with .Highest}}<span class="dot {{.}}"></span> <b>{{t (print .)}}</b>{{else}}<b>{{t "sum_none"}}</b>{{end}}</p>
+{{if $findings}}
+<h2 class="sec">{{t "sum_top"}}</h2>
+<div class="attn">
+{{range .Top 3}}<a class="sev-{{.Rule.Severity}}" href="#{{.Rule.ID}}" onclick="showTab('tech')"><b>{{tx .Rule.Title}}</b> <span class="conf conf-{{.Confidence}}">{{t (print .Confidence)}}</span><small>{{tx .Rule.NextAction}}</small></a>{{end}}
+</div>
+{{else}}
+<p class="empty">✓ {{t "no_findings"}}</p>
+{{end}}
+{{with .Evolution}}
+<h2 class="sec">{{t "sum_evolution"}}</h2>
+<p class="sum-evo">{{if eq .State "compared"}}{{tf "sum_evo" (date .PrevAt) .PrevLetter (pct .PrevCoverage) $.Score.Letter (pct $.Score.Coverage) .New .Resolved}}{{else if eq .State "locked"}}<a href="{{sumlink "compare"}}" target="_blank" rel="noopener">{{t "sum_evo_locked"}} →</a>{{else}}{{t "sum_first"}}{{end}}</p>
+{{end}}
+<section class="sum-cta">
+  <p>{{t "saas_pitch"}}</p>
+  <a class="cta" href="{{sumlink "cta"}}" target="_blank" rel="noopener">{{t "saas_try"}} →</a>
+  <p class="print-only"><code>{{sumlink "cta"}}</code></p>
+</section>
+<p><button type="button" class="print-btn" onclick="window.print()">{{t "print_summary"}}</button></p>
+</div>
+
+<div id="tab-tech" hidden>
+<section class="kpis">
+  {{template "gradecov" .}}
   <div class="kpi">
     <div class="lbl">{{t "findings"}}</div>
     <div class="val {{if gt (.CountSev "critical" "high") 0}}t-crit{{end}}">{{$n}}</div>
@@ -78,6 +112,7 @@
   <div class="boxes">
     <div class="box"><h4>{{t "what_means"}}</h4><p>{{tx .Rule.Impact}}</p></div>
     <div class="box action"><h4>{{t "recommended"}}</h4><p>{{tx .Rule.NextAction}}</p></div>
+    {{if .Rule.Verify}}<div class="box"><h4>{{t "verify"}}</h4><p>{{txc .Rule.Verify}}</p></div>{{end}}
   </div>
   {{if .Rule.Caveat}}<p class="caveat"><b>{{t "caveat"}}:</b> {{tx .Rule.Caveat}}</p>{{end}}
   {{if .Reason}}<p class="caveat"><b>{{t "partial_scope"}}:</b> {{.Reason}}</p>{{end}}
@@ -115,6 +150,7 @@
     <a class="cta" href="{{register "baseline"}}" target="_blank" rel="noopener">{{t "saas_try"}} →</a>
   </div>
 </section>
+</div>
 </main>
 
 <footer class="bottom">
@@ -122,6 +158,12 @@
   <span>{{t "saas_pitch"}} <a href="{{landing "footer"}}" target="_blank" rel="noopener">codedb.com.br</a></span>
 </footer>
 <script>
+function showTab(n) {
+  ['summary', 'tech'].forEach(function (t) {
+    document.getElementById('tab-' + t).hidden = t !== n;
+    document.getElementById('btn-' + t).setAttribute('aria-selected', t === n);
+  });
+}
 function toggleLang() {
   var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
   h.dataset.lang = l; h.lang = l;

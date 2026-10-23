@@ -30,6 +30,29 @@ func validLicense(lang string) (*license.License, error) {
 	return l, licenseError(lang, l, err)
 }
 
+// saveReport adds the evolution to the summary and writes the report; the CLI check and the GUI both save through it.
+// The evolution needs a valid key, checked offline like compare (read-only: only compare binds the instance).
+// redact writes only the masked files. The key is checked against the real host first; the evolution is then computed
+// on the masked report, so it chains with earlier masked runs (tokens are stable per machine) and never with plain ones.
+func saveReport(rep *report.Report, dir string, redact bool) (string, error) {
+	l, err := validLicense(rep.Lang)
+	ok := err == nil
+	if ok {
+		if b, bound := license.Bound(l); bound {
+			ok = strings.EqualFold(b.Host, rep.Server.Host) && b.Engine == rep.Server.Engine
+		}
+	}
+	if redact {
+		salt, err := profile.RedactSalt()
+		if err != nil {
+			return "", err
+		}
+		rep.Redact(salt)
+	}
+	rep.SetEvolution(dir, ok)
+	return rep.Save(dir)
+}
+
 // licenseError words license failures for the user.
 func licenseError(lang string, l *license.License, err error) error {
 	switch {

@@ -16,6 +16,9 @@ impact:
 next_action:
   en: Start from the first query in the evidence (the top 5 are listed). Run EXPLAIN (ANALYZE, BUFFERS) on a copy and look for sequential scans on large tables, bad estimates and missing indexes.
   pt-BR: Comece pela primeira consulta da evidência (as 5 maiores aparecem). Rode EXPLAIN (ANALYZE, BUFFERS) numa cópia e procure scans sequenciais em tabelas grandes, estimativas ruins e índices faltando.
+verify:
+  en: "After the fix, compare with `SELECT calls, mean_exec_time, total_exec_time FROM pg_stat_statements WHERE queryid = <id>`; mean time per call must drop. Totals accumulate, so first call `pg_stat_statements_reset(userid, dbid, queryid)` for that query, or compare two samples taken hours apart. Its share of the total time should fall below the threshold."
+  pt-BR: "Depois da correção, compare com `SELECT calls, mean_exec_time, total_exec_time FROM pg_stat_statements WHERE queryid = <id>`; o tempo médio por chamada deve cair. Os totais acumulam, então chame antes `pg_stat_statements_reset(userid, dbid, queryid)` para essa consulta, ou compare duas amostras com algumas horas de intervalo. A parcela dela no tempo total deve ficar abaixo do limite."
 caveat:
   en: Needs pg_stat_statements (see PG-PGSS-001). Totals accumulate since the last pg_stat_statements_reset() or restart.
   pt-BR: Exige o pg_stat_statements (veja PG-PGSS-001). Os totais acumulam desde o último pg_stat_statements_reset() ou restart.

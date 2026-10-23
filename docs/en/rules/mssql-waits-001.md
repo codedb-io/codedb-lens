@@ -30,6 +30,10 @@ On Azure SQL Database it reads `sys.dm_db_wait_stats` (this database only) and a
 
 Start from the top category and its usual causes. Compare with `MSSQL-TOPQUERY-001` and `MSSQL-BLOCKING-001` in the same report.
 
+## How to verify
+
+Waits are cumulative since the last restart, so a fix only shows as a change over time. Sample twice, some hours apart, and compare: `SELECT wait_type, wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_type = N'the_wait'`. The growth per hour of that wait must be clearly lower than before the change. On a test instance you can zero the counters with `DBCC SQLPERF('sys.dm_os_wait_stats', CLEAR)`.
+
 ## Limitations
 
 Totals accumulate since the restart. They show the long-term profile, not what is happening now; only the difference
