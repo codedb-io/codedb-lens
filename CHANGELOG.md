@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-23
+
 ### Added
 - `record`: samples the instance every 15 s (sessions, blocking, waits, counters, worker threads or connections) and
   every 5 min (top queries by delta) into hourly `.jsonl.gz` segments, for 1 hour, or 24 hours with the free key (one
