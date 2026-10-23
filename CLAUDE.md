@@ -61,8 +61,9 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
-Status (2026-10-23): fase 2 concluída. Repo público, v0.6.0 publicada (resumo executivo, `--redact`, `verify`,
-`*-VERSION-002`; 26 regras; sem nota abaixo de 6 regras aplicáveis), `.deb`/`.rpm`, imagem pública
+Status (2026-10-23): fase 2 concluída. Repo público, v0.6.1 publicada (v0.6: resumo executivo, `--redact`, `verify`,
+`*-VERSION-002`; 26 regras; sem nota abaixo de 6 regras aplicáveis. v0.6.1: attestations, bucket Scoop em `bucket/`
+atualizado pelo `publish.yml`; winget `codeDB.Lens` em revisão), `.deb`/`.rpm`, imagem pública
 `ghcr.io/codedb-io/codedb-lens`, docs em `https://lens.codedb.com.br/` (GitHub Pages, workflow `docs.yml`),
 página `https://app.codedb.com.br/lens` no ar. Próximo marco: v0.8 `record` (v0.5.2 assinatura quando o SignPath aprovar).
 
@@ -73,8 +74,8 @@ do payload)`, kid `2026-1`, 90 dias, `max_instances` 1 (aplicado localmente). Co
 (`privacy_ack` obrigatório, `marketing_opt_in` opcional) + `consent_version`; o texto fica em
 `internal/license/consent.go`, versão `lens-2026-1` (aprovada pelo jurídico em 2026-10-22, igual ao rascunho `lens-2026-0`).
 
-Em aberto: assinatura de código (SignPath Foundation após o repo
-ficar público), overhead máximo do `record`.
+Em aberto: assinatura de código (SignPath Foundation recusou em 2026-10-22 por falta de visibilidade; reenviar com
+tração. Azure Artifact Signing não atende o Brasil; Certum Open Source ~€49/ano quando houver verba), overhead máximo do `record`.
 
 ---
 
