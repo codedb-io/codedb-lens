@@ -51,16 +51,45 @@ type State struct {
 	Landing  string            `json:"landing"`
 }
 
-// UpdateNotice returns a localized "new version" message, or "" (also when the check is disabled).
-func (a *App) UpdateNotice(lang string) string {
+// UpdateInfo is the "new version" banner. Self: Lens can update itself (no package manager owns the binary).
+type UpdateInfo struct {
+	Message string `json:"message"`
+	Self    bool   `json:"self"`
+}
+
+// UpdateNotice returns the localized banner, or an empty message (also when the check is disabled).
+func (a *App) UpdateNotice(lang string) UpdateInfo {
 	if update.Disabled(false) {
-		return ""
+		return UpdateInfo{}
 	}
 	tag := update.Newer(a.ctx, version)
 	if tag == "" {
-		return ""
+		return UpdateInfo{}
 	}
-	return fmt.Sprintf(i18n.T(i18n.Normalize(lang), "update_avail"), tag, version, update.Command())
+	lang = i18n.Normalize(lang)
+	if update.Managed() {
+		return UpdateInfo{Message: fmt.Sprintf(i18n.T(lang, "update_avail"), tag, version, update.Command())}
+	}
+	return UpdateInfo{Message: fmt.Sprintf(i18n.T(lang, "gui_update_avail"), tag, version), Self: true}
+}
+
+// ApplyUpdate installs the latest release (same Ed25519-verified path as `codedb-lens update`) and restarts the app.
+func (a *App) ApplyUpdate() error {
+	exe, err := os.Executable() // before Apply renames the running binary
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(a.ctx, 5*time.Minute)
+	defer cancel()
+	tag, err := update.Apply(ctx, version)
+	if err != nil || tag == "" {
+		return err
+	}
+	if err := exec.Command(exe).Start(); err != nil {
+		return err
+	}
+	runtime.Quit(a.ctx)
+	return nil
 }
 
 func (a *App) State() (State, error) {
@@ -93,6 +122,11 @@ func (a *App) Rules(eng, lang string) []RuleInfo {
 // History returns the latest runs of a profile (newest first) for the sidebar badge and the history card.
 func (a *App) History(p profile.Profile) []report.Summary {
 	return report.History(firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)), 8)
+}
+
+// DeleteRun permanently removes one run (its .html and .json) from the profile's history.
+func (a *App) DeleteRun(p profile.Profile, path string) error {
+	return report.DeleteRun(firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)), path)
 }
 
 func (a *App) Texts(lang string) map[string]string { return i18n.All(i18n.Normalize(lang)) }

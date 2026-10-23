@@ -2,6 +2,8 @@ package report
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -106,5 +108,28 @@ func TestSetEvolution(t *testing.T) {
 	}
 	if !strings.Contains(html(), "1 new · 1 resolved") {
 		t.Error("evolution line missing from the HTML")
+	}
+}
+
+func TestDeleteRun(t *testing.T) {
+	dir := t.TempDir()
+	other := t.TempDir()
+	for _, f := range []string{dir + "/a.html", dir + "/a.json", dir + "/b.html", dir + "/b.json", other + "/c.html"} {
+		if err := os.WriteFile(f, nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := DeleteRun(dir, filepath.Join(dir, "a.html")); err != nil {
+		t.Fatal(err)
+	}
+	for f, want := range map[string]bool{"a.html": false, "a.json": false, "b.html": true, "b.json": true} {
+		if _, err := os.Stat(filepath.Join(dir, f)); (err == nil) != want {
+			t.Errorf("%s exists = %v, want %v", f, err == nil, want)
+		}
+	}
+	for _, bad := range []string{filepath.Join(other, "c.html"), filepath.Join(dir, "b.json"), filepath.Join(dir, "..", filepath.Base(other), "c.html")} {
+		if DeleteRun(dir, bad) == nil {
+			t.Errorf("DeleteRun(%s) should refuse", bad)
+		}
 	}
 }

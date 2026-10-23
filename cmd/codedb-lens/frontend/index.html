@@ -40,9 +40,17 @@ aside { background: var(--navy-900); color: var(--on-dark); display: flex; flex-
 .secure { display: flex; gap: var(--s3); padding: var(--s3); border-radius: var(--r-md); background: var(--navy-800); border: 1px solid var(--navy-700); font-size: var(--fs-xs); color: var(--on-dark-muted); }
 .secure b { color: #fff; display: block; font-size: var(--fs-sm); margin-bottom: 2px; }
 .secure svg { color: var(--ok); }
+.secline { display: flex; gap: var(--s2); align-items: center; font-size: var(--fs-xs); color: var(--on-dark-muted); cursor: default; }
+.secline svg { width: 14px; height: 14px; color: var(--ok); }
+.acts .card.act { margin-top: 0; } /* beats .card + .card */
 .side-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-xs); color: var(--on-dark-muted); }
 .side-row select { background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: var(--r-sm); padding: 4px 8px; color: var(--on-dark); }
-.upd { padding: var(--s3); border-radius: var(--r-md); background: var(--blue-600); color: #fff; font-size: var(--fs-xs); }
+.upd { padding: var(--s3); border-radius: var(--r-md); background: var(--blue-600); color: #fff; font-size: var(--fs-xs); display: grid; gap: var(--s2); }
+.upd .btn { background: #fff; color: var(--navy-900); border: 0; height: 30px; font-size: var(--fs-xs); }
+.homebtn { margin: 0 var(--s4) var(--s2); display: flex; align-items: center; gap: var(--s2); padding: 8px var(--s3); border: 0; border-radius: var(--r-md);
+  background: transparent; color: var(--on-dark); cursor: pointer; font-weight: 600; text-align: left; }
+.homebtn:hover { background: var(--navy-800); }
+.homebtn.sel { background: var(--navy-700); box-shadow: inset 3px 0 0 var(--blue-500); }
 
 /* ── main ─────────────────────────────────── */
 main { overflow-y: auto; min-width: 0; }
@@ -134,6 +142,30 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   background: var(--surface); cursor: pointer; text-align: left; font-size: var(--fs-sm); }
 .hrow:hover { border-color: var(--line-strong); }
 .hrow small { color: var(--muted); }
+.hline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: center; }
+.hline .linkbtn { color: var(--muted); font-weight: 400; font-size: var(--fs-xs); }
+.hline .linkbtn:hover { color: var(--crit); }
+/* home & tabs */
+.tabs { display: flex; gap: var(--s1); border-bottom: 1px solid var(--line); margin-bottom: var(--s5); }
+.tabs button { border: 0; background: none; padding: var(--s2) var(--s4); cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--blue-600); }
+.soon { display: inline-block; white-space: nowrap; padding: 2px 8px; border-radius: var(--r-pill); background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s4); }
+.how h3 { margin: var(--s2) 0 var(--s1); font-size: var(--fs-md); }
+.how p { margin: 0; color: var(--muted); font-size: var(--fs-sm); }
+.acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s4); margin: var(--s5) 0; }
+.act { display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; padding: var(--s5); text-align: left; cursor: pointer; border: 1.5px solid var(--line); }
+.act:hover:not(:disabled) { border-color: var(--blue-600); }
+.act:disabled { cursor: default; opacity: .7; }
+.act b { font-size: var(--fs-lg); }
+.act span:not(.soon) { color: var(--muted); font-size: var(--fs-sm); }
+.act svg { color: var(--blue-600); width: 24px; height: 24px; }
+.promo.hero { padding: var(--s5); gap: var(--s5); }
+.promo.hero b { font: 700 var(--fs-xl) var(--font-display); margin-bottom: var(--s1); }
+.promo.hero > div { font-size: var(--fs-sm); }
+.promo.hero .btn { height: 40px; padding: 0 var(--s5); font-size: var(--fs-sm); }
+.promo-t { transition: opacity .4s var(--ease); }
+.promo-t.fade { opacity: 0; }
 .code { background: var(--navy-900); color: var(--on-dark); border-radius: var(--r-md); padding: var(--s3) var(--s4); font: 12px/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; }
 .promo { background: var(--hero); color: #fff; border-radius: var(--r-md); display: flex; gap: var(--s3); align-items: center; padding: var(--s3); }
 .promo > div { flex: 1; min-width: 0; font-size: var(--fs-xs); color: var(--on-dark); }
@@ -184,19 +216,22 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
-  <symbol id="i-paste" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></symbol>
+  <symbol id="i-paste"viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
 </svg>
 
 <aside>
   <div class="brand"><img src="icon.png" width="40" height="40" alt=""><div><b>codeDB <span>Lens</span></b><small id="ver"></small></div></div>
+  <button class="homebtn" id="homebtn"><svg class="i"><use href="#i-home"/></svg><span data-t="gui_home"></span></button>
   <button class="newbtn" id="new"><svg class="i"><use href="#i-plus"/></svg><span data-t="gui_new_title"></span></button>
   <div class="side-h" data-t="gui_connections"></div>
   <div class="plist" id="plist"></div>
   <div class="side-foot">
-    <div class="upd" id="upd" hidden></div>
-    <div class="secure"><svg class="i"><use href="#i-shield"/></svg><div><b data-t="gui_secure_title"></b><span data-t="gui_secure"></span></div></div>
+    <div class="upd" id="upd" hidden><span id="updmsg"></span><button type="button" class="btn" id="updbtn" hidden data-t="gui_update_now"></button></div>
     <button type="button" class="keychip" id="keychip"><svg class="i"><use href="#i-key"/></svg><span id="keylbl"></span></button>
-    <div class="promo mini"><div><b data-t="gui_promo_title"></b></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
+    <div class="promo mini"><div><b class="promo-t"></b></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
+    <div class="secline" data-tt="gui_secure"><svg class="i"><use href="#i-shield"/></svg><span data-t="gui_secure_title"></span></div>
     <div class="side-row">
       <a href="#" id="powered" style="color:var(--sky-300);text-decoration:none">Powered by codeDB</a>
       <select id="uilang" aria-label="Language"><option value="en">English</option><option value="pt-BR">Português</option></select>
@@ -205,7 +240,30 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 </aside>
 
 <main id="main">
-<div class="wrap" id="editor">
+<div class="wrap" id="home">
+  <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-db"/></svg></div>
+    <div><h1 data-t="gui_home_title"></h1><p data-t="gui_home_sub"></p></div></div>
+  <div class="card sec">
+    <div class="sh"><div><h2 data-t="gui_how"></h2></div></div>
+    <div class="how">
+      <div><span class="num">1</span><h3 data-t="gui_how_1"></h3><p data-t="gui_how_1s"></p></div>
+      <div><span class="num">2</span><h3 data-t="gui_how_2"></h3><p data-t="gui_how_2s"></p></div>
+      <div><span class="num">3</span><h3 data-t="gui_how_3"></h3><p data-t="gui_how_3s"></p></div>
+    </div>
+    <div class="secure" style="margin-top:var(--s5);background:var(--surface-2);border-color:var(--line);color:var(--muted)"><svg class="i"><use href="#i-shield"/></svg>
+      <div><b style="color:var(--text)" data-t="gui_secure_title"></b><span data-t="gui_secure"></span></div></div>
+  </div>
+  <div class="acts">
+    <button type="button" class="card act" id="actnew"><svg class="i"><use href="#i-plus"/></svg><b data-t="gui_new_title"></b><span data-t="gui_card_new_s"></span></button>
+    <button type="button" class="card act" id="actrun"><svg class="i"><use href="#i-play"/></svg><b data-t="gui_card_run"></b><span data-t="gui_card_run_s"></span></button>
+    <button type="button" class="card act" disabled><svg class="i"><use href="#i-rec"/></svg><b data-t="gui_card_record"></b><span data-t="gui_card_record_s"></span><span class="soon" data-t="gui_soon"></span></button>
+  </div>
+  <div class="promo hero"><div><b data-t="gui_codedb_title"></b><span data-t="gui_codedb_text"></span><br><span data-t="gui_promo"></span>
+    <br><button type="button" class="linkbtn" id="homekey" style="color:var(--sky-300);margin-top:var(--s3)"><svg class="i"><use href="#i-key"/></svg><span></span></button></div>
+    <button type="button" class="btn" id="homecta" data-t="gui_promo_cta"></button></div>
+</div>
+
+<div class="wrap" id="editor" hidden>
   <div class="ph">
     <div class="ph-ic"><svg class="i"><use href="#i-db"/></svg></div>
     <div><h1 id="title"></h1><p id="subtitle"></p></div>
@@ -215,7 +273,20 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     </div>
   </div>
 
-  <div class="grid">
+  <div class="tabs" id="tabs" role="tablist" hidden>
+    <button type="button" role="tab" data-tab="check" data-t="gui_tab_check"></button>
+    <button type="button" role="tab" data-tab="record" data-t="gui_tab_record"></button>
+    <button type="button" role="tab" data-tab="hist" data-t="gui_history"></button>
+  </div>
+
+  <div class="card sec" id="tab-record" style="max-width:760px" hidden>
+    <div class="sh"><svg class="i" style="color:var(--blue-600)"><use href="#i-rec"/></svg><div><h2 data-t="gui_card_record"></h2><p data-t="gui_record_soon"></p></div>
+      <span class="soon right" data-t="gui_soon"></span></div>
+  </div>
+
+  <div class="card sec" id="tab-hist" style="max-width:760px" hidden><div class="hist" id="hist"></div></div>
+
+  <div class="grid" id="tab-check">
     <form id="f" autocomplete="off" onsubmit="return false">
       <div class="card">
         <div class="sec">
@@ -285,7 +356,6 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 
     <div class="rail">
       <div class="card"><h3><svg class="i"><use href="#i-list"/></svg><span data-t="gui_checks"></span></h3><p class="sub" id="checksn"></p><ul class="rules" id="rules"></ul></div>
-      <div class="card" id="histcard"><h3><svg class="i"><use href="#i-clock"/></svg><span data-t="gui_history"></span></h3><div class="hist" id="hist"></div></div>
       <div class="card"><h3><svg class="i"><use href="#i-key"/></svg><span data-t="gui_perms"></span><button type="button" class="linkbtn" id="copy" style="margin-left:auto" data-t="gui_copy"></button></h3><div class="code" id="permtext"></div></div>
     </div>
   </div>
@@ -344,7 +414,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <button class="btn" id="browser" data-t="gui_open_browser"></button>
     <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg><span data-t="gui_open_folder"></span></button>
   </div>
-  <div class="promo wide"><div><b data-t="gui_promo_title"></b><span data-t="gui_promo"></span></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
+  <div class="promo wide"><div><b class="promo-t"></b><span data-t="gui_promo"></span></div><button type="button" class="btn promo-cta" data-t="gui_promo_cta"></button></div>
   <iframe id="frame" sandbox="allow-scripts allow-same-origin allow-modals" title="report"></iframe>
 </div>
 
@@ -359,7 +429,7 @@ let key = {}, state, texts = {}, uiLang = 'en', current = null, engine = 'mssql'
 const t = k => texts[k] || k;
 const tf = (k, ...a) => a.reduce((s, v) => s.replace(/%[sd]/, v), t(k));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-function applyTexts() { $$('[data-t]').forEach(e => e.textContent = t(e.dataset.t)); }
+function applyTexts() { $$('[data-t]').forEach(e => e.textContent = t(e.dataset.t)); $$('[data-tt]').forEach(e => e.title = t(e.dataset.tt)); }
 function ago(iso) {
   const s = (new Date(iso) - Date.now()) / 1000, rtf = new Intl.RelativeTimeFormat(uiLang, { numeric: 'auto' });
   for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(s) >= n) return rtf.format(Math.round(s / n), u);
@@ -396,18 +466,42 @@ function fill(p) {
   $('#trust').checked = !!c.trust_server_cert;
   setAuth(c.auth || (c.engine === 'mssql' ? 'windows' : 'sql'));
   setEngine(c.engine || 'mssql');
-  $('#pwhint').hidden = !p; $('#del').hidden = !p; $('#dup').hidden = !p;
+  $('#pwhint').hidden = !p; $('#del').hidden = !p; $('#dup').hidden = !p; $('#tabs').hidden = !p;
   $('#title').textContent = p ? p.name : t('gui_new_title');
   $('#subtitle').textContent = p ? t('gui_edit_sub') : t('gui_new_sub');
-  setPaste(false); status(); renderList(); renderHistory(p);
+  show('editor'); setTab('check'); setPaste(false); status(); renderList(); renderHistory(p);
 }
+function show(id) {
+  ['home', 'editor', 'keyview', 'runner', 'view'].forEach(v => $('#' + v).hidden = v !== id);
+  $('#homebtn').classList.toggle('sel', id === 'home');
+}
+function setTab(name) {
+  $$('#tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
+  for (const n of ['check', 'record', 'hist']) $('#tab-' + n).hidden = n !== name;
+}
+function goHome() { current = null; show('home'); renderList(); }
+
+/* ── codeDB call to action: rotating phrases, each tagged so the SaaS can tell which one converts ── */
+const PROMOS = 6;
+let promo = Math.floor(Math.random() * PROMOS) + 1, promoHover = false;
+function landing(campaign, content) {
+  const u = new URL(state.landing); u.searchParams.set('utm_campaign', campaign);
+  if (content) u.searchParams.set('utm_content', content);
+  return u.toString();
+}
+function renderPromo() { $$('.promo-t').forEach(e => e.textContent = t('gui_promo_' + promo)); }
+setInterval(() => {
+  if (promoHover || document.hidden) return;
+  $$('.promo-t').forEach(e => e.classList.add('fade'));
+  setTimeout(() => { promo = promo % PROMOS + 1; renderPromo(); $$('.promo-t').forEach(e => e.classList.remove('fade')); }, 400);
+}, 20000);
 function setPaste(open) {
   $('#pastebox').hidden = !open; $('#pastebtn').setAttribute('aria-expanded', open);
   const l = $('#pastelbl'); l.dataset.t = open ? 'gui_paste_hide' : 'gui_paste'; l.textContent = t(l.dataset.t);
   if (open) $('#cs').focus();
 }
 function showReport(html, path, p) {
-  lastPath = path; lastProfile = p; $('#view').hidden = false;
+  lastPath = path; lastProfile = p; show('view');
   const f = $('#frame'); // reports carry both languages: open them in the app's, whatever the run used
   f.onload = () => { try { const h = f.contentDocument.documentElement; h.dataset.lang = h.lang = uiLang; } catch (e) {} };
   f.srcdoc = html;
@@ -437,13 +531,21 @@ function renderHistory(p) {
   const box = $('#hist'), runs = p ? (histCache[p.name] || []) : [];
   box.innerHTML = runs.length ? '' : '<p class="sub" style="margin:0">' + esc(t('gui_history_none')) + '</p>';
   runs.forEach(r => {
+    const when = new Date(r.when).toLocaleString(uiLang);
+    const line = document.createElement('div'); line.className = 'hline';
     const b = document.createElement('button'); b.type = 'button'; b.className = 'hrow';
-    b.innerHTML = '<span class="gbadge g-' + esc(r.letter) + '">' + esc(r.letter) + '</span><span>' + esc(new Date(r.when).toLocaleString(uiLang)) +
+    b.innerHTML = '<span class="gbadge g-' + esc(r.letter) + '">' + esc(r.letter) + '</span><span>' + esc(when) +
       '<br><small>' + esc(tf(r.findings === 1 ? 'gui_findings_1' : 'gui_findings_n', r.findings)) + ' · ' + Math.round(r.coverage * 100) + '%</small></span><small>' + (r.letter === '?' ? '' : Math.round(r.value)) + '</small>';
     b.onclick = async () => {
       try { showReport(await api().ReadReport(r.path), r.path, p); } catch (e) { status('err', String(e)); }
     };
-    box.appendChild(b);
+    const d = document.createElement('button'); d.type = 'button'; d.className = 'linkbtn'; d.textContent = t('gui_hist_delete');
+    d.onclick = async () => {
+      if (!await api().Confirm(t('gui_hist_delete'), tf('gui_hist_delete_confirm', when))) return;
+      try { await api().DeleteRun(p, r.path); } catch (e) { status('err', String(e)); }
+      histCache[p.name] = await api().History(p) || []; renderList(); renderHistory(p);
+    };
+    line.append(b, d); box.appendChild(line);
   });
   if (runs.length > 1) {
     const c = document.createElement('button'); c.type = 'button'; c.className = 'btn'; c.textContent = t('gui_compare');
@@ -460,7 +562,7 @@ async function compare(p, older, newer) {
 /* ── free key ── */
 async function loadKey() {
   key = await api().LicenseStatus(uiLang);
-  $('#keylbl').textContent = key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
+  $('#keylbl').textContent = $('#homekey span').textContent = key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
   $('#lprivacy').textContent = key.consent.privacy_ack; $('#lmkt').textContent = key.consent.marketing; $('#rnotice').textContent = key.consent.notice;
   const opts = (list, label) => '<option value=""></option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(label(v)) + '</option>').join('');
   const r = $('#rrole').value, i = $('#rinst').value;
@@ -471,7 +573,7 @@ async function loadKey() {
 }
 function keyStatus(kind, msg) { $('#keystatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b></div></div>' : ''; }
 function showKey() {
-  $('#editor').hidden = true; $('#runner').hidden = true; $('#view').hidden = true; $('#keyview').hidden = false;
+  show('keyview');
   keyStatus(key.valid ? 'ok' : '', key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) + ' (' + key.expires + ')' : '');
 }
 function canSend() { $('#rsend').disabled = !($('#rprivacy').checked && $('#rname').value.trim() && $('#remail').value.trim()); }
@@ -547,14 +649,14 @@ async function run(p) {
   if (!p) { try { p = await save(); } catch (e) { status('err', String(e)); return; } if (!p) return; }
   busy(true);
   try {
-    $('#editor').hidden = true; $('#runner').hidden = false;
+    show('runner');
     $('#runtitle').textContent = tf('gui_running', p.name); $('#runsub').textContent = p.conn.server;
     $('#steps').innerHTML = ''; $('#progbar').style.width = '0'; $('#stop').disabled = false;
     const r = await api().Run({ ...p, lang: uiLang }, ''); // saved report defaults to the app's language
     showReport(r.html, r.path, p);
     histCache[p.name] = await api().History(p) || []; renderList(); renderHistory(p);
   } catch (e) {
-    $('#runner').hidden = true; $('#editor').hidden = false;
+    show('editor');
     if (/context canceled/i.test(String(e))) status('info', t('gui_stopped'));
     else status('err', friendly(e), String(e));
   } finally { busy(false); }
@@ -610,7 +712,7 @@ $('#csapply').onclick = () => {
 $('#save').onclick = async () => { try { if (await save()) status('ok', t('gui_saved')); } catch (e) { status('err', String(e)); } };
 $('#del').onclick = async () => {
   if (!current || !await api().Confirm(t('gui_delete'), tf('gui_delete_confirm', current))) return;
-  await api().DeleteProfile(current); state = await api().State(); fill(null);
+  await api().DeleteProfile(current); state = await api().State(); goHome();
 };
 $('#dup').onclick = async () => {
   try {
@@ -619,8 +721,22 @@ $('#dup').onclick = async () => {
     fill(p); $('#name').focus(); $('#name').select();
   } catch (e) { status('err', String(e)); }
 };
-$('#keychip').onclick = showKey;
-$('#keyback').onclick = () => { $('#keyview').hidden = true; $('#editor').hidden = false; };
+$('#keychip').onclick = $('#homekey').onclick = showKey;
+$('#keyback').onclick = () => current ? show('editor') : goHome();
+$('#homebtn').onclick = goHome;
+$('#actnew').onclick = () => fill(null);
+$('#actrun').onclick = () => {
+  const ps = state.profiles || [], p = ps.find(x => x.name === state.last) || ps[0];
+  if (p) { fill(p); run(p); } else fill(null);
+};
+$$('#tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+$$('.promo').forEach(e => { e.onmouseenter = () => promoHover = true; e.onmouseleave = () => promoHover = false; });
+$('#homecta').onclick = () => api().OpenURL(landing('home'));
+$('#updbtn').onclick = async () => {
+  $('#updbtn').disabled = true; $('#updmsg').textContent = t('gui_updating');
+  try { await api().ApplyUpdate(); } catch (e) { $('#updmsg').textContent = String(e); }
+  finally { $('#updbtn').disabled = false; }
+};
 ['#rname', '#remail', '#rprivacy'].forEach(s => $(s).addEventListener('input', canSend));
 $('#privlink').onclick = e => { e.preventDefault(); api().OpenURL(key.privacy); };
 $('#privlink2').onclick = $('#privlink').onclick;
@@ -633,10 +749,10 @@ $('#test').onclick = test;
 $('#run').onclick = () => run();
 $('#f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); e.ctrlKey ? run() : test(); } });
 $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(PERMS[engine]); $('#copy').textContent = t('gui_copied'); setTimeout(applyTexts, 1500); } catch (e) {} };
-document.querySelectorAll('.promo-cta').forEach(b => b.onclick = () => api().OpenURL(state.landing));
+$$('.promo-cta').forEach(b => b.onclick = () => api().OpenURL(landing('promo', 'promo_' + promo)));
 $('#powered').onclick = e => { e.preventDefault(); api().OpenURL(state.landing); };
-$('#back').onclick = () => { $('#view').hidden = true; $('#keyview').hidden = true; $('#runner').hidden = true; $('#editor').hidden = false; status(); };
-$('#again').onclick = () => { $('#view').hidden = true; run(lastProfile); };
+$('#back').onclick = () => { show('editor'); status(); };
+$('#again').onclick = () => run(lastProfile);
 $('#browser').onclick = () => api().OpenReport(lastPath);
 $('#folder').onclick = () => api().OpenFolder(lastPath);
 // addEventListener, not onload: showReport sets onload on every report and would drop this handler
@@ -650,7 +766,7 @@ $('#frame').addEventListener('load', () => $('#frame').contentDocument.addEventL
   } else if (/^https?:/i.test(href)) { e.preventDefault(); api().OpenURL(a.href); }
 }));
 $('#uilang').onchange = async e => {
-  uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts();
+  uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts(); renderPromo();
   const p = (state.profiles || []).find(x => x.name === current);
   $('#title').textContent = p ? p.name : t('gui_new_title'); $('#subtitle').textContent = p ? t('gui_edit_sub') : t('gui_new_sub');
   loadRules(); renderList(); renderHistory(p); loadKey();
@@ -660,17 +776,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   state = await api().State();
   uiLang = state.lang; texts = state.texts;
   $('#tokens').textContent = state.tokens; $('#ver').textContent = 'v' + state.version + ' · by codeDB';
-  $('#uilang').value = uiLang; applyTexts();
+  $('#uilang').value = uiLang; applyTexts(); renderPromo();
   window.runtime.EventsOn('rule', onRule);
-  const last = (state.profiles || []).find(p => p.name === state.last);
-  fill(last || null);
+  fill(null); goHome(); // opens on Home: nothing selected, no connection attempted
   loadKey();
-  loadHistories().then(() => renderHistory(last || null));
-  api().UpdateNotice(uiLang).then(m => { if (m) { $('#upd').textContent = m; $('#upd').hidden = false; } });
-  if (last) { // validate the last connection on open
-    status('info', t('gui_testing'));
-    try { status('ok', tf('gui_ready', await api().TestConnection(last, ''))); } catch (e) { status('err', friendly(e), String(e)); }
-  } else { $('#server').focus(); }
+  loadHistories();
+  api().UpdateNotice(uiLang).then(u => {
+    if (!u.message) return;
+    $('#updmsg').textContent = u.message; $('#updbtn').hidden = !u.self; $('#upd').hidden = false;
+  });
 });
 </script>
 </body>

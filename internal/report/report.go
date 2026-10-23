@@ -5,10 +5,12 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"html/template"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -321,6 +323,21 @@ type Summary struct {
 	Coverage float64   `json:"coverage"`
 	Findings int       `json:"findings"`
 	Path     string    `json:"path"` // HTML report
+}
+
+// DeleteRun removes the run whose HTML report is path (and its JSON). path must be a report directly inside dir.
+func DeleteRun(dir, path string) error {
+	if !strings.EqualFold(filepath.Clean(filepath.Dir(path)), filepath.Clean(dir)) || !strings.EqualFold(filepath.Ext(path), ".html") ||
+		strings.HasPrefix(filepath.Base(path), "compare_") {
+		return fmt.Errorf("not a report in %s: %s", dir, path)
+	}
+	base := strings.TrimSuffix(path, filepath.Ext(path))
+	for _, ext := range []string{".json", ".html"} {
+		if err := os.Remove(base + ext); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			return err
+		}
+	}
+	return nil
 }
 
 // History lists the newest runs in dir (at most n), newest first.
