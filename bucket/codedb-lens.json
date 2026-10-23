@@ -1,24 +1,31 @@
 {
-    "version": "0.6.0",
-    "description": "Free, read-only health check for SQL Server and PostgreSQL.",
-    "homepage": "https://lens.codedb.com.br/",
-    "license": "Apache-2.0",
-    "notes": "Run 'codedb-lens' without arguments for the app, or 'codedb-lens check --help' for the command line. Update with 'scoop update codedb-lens'.",
-    "architecture": {
-        "64bit": {
-            "url": "https://github.com/codedb-io/codedb-lens/releases/download/v0.6.0/codedb-lens_windows_amd64.zip",
-            "hash": "087baae5698988f1d2c82e982abc547252908ce54382940bc4e433916df8de21"
-        }
-    },
-    "bin": "codedb-lens.exe",
-    "shortcuts": [["codedb-lens.exe", "codeDB Lens"]],
-    "checkver": "github",
-    "autoupdate": {
-        "architecture": {
-            "64bit": {
-                "url": "https://github.com/codedb-io/codedb-lens/releases/download/v$version/codedb-lens_windows_amd64.zip"
-            }
-        },
-        "hash": { "url": "$baseurl/checksums.txt" }
+  "version": "0.6.1",
+  "description": "Free, read-only health check for SQL Server and PostgreSQL.",
+  "homepage": "https://lens.codedb.com.br/",
+  "license": "Apache-2.0",
+  "notes": "Run 'codedb-lens' without arguments for the app, or 'codedb-lens check --help' for the command line. Update with 'scoop update codedb-lens'.",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/codedb-io/codedb-lens/releases/download/v0.6.1/codedb-lens_windows_amd64.zip",
+      "hash": "059843169e67aa911ed2f550ed63e73161026af49acfbb88c12267bdf0abdc6f"
     }
+  },
+  "bin": "codedb-lens.exe",
+  "shortcuts": [
+    [
+      "codedb-lens.exe",
+      "codeDB Lens"
+    ]
+  ],
+  "checkver": "github",
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/codedb-io/codedb-lens/releases/download/v$version/codedb-lens_windows_amd64.zip"
+      }
+    },
+    "hash": {
+      "url": "$baseurl/checksums.txt"
+    }
+  }
 }
