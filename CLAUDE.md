@@ -61,12 +61,15 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 | 3 | v0.8 `record` (24h) + regras v1 | Overhead medido e documentado |
 | 4 | v1.0 `share` + `connect` | Primeiros trials vindos do Lens |
 
-Status (2026-10-23): fase 2 concluída. Repo público, v0.7.0 publicada (v0.6: resumo executivo, `--redact`, `verify`,
+Status (2026-10-23): fase 3 concluída. Repo público, v0.8.0 publicada (`record` 1h/24h + `report` com linha do tempo,
+8 regras de série `*-REC-*`, aba Gravar na GUI; overhead medido em `RELEASING.md`; plano em `planos/09-v0.8-record.md`;
+v0.6: resumo executivo, `--redact`, `verify`,
 `*-VERSION-002`; 26 regras; sem nota abaixo de 6 regras aplicáveis. v0.6.1: attestations, bucket Scoop em `bucket/`
 atualizado pelo `publish.yml`; winget `codeDB.Lens` em revisão, sem `WINGET_TOKEN`. v0.7: GUI com tela inicial, abas
 por conexão, botão "Atualizar agora", excluir do histórico; plano da v0.8 em `planos/08-v0.7-v0.8.md`), `.deb`/`.rpm`, imagem pública
 `ghcr.io/codedb-io/codedb-lens`, docs em `https://lens.codedb.com.br/` (GitHub Pages, workflow `docs.yml`),
-página `https://app.codedb.com.br/lens` no ar. Próximo marco: v0.8 `record` (v0.5.2 assinatura quando o SignPath aprovar).
+página `https://app.codedb.com.br/lens` no ar. Próximo marco: v1.0 `share` + `connect` (assinatura quando houver
+certificado). Calibrar os limites das regras `*-REC-*` com gravações reais.
 
 Chave grátis (contrato com o MonitorSQL, 2026-10-21): `POST https://api.codedb.com.br/lens/register` (sem staging) e
 `POST /lens/renew` (2026-10-22; chave atual, mesmo vencida; janela −14 a +30 dias do vencimento),
@@ -76,7 +79,7 @@ do payload)`, kid `2026-1`, 90 dias, `max_instances` 1 (aplicado localmente). Co
 `internal/license/consent.go`, versão `lens-2026-1` (aprovada pelo jurídico em 2026-10-22, igual ao rascunho `lens-2026-0`).
 
 Em aberto: assinatura de código (SignPath Foundation recusou em 2026-10-22 por falta de visibilidade; reenviar com
-tração. Azure Artifact Signing não atende o Brasil; Certum Open Source ~€49/ano quando houver verba), overhead máximo do `record`.
+tração. Azure Artifact Signing não atende o Brasil; Certum Open Source ~€49/ano quando houver verba).
 
 ---
 
