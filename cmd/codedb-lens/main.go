@@ -34,6 +34,8 @@ const usage = `codeDB Lens %s — free, read-only health check for SQL Server an
 Usage:
   codedb-lens check   --engine mssql|pg [connection flags] [--out DIR] [--lang en|pt-BR]
                       [--fail-on SEVERITY] [--min-coverage PCT]
+  codedb-lens record  --engine mssql|pg [connection flags] [--duration 1h|24h] [--out DIR]
+                      record activity every 15 s (1 h; 24 h with the free key)
   codedb-lens compare [--profile NAME | OLD.json NEW.json]   compare two runs (free key)
   codedb-lens register  get the free key (sends only the name and e-mail you type, once)
   codedb-lens license [status|import <key>|reset|remove]
@@ -59,6 +61,8 @@ func main() {
 	switch os.Args[1] {
 	case "check":
 		code, err = check(os.Args[2:])
+	case "record":
+		err = recordCmd(os.Args[2:])
 	case "compare":
 		err = compareCmd(os.Args[2:])
 	case "register":
@@ -119,19 +123,9 @@ type checkOpts struct {
 func check(args []string) (int, error) {
 	var o checkOpts
 	fs := flag.NewFlagSet("check", flag.ExitOnError)
-	fs.StringVar(&o.conn.Engine, "engine", "", "mssql or pg (required)")
-	fs.StringVar(&o.conn.Server, "server", "localhost", `server: host, "host,port" or host\instance`)
-	fs.IntVar(&o.conn.Port, "port", 0, "port (default 1433 / 5432)")
-	fs.StringVar(&o.conn.Database, "database", "", "initial database (default master / postgres)")
-	fs.StringVar(&o.conn.Auth, "auth", "sql", "mssql: windows or sql")
-	fs.StringVar(&o.conn.User, "user", "", "login name")
-	fs.BoolVar(&o.conn.TrustServerCert, "trust-server-cert", false, "accept a self-signed server certificate")
-	fs.StringVar(&o.conn.SSLMode, "sslmode", "", "pg: disable, require, verify-full ...")
-	fs.StringVar(&o.dsnEnv, "dsn-env", "", "pg: name of an env var holding the connection string")
+	connFlags(fs, &o)
 	fs.StringVar(&o.out, "out", "", "report folder (default Documents/codeDB Lens/reports/<profile>)")
-	fs.StringVar(&o.lang, "lang", "", "en or pt-BR (default: system language)")
 	fs.StringVar(&o.rulesDir, "rules-dir", "", "use rules from this folder instead of the built-in catalog")
-	fs.StringVar(&o.profile, "profile", "", "use a saved profile (connection flags are ignored)")
 	save := fs.String("save", "", "save these connection settings as a profile with this name")
 	redact := fs.Bool("redact", false, "mask host, database, object, login and file names and drop query text; writes only <timestamp>.redacted.html/.json")
 	noUpdate := fs.Bool("no-update-check", false, "skip the daily version check")
@@ -146,31 +140,11 @@ func check(args []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if o.profile != "" {
-		p, ok := profiles.Get(o.profile)
-		if !ok {
-			return 0, fmt.Errorf("profile %q not found", o.profile)
-		}
-		o.conn, o.lang, o.out = p.Conn, firstNonEmpty(o.lang, p.Lang), firstNonEmpty(o.out, p.OutDir)
-		if pw, err := profile.Password(p.Name); err == nil {
-			o.conn.Password = pw
-		}
+	p, err := resolveConn(&o, profiles)
+	if err != nil {
+		return 0, err
 	}
-	o.lang = i18n.Normalize(firstNonEmpty(o.lang, i18n.Detect()))
-	if o.conn.Engine == "" {
-		return 0, errors.New("--engine is required (mssql or pg)")
-	}
-	if o.dsnEnv != "" {
-		o.conn.DSN = os.Getenv(o.dsnEnv)
-		if o.conn.DSN == "" {
-			return 0, fmt.Errorf("environment variable %s is empty", o.dsnEnv)
-		}
-	}
-	if o.conn.Password == "" {
-		if err := readPassword(&o); err != nil {
-			return 0, err
-		}
-	}
+	o.out = firstNonEmpty(o.out, p.OutDir)
 	if *save != "" {
 		o.profile = *save
 		profiles.Put(profile.Profile{Name: *save, Conn: o.conn, Lang: o.lang, OutDir: o.out})
@@ -213,6 +187,52 @@ func check(args []string) (int, error) {
 	case <-time.After(time.Second):
 	}
 	return exitCode(rep, engine.Severity(*failOn), *minCoverage), nil
+}
+
+// connFlags registers the connection flags shared by check and record.
+func connFlags(fs *flag.FlagSet, o *checkOpts) {
+	fs.StringVar(&o.conn.Engine, "engine", "", "mssql or pg (required)")
+	fs.StringVar(&o.conn.Server, "server", "localhost", `server: host, "host,port" or host\instance`)
+	fs.IntVar(&o.conn.Port, "port", 0, "port (default 1433 / 5432)")
+	fs.StringVar(&o.conn.Database, "database", "", "initial database (default master / postgres)")
+	fs.StringVar(&o.conn.Auth, "auth", "sql", "mssql: windows or sql")
+	fs.StringVar(&o.conn.User, "user", "", "login name")
+	fs.BoolVar(&o.conn.TrustServerCert, "trust-server-cert", false, "accept a self-signed server certificate")
+	fs.StringVar(&o.conn.SSLMode, "sslmode", "", "pg: disable, require, verify-full ...")
+	fs.StringVar(&o.dsnEnv, "dsn-env", "", "pg: name of an env var holding the connection string")
+	fs.StringVar(&o.lang, "lang", "", "en or pt-BR (default: system language)")
+	fs.StringVar(&o.profile, "profile", "", "use a saved profile (connection flags are ignored)")
+}
+
+// resolveConn applies the profile, the language, the DSN variable and the password sources to o.
+func resolveConn(o *checkOpts, profiles profile.File) (profile.Profile, error) {
+	var p profile.Profile
+	if o.profile != "" {
+		var ok bool
+		if p, ok = profiles.Get(o.profile); !ok {
+			return p, fmt.Errorf("profile %q not found", o.profile)
+		}
+		o.conn, o.lang = p.Conn, firstNonEmpty(o.lang, p.Lang)
+		if pw, err := profile.Password(p.Name); err == nil {
+			o.conn.Password = pw
+		}
+	}
+	o.lang = i18n.Normalize(firstNonEmpty(o.lang, i18n.Detect()))
+	if o.conn.Engine == "" {
+		return p, errors.New("--engine is required (mssql or pg)")
+	}
+	if o.dsnEnv != "" {
+		o.conn.DSN = os.Getenv(o.dsnEnv)
+		if o.conn.DSN == "" {
+			return p, fmt.Errorf("environment variable %s is empty", o.dsnEnv)
+		}
+	}
+	if o.conn.Password == "" {
+		if err := readPassword(o); err != nil {
+			return p, err
+		}
+	}
+	return p, nil
 }
 
 func selfUpdate() error {

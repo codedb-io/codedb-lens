@@ -42,7 +42,8 @@ type Meta struct {
 	Licensed    bool              `json:"licensed"`
 }
 
-// Line is one entry of a segment: a sample (K = collector), a failed collection (K = "gap") or a query text (K = "text").
+// Line is one entry of a segment: a sample (K = collector), a failed collection (K = "gap", C = the collectors that
+// failed, empty when the connection was down) or a query text (K = "text").
 type Line struct {
 	T   time.Time `json:"t"`
 	K   string    `json:"k"`
@@ -120,6 +121,11 @@ func (w *Writer) WriteText(t time.Time, hash, text string) error {
 	}
 	w.seen[hash] = true
 	return w.enc.Encode(Line{T: t.UTC(), K: KindText, H: hash, Q: truncate(text, maxText)})
+}
+
+// NeedsText tells whether the segment of t still lacks the text of hash (asked before fetching texts).
+func (w *Writer) NeedsText(t time.Time, hash string) bool {
+	return t.UTC().Format(hourLayout)+segmentExt != w.name || !w.seen[hash]
 }
 
 // Flush pushes the open segment to disk; called once per cycle, so a crash loses at most one cycle.
