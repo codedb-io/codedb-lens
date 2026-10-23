@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -45,15 +44,7 @@ func TestCatalogIsValid(t *testing.T) {
 	}
 }
 
-// Static guard for contributed rules; the adapters' read-only sessions are the real barrier.
-var (
-	sqlNoise  = regexp.MustCompile(`(?s)--[^\n]*|/\*.*?\*/|'[^']*'|"[^"]*"`)
-	sqlWriter = regexp.MustCompile(`(?i)\b(insert|update|delete|merge|alter|create|drop|truncate|grant|revoke|deny|exec|execute|dbcc|backup|restore|kill|shutdown|reconfigure|vacuum|analyze|reindex|cluster|copy|into|call|do|set|declare|lock)\b`)
-)
-
-func writeKeyword(sql string) string {
-	return sqlWriter.FindString(sqlNoise.ReplaceAllString(sql, " "))
-}
+func writeKeyword(sql string) string { return engine.WriteKeyword(sql) }
 
 func TestWriteKeyword(t *testing.T) {
 	for sql, want := range map[string]string{

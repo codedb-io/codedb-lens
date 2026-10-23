@@ -1,0 +1,42 @@
+# Collectors for `codedb-lens record` (v0.8). Each entry runs <name>.sql; <name>.<platform>.sql replaces it on that
+# platform and <name>.text.sql fetches query texts for {{hashes}}. Same read-only session and limits as the rules.
+# every: fast = 15 s, slow = 5 min. mode: snapshot (rows as returned) | delta (cumulative columns minus last run).
+
+- name: requests            # active user requests: what is running and waiting right now
+  every: fast
+  mode: snapshot
+  hash: query_hash
+  text: query
+
+- name: locks               # blocking chains: who waits on whom
+  every: fast
+  mode: snapshot
+  hash: query_hash
+  text: query
+
+- name: waits               # wait time per wait type since the last run (meaningful waits only)
+  every: fast
+  mode: delta
+  key: [wait_type]
+  cumulative: [wait_ms, waiting_tasks, signal_ms]
+  keep_top: 20
+  order_by: wait_ms
+
+- name: counters            # throughput and memory: batch requests and compilations (delta), PLE (snapshot)
+  every: fast
+  mode: delta
+  cumulative: [batch_requests, compilations]
+
+- name: workers             # worker threads vs max_workers_count: running out means THREADPOOL waits
+  every: fast
+  mode: snapshot
+  skip_on: [azure_sqldb]    # server DMV, not visible on Azure SQL Database
+
+- name: querystats          # CPU, duration and reads per query since the last run, top 50 by CPU
+  every: slow
+  mode: delta
+  key: [query_hash]
+  cumulative: [executions, cpu_us, elapsed_us, logical_reads, physical_reads]
+  keep_top: 50
+  order_by: cpu_us
+  hash: query_hash

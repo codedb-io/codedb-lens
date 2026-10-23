@@ -1,0 +1,34 @@
+# Collectors for `codedb-lens record` (v0.8). Each entry runs <name>.sql; <name>.<platform>.sql replaces it on that
+# platform and <name>.text.sql fetches query texts for {{hashes}}. Same read-only session and limits as the rules.
+# every: fast = 15 s, slow = 5 min. mode: snapshot (rows as returned) | delta (cumulative columns minus last run).
+
+- name: activity            # client backends doing something (or idle in a transaction)
+  every: fast
+  mode: snapshot
+  hash: query_hash
+  text: query
+
+- name: locks               # blocking chains: who waits on whom
+  every: fast
+  mode: snapshot
+  hash: query_hash
+  text: query
+
+- name: dbstats             # commits, rollbacks, reads, temp files and deadlocks per database since the last run
+  every: fast
+  mode: delta
+  key: [database]
+  cumulative: [commits, rollbacks, blks_read, blks_hit, temp_bytes, deadlocks]
+
+- name: connections         # client connections vs max_connections
+  every: fast
+  mode: snapshot
+
+- name: statements          # time, calls and reads per query since the last run, top 50 by time (pg_stat_statements)
+  every: slow
+  mode: delta
+  key: [query_hash]
+  cumulative: [calls, total_ms, rows, blks_read, blks_hit, temp_blks]
+  keep_top: 50
+  order_by: total_ms
+  hash: query_hash

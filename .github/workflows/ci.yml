@@ -59,7 +59,7 @@ jobs:
           fi
           go build -o /tmp/wait ./tools/waitdb && /tmp/wait "${{ matrix.engine }}"
       - name: Integration tests
-        run: go test -tags integration -count=1 -run "Test$(echo ${{ matrix.engine }} | sed 's/mssql/MSSQL/;s/^pg$/PG/')" -v ./internal/adapter/
+        run: go test -tags integration -count=1 -run "Test$(echo ${{ matrix.engine }} | sed 's/mssql/MSSQL/;s/^pg$/PG/')" -v ./internal/adapter/ ./internal/record/
       - if: failure()
         run: docker logs db | tail -50
 

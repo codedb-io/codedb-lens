@@ -104,6 +104,17 @@ type Result struct {
 	CollectedAt time.Time  `json:"collected_at"`
 }
 
+// Static guard for contributed rules and collectors; the adapters' read-only sessions are the real barrier.
+var (
+	sqlNoise  = regexp.MustCompile(`(?s)--[^\n]*|/\*.*?\*/|'[^']*'|"[^"]*"`)
+	sqlWriter = regexp.MustCompile(`(?i)\b(insert|update|delete|merge|alter|create|drop|truncate|grant|revoke|deny|exec|execute|dbcc|backup|restore|kill|shutdown|reconfigure|vacuum|analyze|reindex|cluster|copy|into|call|do|set|declare|lock)\b`)
+)
+
+// WriteKeyword returns the first write keyword in sql outside comments and literals, or "".
+func WriteKeyword(sql string) string {
+	return sqlWriter.FindString(sqlNoise.ReplaceAllString(sql, " "))
+}
+
 var placeholder = regexp.MustCompile(`\{\{\s*(\w+)\s*\}\}`)
 
 // LoadCatalog reads rules/<engine>/<ID>/{rule.yaml,query.sql} from fsys.
@@ -114,7 +125,7 @@ func LoadCatalog(fsys fs.FS, engine string) ([]*Rule, error) {
 	}
 	var rules []*Rule
 	for _, d := range dirs {
-		if !d.IsDir() {
+		if !d.IsDir() || strings.HasPrefix(d.Name(), "_") { // _collect holds record collectors, not rules
 			continue
 		}
 		base := path.Join(engine, d.Name())
