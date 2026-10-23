@@ -1,6 +1,6 @@
 -- Cumulative since the last restart; the recorder keeps the difference between runs.
 -- Same meaningful waits as MSSQL-WAITS-001: idle and background waits never reach the recording.
-SELECT ws.wait_type,
+SELECT /* codeDB Lens */ ws.wait_type,
        ws.wait_time_ms        AS wait_ms,
        ws.waiting_tasks_count AS waiting_tasks,
        ws.signal_wait_time_ms AS signal_ms

@@ -1,5 +1,5 @@
 -- query_id needs compute_query_id (on by default with pg_stat_statements); otherwise the text's md5 is the hash.
-SELECT a.pid,
+SELECT /* codeDB Lens */ a.pid,
        a.datname                                                     AS database,
        a.usename                                                     AS user_name,
        a.application_name,

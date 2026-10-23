@@ -1,5 +1,5 @@
 -- Worker threads are what runs out on SQL Server (THREADPOOL), not connections.
-SELECT SUM(s.current_workers_count) AS workers,
+SELECT /* codeDB Lens */ SUM(s.current_workers_count) AS workers,
        SUM(s.active_workers_count)  AS active_workers,
        SUM(s.work_queue_count)      AS queued_tasks,
        SUM(s.runnable_tasks_count)  AS runnable_tasks,

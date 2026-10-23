@@ -1,6 +1,6 @@
 -- pg_stat_statements(false) skips reading the query texts file; texts come from statements.text.sql, top 50 only.
 -- Without the extension the query fails and the recording marks the collector as "no data".
-SELECT queryid::text                   AS query_hash,
+SELECT /* codeDB Lens */ queryid::text                   AS query_hash,
        sum(calls)                      AS calls,
        round(sum(total_exec_time)::numeric, 1) AS total_ms,
        sum(rows)                       AS rows,

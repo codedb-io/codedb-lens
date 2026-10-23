@@ -1,5 +1,5 @@
 -- Same chain as MSSQL-BLOCKING-001, from 1 s up: the series rules decide what is long.
-SELECT r.session_id                                    AS blocked_session,
+SELECT /* codeDB Lens */ r.session_id                                    AS blocked_session,
        r.blocking_session_id                           AS blocked_by,
        DB_NAME(r.database_id)                          AS [database],
        CAST(r.wait_time / 1000.0 AS decimal(12, 1))    AS waiting_s,

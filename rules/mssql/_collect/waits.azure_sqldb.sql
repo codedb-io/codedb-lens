@@ -1,5 +1,5 @@
 -- Azure SQL Database: waits of this database only (sys.dm_db_wait_stats).
-SELECT ws.wait_type,
+SELECT /* codeDB Lens */ ws.wait_type,
        ws.wait_time_ms        AS wait_ms,
        ws.waiting_tasks_count AS waiting_tasks,
        ws.signal_wait_time_ms AS signal_ms

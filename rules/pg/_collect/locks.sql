@@ -1,5 +1,5 @@
 -- Same chain as PG-LOCKS-001, from 1 s up: the series rules decide what is long.
-SELECT a.pid                                                         AS blocked_pid,
+SELECT /* codeDB Lens */ a.pid                                                         AS blocked_pid,
        pg_blocking_pids(a.pid)::text                                 AS blocked_by,
        a.datname                                                     AS database,
        round(extract(epoch FROM now() - a.query_start)::numeric, 1)  AS waiting_s,

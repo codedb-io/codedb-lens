@@ -131,7 +131,7 @@ func EvaluateSeries(r *Rule, samples []Sample) Result {
 	res.Status, res.Confidence = StatusFinding, r.Confidence
 	res.Columns = append([]string{"start", "end", "duration_s", "samples", "peak"}, done[0].cols...)
 	for _, e := range done {
-		row := []any{e.start.UTC().Format(time.RFC3339), e.end.UTC().Format(time.RFC3339), e.end.Sub(e.start).Seconds(),
+		row := []any{e.start.UTC().Format(time.RFC3339), e.end.UTC().Format(time.RFC3339), math.Round(e.end.Sub(e.start).Seconds()),
 			e.n, math.Round(e.peak*10) / 10}
 		res.Rows = append(res.Rows, append(row, e.row...))
 	}

@@ -18,6 +18,8 @@ var maskKind = map[string]string{
 	"user": "login", "blocker_user": "login", "blocker_login": "login",
 	"application_name": "app", "blocker_application": "app", "blocker_program": "app",
 	"client_addr": "addr", "blocker_host": "addr",
+	// record collectors (series rule evidence)
+	"login_name": "login", "user_name": "login", "host_name": "addr", "program_name": "app", "wait_resource": "obj",
 }
 
 // Columns whose whole value goes: query text and the Agent step message can carry literals and names.

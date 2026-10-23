@@ -250,7 +250,7 @@ func (c *Collector) Process(now time.Time, cols []string, rows [][]any) (s Sampl
 			if first || !seen {
 				continue
 			}
-			if d, changed := delta(r, p, cum); changed {
+			if d, changed, ok := delta(r, p, cum); ok && (changed || len(keys) == 0) { // a single row (counters) is kept even unchanged
 				out = append(out, append(d, interval))
 			}
 		}
@@ -292,10 +292,9 @@ func (c *Collector) Process(now time.Time, cols []string, rows [][]any) (s Sampl
 }
 
 // delta subtracts the cumulative columns. A counter that went down (restart, stats cleared, plan evicted) is not a
-// delta: the row is skipped and the new value is the next baseline. Rows where nothing changed are skipped too.
-func delta(cur, prev []any, cum []int) ([]any, bool) {
-	d := slices.Clone(cur)
-	changed := false
+// delta: ok is false, the row is skipped and the new value is the next baseline. changed is false when nothing moved.
+func delta(cur, prev []any, cum []int) (d []any, changed, ok bool) {
+	d = slices.Clone(cur)
 	for _, i := range cum {
 		a, okA := engine.Number(cur[i])
 		b, okB := engine.Number(prev[i])
@@ -304,14 +303,14 @@ func delta(cur, prev []any, cum []int) ([]any, bool) {
 			continue
 		}
 		if a < b {
-			return nil, false
+			return nil, false, false
 		}
 		if a != b {
 			changed = true
 		}
 		d[i] = a - b
 	}
-	return d, changed
+	return d, changed, true
 }
 
 func key(r []any, idx []int) string {

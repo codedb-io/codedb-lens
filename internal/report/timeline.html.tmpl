@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="{{.Lang}}" data-lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeDB Lens · {{.Recording.Server.Host}} · {{ltime .From}} → {{ltime .To}}</title>
+<link rel="icon" href="{{icon}}">
+<style>{{css}}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.info { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; padding: 0; vertical-align: 2px;
+  border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--muted); font: 600 11px/1 var(--font); cursor: pointer; }
+.info:hover, .info:focus-visible { color: var(--blue-700); border-color: var(--blue-500); outline: none; box-shadow: var(--focus); }
+.hero .info { background: transparent; color: var(--on-dark); border-color: rgb(255 255 255 / 35%); }
+.pop { max-width: min(440px, calc(100vw - 32px)); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-md);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); font: var(--fs-md)/1.55 var(--font); }
+.pop::backdrop { background: rgb(15 23 42 / 18%); }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: var(--s3); }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s4); box-shadow: var(--shadow-sm); }
+.chart h3 { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin: 0 0 var(--s2); font: 600 var(--fs-md) var(--font); }
+.chart h3 small { color: var(--muted); font-weight: 400; }
+.chart svg { display: block; width: 100%; height: 120px; background: var(--surface-2); border-radius: var(--r-sm); }
+.chart polyline { fill: none; stroke: var(--blue-600); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.chart rect.gap { fill: var(--low-bg); } .chart rect.ep { fill: var(--crit-bg); }
+.ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: var(--fs-xs); margin-top: var(--s1); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: center; color: var(--muted); font-size: var(--fs-sm); margin: 0 0 var(--s3); }
+.legend i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend .l-line { background: var(--blue-600); height: 3px; } .legend .l-gap { background: var(--low-bg); border: 1px solid var(--line); } .legend .l-ep { background: var(--crit-bg); }
+td.q { white-space: normal; min-width: 280px; font-family: var(--mono); font-size: var(--fs-xs); }
+</style>
+</head>
+<body>
+{{$t := .}}
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <a class="brand" href="{{landing "record_header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <div class="hero-actions">
+        <a class="chip-link" href="{{landing "record_header"}}" target="_blank" rel="noopener">{{t "powered"}}</a>
+        <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>
+      </div>
+    </div>
+    <h1>{{t "tl_title"}} — {{.Recording.Server.Host}}</h1>
+    <p class="sub"><span>{{engineName .Recording.Server.Engine}} {{.Recording.Server.Version}} ({{.Recording.Server.Platform}})</span><span>{{ltime .From}} → {{ltime .To}}</span><span>{{t "read_only"}}</span>{{if .Redacted}}<span class="redacted">{{t "redacted"}}</span>{{end}}</p>
+  </div>
+</header>
+
+<main>
+<section class="kpis">
+  <div class="kpi">
+    <div class="lbl">{{t "tl_cov"}}{{$t.Info "tl_info_cov"}}</div>
+    <div class="val">{{pct .Coverage}}</div>
+    <div class="bar"><i style="width:{{pct .Coverage}}"></i></div>
+    <div class="foot">{{tf "tl_cov_foot" .Cycles .Expected}}</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "tl_findings_kpi"}}{{$t.Info "tl_info_findings"}}</div>
+    <div class="val {{if .Findings}}t-crit{{end}}">{{len .Findings}}</div>
+    <div class="foot">{{t "no_data"}}: {{.Count "no_data"}}</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "tl_period"}}</div>
+    <div class="val" style="font-size:var(--fs-xl)">{{dur .From .To}}</div>
+    <div class="foot">{{ltime .From}} → {{ltime .To}}</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{t "tl_stop"}}</div>
+    <div class="val" style="font-size:var(--fs-xl)">{{if .Recording.StopReason}}{{t (print "rec_stop_" .Recording.StopReason)}}{{else}}…{{end}}</div>
+    <div class="foot">{{if .Recording.StoppedAt.IsZero}}{{t "tl_running"}}{{else}}{{ltime .Recording.StoppedAt}}{{end}}</div>
+  </div>
+</section>
+
+{{$findings := .Findings}}{{$n := len $findings}}
+{{if $findings}}
+<h2 class="sec">{{t "findings"}} <span class="n">{{$n}}</span></h2>
+{{range $i, $f := $findings}}
+<article class="story" id="{{.Rule.ID}}">
+  <div class="eyebrow">
+    <span class="dot {{.Rule.Severity}}"></span>
+    <span>{{tf "finding_n" (add1 $i) $n}}</span>
+    <span>· {{t (print .Rule.Severity)}}</span>
+    <span class="conf conf-{{.Confidence}}">{{t (print .Confidence)}}</span>
+  </div>
+  <h3>{{tx .Rule.Title}}</h3>
+  <div class="table"><table>
+    <tr>{{range .Columns}}<th>{{.}}{{$t.ColInfo .}}</th>{{end}}</tr>
+    {{$cols := .Columns}}{{range .Rows}}<tr>{{range $j, $v := .}}{{$c := index $cols $j}}{{if or (eq $c "start") (eq $c "end")}}<td>{{localtime (str $v)}}</td>{{else if eq $c "query"}}<td class="q" title="{{str $v}}">{{short $v}}</td>{{else}}<td>{{num $v}}</td>{{end}}{{end}}</tr>{{end}}
+  </table></div>
+  <div class="boxes">
+    <div class="box"><h4>{{t "what_means"}}</h4><p>{{tx .Rule.Impact}}</p></div>
+    <div class="box action"><h4>{{t "recommended"}}</h4><p>{{tx .Rule.NextAction}}</p></div>
+    {{if .Rule.Verify}}<div class="box"><h4>{{t "verify"}}</h4><p>{{txc .Rule.Verify}}</p></div>{{end}}
+  </div>
+  {{if .Rule.Caveat}}<p class="caveat"><b>{{t "caveat"}}:</b> {{tx .Rule.Caveat}}</p>{{end}}
+  <footer>
+    <span><code class="rid">{{.Rule.ID}}</code> · <a lang="en" href="{{.Rule.DocURL}}" target="_blank" rel="noopener">Documentation ↗</a><a lang="pt-BR" href="{{docpt .Rule.DocURL}}" target="_blank" rel="noopener">Documentação ↗</a></span>
+    {{if .Rule.SaaSCTA}}<a class="cta" href="{{register .Rule.ID}}" target="_blank" rel="noopener">{{tx .Rule.SaaSCTA}} →</a>{{end}}
+  </footer>
+</article>
+{{end}}
+{{else}}
+<h2 class="sec">{{t "findings"}}</h2>
+<p class="empty">✓ {{t "tl_no_findings"}}</p>
+{{end}}
+
+<h2 class="sec">{{t "tl_charts"}}{{$t.Info "tl_info_gaps"}}</h2>
+<p class="legend"><span><i class="l-line"></i>{{t "tl_charts"}}</span><span><i class="l-gap"></i>{{t "tl_gaps"}}</span><span><i class="l-ep"></i>{{t "findings"}}</span></p>
+<div class="charts">
+{{range .Charts}}
+  <section class="chart">
+    <h3><span>{{t .Key}}{{$t.Info (print "tl_info_" (trimtl .Key))}}</span>{{if .Points}}<small>{{tf "tl_peak" (peak .Max)}}</small>{{end}}</h3>
+    {{if .Points}}{{$t.ChartSVG .}}<div class="ticks">{{range $t.Ticks}}<span>{{.}}</span>{{end}}</div>{{else}}<p class="caveat">{{t "tl_no_points"}}</p>{{end}}
+  </section>
+{{end}}
+</div>
+
+<h2 class="sec">{{t "tl_top"}}{{$t.Info "tl_info_top"}}</h2>
+{{if .Top.Rows}}
+<div class="table"><table>
+  <tr>{{range .Top.Columns}}<th>{{.}}{{$t.ColInfo .}}</th>{{end}}</tr>
+  {{range .Top.Rows}}<tr>{{range $j, $v := .}}{{if eq $j 0}}<td class="q" title="{{str $v}}">{{short $v}}</td>{{else}}<td>{{num $v}}</td>{{end}}{{end}}</tr>{{end}}
+</table></div>
+{{else}}<p class="caveat">{{t "tl_no_top"}}</p>{{end}}
+
+{{if gt (.Count "no_data") 0}}
+<h2 class="sec">{{t "no_data"}} <span class="n">{{.Count "no_data"}}</span></h2>
+<div class="table nodata"><table>
+  <tr><th>{{t "rule"}}</th><th>{{t "reason"}}</th><th>{{t "permission"}}</th></tr>
+  {{range .Results}}{{if eq .Status "no_data"}}<tr><td><b>{{tx .Rule.Title}}</b><br><code class="rid">{{.Rule.ID}}</code></td><td class="reason">{{.Reason}}</td><td><code>{{.Rule.Permission}}</code></td></tr>{{end}}{{end}}
+</table></div>
+{{end}}
+
+<h2 class="sec">{{t "passed"}} <span class="n">{{.Count "ok"}}</span></h2>
+<ul class="passed">
+{{range .Results}}{{if eq .Status "ok"}}<li>{{tx .Rule.Title}}</li>{{end}}{{end}}
+{{range .Results}}{{if eq .Status "not_applicable"}}<li class="na">{{tx .Rule.Title}} · {{t "not_applicable"}}</li>{{end}}{{end}}
+</ul>
+
+<section class="sum-cta">
+  <p>{{t "saas_pitch"}}</p>
+  <a class="cta" href="{{register "record"}}" target="_blank" rel="noopener">{{t "saas_try"}} →</a>
+</section>
+</main>
+
+<footer class="bottom">
+  <span>{{tf "tl_generated" .ToolVersion (date .GeneratedAt) .Recording.LensVersion}}</span>
+  <span>{{t "saas_pitch"}} <a href="{{landing "record_footer"}}" target="_blank" rel="noopener">codedb.com.br</a></span>
+</footer>
+<script>
+function toggleLang() {
+  var h = document.documentElement, l = h.dataset.lang === 'en' ? 'pt-BR' : 'en';
+  h.dataset.lang = l; h.lang = l;
+  try { localStorage.setItem('lens-lang', l); } catch (e) {}
+}
+try { var s = localStorage.getItem('lens-lang'); if (s) { document.documentElement.dataset.lang = s; document.documentElement.lang = s; } } catch (e) {}
+</script>
+</body>
+</html>

@@ -117,6 +117,10 @@ func TestSingleRowDelta(t *testing.T) { // counters: no key, one row
 	if err != nil || !ok || fmt.Sprint(s.Rows) != "[[600 290 15]]" {
 		t.Errorf("rows = %v, ok %v, err %v", s.Rows, ok, err)
 	}
+	s, _, _ = c.Process(t0.Add(30*time.Second), cols, [][]any{{int64(1600), int64(280)}}) // idle: still one row (PLE)
+	if fmt.Sprint(s.Rows) != "[[0 280 15]]" {
+		t.Errorf("unchanged single row = %v", s.Rows)
+	}
 }
 
 func TestTextsAndKeepTop(t *testing.T) {
@@ -171,5 +175,19 @@ func TestDue(t *testing.T) {
 	}
 	if runs != 3 { // ticks 0, 20, 40
 		t.Errorf("slow runs in 41 ticks = %d, want 3", runs)
+	}
+}
+
+// The report leaves the recorder's own queries out of the top queries by this marker.
+func TestCollectorsCarryTheMarker(t *testing.T) {
+	for _, eng := range []string{"mssql", "pg"} {
+		cs, _ := LoadCollectors(rules.FS, eng)
+		for _, c := range cs {
+			for _, q := range c.Queries() {
+				if !strings.Contains(q, "SELECT /* codeDB Lens */") {
+					t.Errorf("%s/%s: a query lacks the /* codeDB Lens */ marker", eng, c.Name)
+				}
+			}
+		}
 	}
 }

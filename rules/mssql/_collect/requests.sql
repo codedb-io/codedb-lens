@@ -1,4 +1,4 @@
-SELECT r.session_id,
+SELECT /* codeDB Lens */ r.session_id,
        NULLIF(r.blocking_session_id, 0)                      AS blocked_by,
        DB_NAME(r.database_id)                                AS [database],
        r.status,

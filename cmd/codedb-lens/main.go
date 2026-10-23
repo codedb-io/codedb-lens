@@ -36,6 +36,7 @@ Usage:
                       [--fail-on SEVERITY] [--min-coverage PCT]
   codedb-lens record  --engine mssql|pg [connection flags] [--duration 1h|24h] [--out DIR]
                       record activity every 15 s (1 h; 24 h with the free key)
+  codedb-lens report  <recording folder> [--from T] [--to T] [--redact]   report of a recording
   codedb-lens compare [--profile NAME | OLD.json NEW.json]   compare two runs (free key)
   codedb-lens register  get the free key (sends only the name and e-mail you type, once)
   codedb-lens license [status|import <key>|reset|remove]
@@ -63,6 +64,8 @@ func main() {
 		code, err = check(os.Args[2:])
 	case "record":
 		err = recordCmd(os.Args[2:])
+	case "report":
+		err = reportCmd(os.Args[2:])
 	case "compare":
 		err = compareCmd(os.Args[2:])
 	case "register":
