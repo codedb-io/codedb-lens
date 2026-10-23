@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-23
+
 ### Added
 - GUI: **Update now** button on the new-version banner. Same Ed25519-verified path as `codedb-lens update`, then the
   app restarts. Package-manager installs keep the command hint. The check still runs at most once a day.
