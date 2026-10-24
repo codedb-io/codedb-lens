@@ -147,6 +147,38 @@ func mcpInstallCmd(verb string, args []string) error {
 	return nil
 }
 
+// mcpGuide is one client's block in the GUI's "AI (MCP)" screen: the command to copy and, for clients whose file
+// the Lens edits, the JSON to paste by hand. The GUI only shows them; installing stays on the command line (Q48).
+type mcpGuide struct {
+	Client  string `json:"client"`
+	Name    string `json:"name"`
+	Command string `json:"command"`
+	Snippet string `json:"snippet,omitempty"`
+}
+
+// mcpGuides builds the same entries as mcp install, from the same generator.
+func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
+	args := mcpserver.Args(profiles, redact)
+	var out []mcpGuide
+	for _, c := range mcpserver.Clients {
+		g := mcpGuide{Client: c.ID, Name: c.Name}
+		if c.ID == "claude-code" {
+			g.Command = mcpserver.ClaudeCodeCommand(exe, args)
+		} else {
+			g.Command = mcpserver.Quote(exe) + " mcp install --client " + c.ID
+			if len(profiles) > 0 {
+				g.Command += " --profile " + mcpserver.Quote(strings.Join(profiles, ","))
+			}
+			if redact {
+				g.Command += " --redact"
+			}
+			g.Snippet = c.Snippet(exe, args)
+		}
+		out = append(out, g)
+	}
+	return out
+}
+
 func mcpStatusCmd() error {
 	lang := i18n.Normalize(i18n.Detect())
 	for _, st := range mcpserver.Status() {

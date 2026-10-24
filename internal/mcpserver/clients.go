@@ -76,9 +76,9 @@ func (c Client) entry(exe string, args []string) map[string]any {
 
 // ClaudeCodeCommand is what the user runs to add the Lens to Claude Code, for every project (user scope).
 func ClaudeCodeCommand(exe string, args []string) string {
-	parts := []string{"claude", "mcp", "add", "--scope", "user", ServerName, "--", quote(exe)}
+	parts := []string{"claude", "mcp", "add", "--scope", "user", ServerName, "--", Quote(exe)}
 	for _, a := range args {
-		parts = append(parts, quote(a))
+		parts = append(parts, Quote(a))
 	}
 	return strings.Join(parts, " ")
 }

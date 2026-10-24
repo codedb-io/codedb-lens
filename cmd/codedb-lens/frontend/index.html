@@ -211,6 +211,20 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
 .consent .check { align-items: flex-start; }
 .consent a { color: var(--blue-600); }
 .notice { font-size: var(--fs-xs); color: var(--muted); margin: 0 0 var(--s4); }
+/* AI (MCP) */
+#mcpview h3 { margin: 0 0 var(--s2); font-size: var(--fs-md); }
+.flow { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: var(--fs-sm); }
+.flow span { padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); font-weight: 600; }
+.flow i { color: var(--muted); font-style: normal; }
+.cmd { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: start; margin-top: var(--s3); }
+.mclient + .mclient { border-top: 1px solid var(--line); margin-top: var(--s4); padding-top: var(--s4); }
+.mstat { display: flex; gap: var(--s3); align-items: center; }
+.pill { padding: 2px 8px; border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: 600; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+.pill.on { background: var(--ok-bg); color: #116b33; border-color: transparent; } .pill.warn { background: var(--crit-bg); color: #9b1c1f; border-color: transparent; }
+.qs { display: grid; gap: var(--s2); } .qs h4 { margin: var(--s2) 0 0; font-size: var(--fs-sm); color: var(--muted); }
+.qrow { display: flex; gap: var(--s3); justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+.mcpprof { display: grid; gap: var(--s2); margin: var(--s3) 0; } .mcpprof small { color: var(--muted); }
+.plist-ul { margin: 0; padding-left: 1.2em; color: var(--text-2); font-size: var(--fs-sm); display: grid; gap: var(--s1); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -231,12 +245,14 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
   <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></symbol>
-  <symbol id="i-paste"viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
+  <symbol id="i-ai" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 8l.8 1.7 1.7.8-1.7.8L12 13l-.8-1.7-1.7-.8 1.7-.8z"/></symbol>
+<symbol id="i-paste"viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
 </svg>
 
 <aside>
   <div class="brand"><img src="icon.png" width="40" height="40" alt=""><div><b>codeDB <span>Lens</span></b><small id="ver"></small></div></div>
   <button class="homebtn" id="homebtn"><svg class="i"><use href="#i-home"/></svg><span data-t="gui_home"></span></button>
+  <button class="homebtn" id="mcpbtn"><svg class="i"><use href="#i-ai"/></svg><span data-t="gui_mcp_nav"></span></button>
   <button class="newbtn" id="new"><svg class="i"><use href="#i-plus"/></svg><span data-t="gui_new_title"></span></button>
   <div class="side-h" data-t="gui_connections"></div>
   <div class="plist" id="plist"></div>
@@ -270,6 +286,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <button type="button" class="card act" id="actnew"><svg class="i"><use href="#i-plus"/></svg><b data-t="gui_new_title"></b><span data-t="gui_card_new_s"></span></button>
     <button type="button" class="card act" id="actrun"><svg class="i"><use href="#i-play"/></svg><b data-t="gui_card_run"></b><span data-t="gui_card_run_s"></span></button>
     <button type="button" class="card act" id="actrec"><svg class="i"><use href="#i-rec"/></svg><b data-t="gui_card_record"></b><span data-t="gui_card_record_s"></span></button>
+    <button type="button" class="card act" id="actmcp"><svg class="i"><use href="#i-ai"/></svg><b data-t="gui_card_mcp"></b><span id="actmcps"></span></button>
   </div>
   <div class="promo hero"><div><b data-t="gui_codedb_title"></b><span data-t="gui_codedb_text"></span><br><span data-t="gui_promo"></span>
     <br><button type="button" class="linkbtn" id="homekey" style="color:var(--sky-300);margin-top:var(--s3)"><svg class="i"><use href="#i-key"/></svg><span></span></button></div>
@@ -371,6 +388,10 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
                 <div class="ctl"><select id="sslmode" name="sslmode"><option value="">prefer</option><option>disable</option><option>require</option><option>verify-ca</option><option>verify-full</option></select></div></div>
               <div class="f"><label for="lang" data-t="gui_lang"></label>
                 <div class="ctl"><select id="lang" name="lang"><option value="en">English</option><option value="pt-BR">Português (Brasil)</option></select></div></div>
+              <div class="f"><label for="mcp_max_rows"><span data-t="gui_mcp_rows"></span><i data-info="gui_mcp_rows_info"></i></label>
+                <div class="ctl"><input id="mcp_max_rows" name="mcp_max_rows" type="number" min="1" max="10000" placeholder="500"></div></div>
+              <div class="f"><label for="mcp_timeout_s"><span data-t="gui_mcp_timeout"></span><i data-info="gui_mcp_timeout_info"></i></label>
+                <div class="ctl"><input id="mcp_timeout_s" name="mcp_timeout_s" type="number" min="1" max="120" placeholder="10"></div></div>
               <div class="f w12"><label for="out_dir" data-t="gui_out"></label>
                 <div class="ctl"><svg class="i"><use href="#i-folder"/></svg><input id="out_dir" name="out_dir"></div></div>
             </div>
@@ -434,6 +455,39 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
   </div>
 </div>
 
+<div class="wrap" id="mcpview" hidden>
+  <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-ai"/></svg></div>
+    <div><h1 data-t="gui_mcp_title"></h1><p data-t="gui_mcp_sub"></p></div></div>
+  <div class="secure" style="max-width:860px;margin-bottom:var(--s5);background:var(--surface-2);border-color:var(--line);color:var(--muted);align-items:center"><svg class="i"><use href="#i-shield"/></svg>
+    <b style="color:var(--text);margin:0" data-t="gui_mcp_readonly"></b><i data-info="gui_mcp_info_provider"></i></div>
+  <div class="tabs" id="mcptabs" role="tablist" style="max-width:860px">
+    <button type="button" role="tab" data-mtab="guide" data-t="gui_mcp_tab_guide"></button>
+    <button type="button" role="tab" data-mtab="setup" data-t="gui_mcp_tab_setup"></button>
+  </div>
+  <div class="card" id="mtab-guide" style="max-width:860px">
+    <div class="sec"><div class="sh"><span class="num">1</span><div><h2 data-t="gui_mcp_guide_1"></h2><p data-t="gui_mcp_guide_1s"></p></div></div>
+      <div class="flow"><span data-t="gui_mcp_flow_client"></span><i>→</i><span data-t="gui_mcp_flow_lens"></span><i>→</i><span data-t="gui_mcp_flow_db"></span></div></div>
+    <div class="sec"><div class="sh"><span class="num">2</span><div><h2 data-t="gui_mcp_guide_2"></h2><p data-t="gui_mcp_guide_2s"></p></div></div>
+      <div class="how"><div><h3 data-t="gui_mcp_diag"></h3><p data-t="gui_mcp_diag_s"></p></div>
+        <div><h3 data-t="gui_mcp_data"></h3><p data-t="gui_mcp_data_s"></p><button type="button" class="linkbtn" id="mcpdata" style="margin-top:var(--s2)" data-t="gui_mcp_data_link"></button></div></div></div>
+    <div class="sec"><div class="sh"><span class="num">3</span><div><h2 data-t="gui_mcp_guide_3"></h2><p data-t="gui_mcp_guide_3s"></p></div></div>
+      <div class="seg" id="mcpclients"></div><div id="mcpone"></div></div>
+    <div class="sec"><div class="sh"><span class="num">4</span><div><h2 data-t="gui_mcp_guide_4"></h2><p data-t="gui_mcp_guide_4s"></p></div></div>
+      <div class="qs"></div></div>
+    <div class="sec"><div class="sh"><span class="num">5</span><div><h2 data-t="gui_mcp_guide_5"></h2><p data-t="gui_mcp_guide_5s"></p></div></div></div>
+    <div class="sec"><div class="sh"><span class="num">6</span><div><h2 data-t="gui_mcp_guide_6"></h2></div></div>
+      <ul class="plist-ul"><li data-t="gui_mcp_p1"></li><li data-t="gui_mcp_p2"></li><li data-t="gui_mcp_p3"></li></ul>
+      <button type="button" class="linkbtn" id="mcpfull" style="margin-top:var(--s4)" data-t="gui_mcp_full"></button></div>
+  </div>
+  <div id="mtab-setup" style="max-width:860px" hidden>
+    <div class="card sec"><h3 data-t="gui_mcp_profiles"></h3><p class="hint" style="margin:0" data-t="gui_mcp_profiles_s"></p>
+      <div class="mcpprof" id="mcpprofiles"></div>
+      <label class="check"><input type="checkbox" id="mcpredact"><span data-t="gui_mcp_redact"></span></label></div>
+    <div class="card sec"><h3 data-t="gui_mcp_clients"></h3><div id="mcpstatus"></div></div>
+    <div class="card sec"><h3 data-t="gui_mcp_examples"></h3><div class="qs"></div></div>
+  </div>
+</div>
+
 <div class="wrap run" id="runner" hidden>
   <div class="ph"><div class="ph-ic"><svg class="i"><use href="#i-play"/></svg></div><div><h1 id="runtitle"></h1><p id="runsub"></p></div>
     <button class="btn danger" id="stop" style="margin-left:auto" data-t="gui_stop"></button></div>
@@ -493,7 +547,8 @@ function toggle() {
 }
 function profileFromForm() {
   const v = id => $('#' + id).value.trim();
-  return { name: v('name') || v('server'), lang: $('#lang').value, out_dir: v('out_dir'), conn: {
+  return { name: v('name') || v('server'), lang: $('#lang').value, out_dir: v('out_dir'),
+    mcp_max_rows: +v('mcp_max_rows') || 0, mcp_timeout_s: +v('mcp_timeout_s') || 0, conn: {
     engine, server: v('server'), port: +v('port') || 0, database: v('database'), auth: engine === 'mssql' ? auth : '',
     user: v('user'), trust_server_cert: $('#trust').checked, sslmode: $('#sslmode').value } };
 }
@@ -501,7 +556,8 @@ function fill(p) {
   current = p ? p.name : null;
   const c = (p && p.conn) || { engine: 'mssql', auth: 'windows', server: '' };
   for (const [id, val] of [['name', p ? p.name : ''], ['server', c.server || ''], ['port', c.port || ''], ['database', c.database || ''],
-    ['user', c.user || ''], ['password', ''], ['out_dir', (p && p.out_dir) || ''], ['sslmode', c.sslmode || ''], ['lang', (p && p.lang) || uiLang]]) $('#' + id).value = val;
+    ['user', c.user || ''], ['password', ''], ['out_dir', (p && p.out_dir) || ''], ['sslmode', c.sslmode || ''], ['lang', (p && p.lang) || uiLang],
+    ['mcp_max_rows', (p && p.mcp_max_rows) || ''], ['mcp_timeout_s', (p && p.mcp_timeout_s) || '']]) $('#' + id).value = val;
   $('#trust').checked = !!c.trust_server_cert;
   setAuth(c.auth || (c.engine === 'mssql' ? 'windows' : 'sql'));
   setEngine(c.engine || 'mssql');
@@ -511,8 +567,8 @@ function fill(p) {
   show('editor'); setTab('check'); setPaste(false); status(); renderList(); renderHistory(p);
 }
 function show(id) {
-  ['home', 'editor', 'keyview', 'runner', 'view'].forEach(v => $('#' + v).hidden = v !== id);
-  $('#homebtn').classList.toggle('sel', id === 'home');
+  ['home', 'editor', 'keyview', 'runner', 'view', 'mcpview'].forEach(v => $('#' + v).hidden = v !== id);
+  $('#homebtn').classList.toggle('sel', id === 'home'); $('#mcpbtn').classList.toggle('sel', id === 'mcpview');
 }
 function setTab(name) {
   $$('#tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
@@ -601,6 +657,44 @@ function applyInfo() {
   });
 }
 function goHome() { current = null; show('home'); renderList(); }
+
+/* ── AI (MCP): status and commands to copy; installing stays on the command line (Q48) ── */
+let mcpClient = 'claude-desktop', mcpSel = [], mcpGuide = [], mcpSt = [];
+const QS = { gui_mcp_diag: ['gui_mcp_q_diag_1', 'gui_mcp_q_diag_2'], gui_mcp_data: ['gui_mcp_q_data_1', 'gui_mcp_q_data_2', 'gui_mcp_q_data_3'] };
+const docs = page => 'https://lens.codedb.com.br/' + (uiLang === 'pt-BR' ? 'pt-BR/' : '') + page + '/';
+const copyBtn = text => '<button type="button" class="linkbtn" data-copy="' + esc(text) + '">' + esc(t('gui_copy')) + '</button>';
+async function loadMCP() {
+  [mcpGuide, mcpSt] = await Promise.all([api().MCPGuide(mcpSel, $('#mcpredact').checked), api().MCPStatus()]);
+  mcpGuide = mcpGuide || []; mcpSt = mcpSt || []; renderMCP();
+}
+function mcpBlock(g, withStatus) {
+  const st = mcpSt.find(s => s.client === g.client) || {}, k = st.configured ? (st.missing ? 'warn' : 'on') : '';
+  return (withStatus ? '<div class="mstat"><b>' + esc(g.name) + '</b><span class="pill ' + k + '">' + esc(t(k === 'warn' ? 'gui_mcp_missing' : k ? 'gui_mcp_on' : 'gui_mcp_off')) + '</span></div>' : '') +
+    '<div class="cmd"><div class="code">' + esc(g.command) + '</div>' + copyBtn(g.command) + '</div>' +
+    '<p class="hint">' + esc(g.client === 'claude-code' ? t('gui_mcp_cc_note') : tf('gui_mcp_restart', g.name)) + '</p>' +
+    (g.snippet ? '<details class="adv"><summary>' + esc(t('gui_mcp_manual')) + '</summary><div class="cmd" style="padding:0 var(--s4) var(--s4)"><div class="code">' +
+      esc(g.snippet) + '</div>' + copyBtn(g.snippet) + '</div></details>' : '');
+}
+function renderMCP() {
+  $('#mcpclients').innerHTML = mcpGuide.map(g => '<button type="button" data-client="' + esc(g.client) + '" aria-pressed="' + (g.client === mcpClient) + '">' + esc(g.name) + '</button>').join('');
+  const g = mcpGuide.find(x => x.client === mcpClient); $('#mcpone').innerHTML = g ? mcpBlock(g, false) : '';
+  $('#mcpstatus').innerHTML = mcpGuide.map(g => '<div class="mclient">' + mcpBlock(g, true) + '</div>').join('');
+  const ps = state.profiles || [];
+  $('#mcpprofiles').innerHTML = ps.length ? ps.map(p => '<label class="check"><input type="checkbox" value="' + esc(p.name) + '"' + (mcpSel.includes(p.name) ? ' checked' : '') + '><span>' +
+    esc(p.name) + ' <small>' + esc(p.conn.server) + '</small></span></label>').join('') : '<p class="hint" style="margin:0">' + esc(t('gui_no_conn')) + '</p>';
+  const qs = Object.entries(QS).map(([h, ks]) => '<h4>' + esc(t(h)) + '</h4>' + ks.map(k => '<div class="qrow"><span>' + esc(t(k)) + '</span>' + copyBtn(t(k)) + '</div>').join('')).join('');
+  $$('#mcpview .qs').forEach(b => b.innerHTML = qs);
+  const on = mcpSt.filter(s => s.configured && !s.missing).map(s => s.name);
+  $('#actmcps').textContent = on.length ? tf('gui_mcp_configured_in', on.join(', ')) : t('gui_card_mcp_s');
+}
+function setMTab(name) {
+  $$('#mcptabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.mtab === name));
+  $('#mtab-guide').hidden = name !== 'guide'; $('#mtab-setup').hidden = name !== 'setup';
+}
+async function showMCP(tab) {
+  current = null; renderList(); show('mcpview'); await loadMCP();
+  setMTab(tab || (mcpSt.some(s => s.configured) ? 'setup' : 'guide')); // first visit: the guide
+}
 
 /* ── codeDB call to action: rotating phrases, each tagged so the SaaS can tell which one converts ── */
 const PROMOS = 6;
@@ -845,6 +939,18 @@ $('#dup').onclick = async () => {
 $('#keychip').onclick = $('#homekey').onclick = showKey;
 $('#keyback').onclick = () => current ? show('editor') : goHome();
 $('#homebtn').onclick = goHome;
+$('#mcpbtn').onclick = () => showMCP();
+$('#actmcp').onclick = () => showMCP('guide');
+$$('#mcptabs button').forEach(b => b.onclick = () => setMTab(b.dataset.mtab));
+$('#mcpview').addEventListener('click', async e => {
+  const c = e.target.closest('[data-client]'), cp = e.target.closest('[data-copy]');
+  if (c) { mcpClient = c.dataset.client; renderMCP(); }
+  if (cp) { try { await navigator.clipboard.writeText(cp.dataset.copy); cp.textContent = t('gui_copied'); setTimeout(() => cp.textContent = t('gui_copy'), 1500); } catch (err) {} }
+});
+$('#mcpprofiles').addEventListener('change', () => { mcpSel = [...$$('#mcpprofiles input:checked')].map(i => i.value); loadMCP(); });
+$('#mcpredact').onchange = loadMCP;
+$('#mcpdata').onclick = () => api().OpenURL(docs('mcp-data'));
+$('#mcpfull').onclick = () => api().OpenURL(docs('mcp'));
 $('#actnew').onclick = () => fill(null);
 $('#actrun').onclick = () => {
   const ps = state.profiles || [], p = ps.find(x => x.name === state.last) || ps[0];
@@ -904,7 +1010,7 @@ $('#uilang').onchange = async e => {
   uiLang = e.target.value; texts = await api().Texts(uiLang); applyTexts(); renderPromo();
   const p = (state.profiles || []).find(x => x.name === current);
   $('#title').textContent = p ? p.name : t('gui_new_title'); $('#subtitle').textContent = p ? t('gui_edit_sub') : t('gui_new_sub');
-  loadRules(); renderList(); renderHistory(p); loadKey();
+  loadRules(); renderList(); renderHistory(p); loadKey(); renderMCP();
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -918,6 +1024,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   fill(null); goHome(); // opens on Home: nothing selected, no connection attempted
   loadKey();
   loadHistories();
+  loadMCP(); // the home card says where the Lens is already configured
   api().UpdateNotice(uiLang).then(u => {
     if (!u.message) return;
     $('#updmsg').textContent = u.message; $('#updbtn').hidden = !u.self; $('#upd').hidden = false;

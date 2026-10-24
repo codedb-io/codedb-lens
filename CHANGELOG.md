@@ -25,6 +25,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   saves a `.bak`, leaves invalid JSON untouched (and prints the snippet to paste) and changes nothing on a second run.
   For Claude Code it prints the `claude mcp add` command instead. `mcp status` shows which clients have the Lens and
   whether the recorded path still exists.
+- GUI: "AI (MCP)" screen with a step-by-step "How to use" guide and a "Configuration" tab (which clients have the Lens,
+  the command and the JSON to copy for the profiles you tick); a "Use with AI" card on Home. The GUI installs nothing.
+  Connections get "Max rows for the AI" and "Max query time" fields.
 
 ## [0.8.0] - 2026-10-23
 

@@ -231,7 +231,7 @@ func TestRecordCommand(t *testing.T) {
 			t.Errorf("duration %q: want a tool error", d)
 		}
 	}
-	if got := quote(`C:\Users\Maria Silva\rec`); got != `"C:\Users\Maria Silva\rec"` {
+	if got := Quote(`C:\Users\Maria Silva\rec`); got != `"C:\Users\Maria Silva\rec"` {
 		t.Errorf("quote: %s", got)
 	}
 }

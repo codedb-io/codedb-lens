@@ -192,17 +192,17 @@ func (s *server) recordCommand(_ context.Context, _ *mcp.CallToolRequest, in rec
 		dur = strings.TrimSuffix(dur, "0m")
 	}
 	c := p.Conn
-	flags := "--engine " + c.Engine + " --server " + quote(c.Server)
+	flags := "--engine " + c.Engine + " --server " + Quote(c.Server)
 	if c.Port != 0 {
 		flags += " --port " + strconv.Itoa(c.Port)
 	}
 	if c.Database != "" {
-		flags += " --database " + quote(c.Database)
+		flags += " --database " + Quote(c.Database)
 	}
 	if c.Auth == "windows" {
 		flags += " --auth windows"
 	} else if c.User != "" {
-		flags += " --user " + quote(c.User)
+		flags += " --user " + Quote(c.User)
 	}
 	if c.TrustServerCert {
 		flags += " --trust-server-cert"
@@ -212,11 +212,11 @@ func (s *server) recordCommand(_ context.Context, _ *mcp.CallToolRequest, in rec
 	}
 	folder := filepath.Join(recordingsDir(p), record.DefaultDir(c.Server, time.Now()))
 	out.ServerCommand = "codedb-lens record " + flags + " --duration " + dur
-	out.Command = "codedb-lens record --profile " + quote(p.Name) + " --duration " + dur + " --out " + quote(folder)
+	out.Command = "codedb-lens record --profile " + Quote(p.Name) + " --duration " + dur + " --out " + Quote(folder)
 	if s.Fixed != nil {
 		out.Command = out.ServerCommand
 	}
-	out.ReportCommand = "codedb-lens report " + quote(folder)
+	out.ReportCommand = "codedb-lens report " + Quote(folder)
 	out.Note = i18n.T(s.lang(p), "mcp_record_note")
 	if d > time.Hour {
 		out.Note += " " + i18n.T(s.lang(p), "rec_need_key")
@@ -224,8 +224,8 @@ func (s *server) recordCommand(_ context.Context, _ *mcp.CallToolRequest, in rec
 	return nil, out, nil
 }
 
-// quote wraps values with spaces or shell characters; plain ones stay readable.
-func quote(v string) string {
+// Quote wraps values with spaces or shell characters; plain ones stay readable.
+func Quote(v string) string {
 	if v != "" && !strings.ContainsAny(v, " \t\"'\\$&|;<>()`*?!#") {
 		return v
 	}

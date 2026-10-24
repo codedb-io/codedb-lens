@@ -24,6 +24,7 @@ import (
 	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/codedb-io/codedb-lens/internal/i18n"
 	"github.com/codedb-io/codedb-lens/internal/license"
+	"github.com/codedb-io/codedb-lens/internal/mcpserver"
 	"github.com/codedb-io/codedb-lens/internal/profile"
 	"github.com/codedb-io/codedb-lens/internal/record"
 	"github.com/codedb-io/codedb-lens/internal/report"
@@ -150,12 +151,24 @@ func (a *App) DeleteRun(p profile.Profile, path string) error {
 	return report.DeleteRun(firstNonEmpty(p.OutDir, report.DefaultDir(p.Name)), path)
 }
 
+// MCPStatus is the "AI (MCP)" screen's client list: the same detection as codedb-lens mcp status.
+func (a *App) MCPStatus() []mcpserver.ClientStatus { return mcpserver.Status() }
+
+// MCPGuide returns, per client, what to copy for the checked profiles. It writes nothing.
+func (a *App) MCPGuide(profiles []string, redact bool) []mcpGuide {
+	exe, _ := os.Executable()
+	return mcpGuides(exe, profiles, redact)
+}
+
 func (a *App) Texts(lang string) map[string]string { return i18n.All(i18n.Normalize(lang)) }
 
 // SaveProfile stores settings; an empty password keeps the one already in the credential store.
 // old is the name the profile had when loaded ("" for a new one): a different name renames it,
 // carrying its password and (default-folder) history along.
 func (a *App) SaveProfile(p profile.Profile, password, old, lang string) error {
+	if p.MCPMaxRows < 0 || p.MCPMaxRows > 10000 || p.MCPTimeoutS < 0 || p.MCPTimeoutS > 120 { // the MCP server's caps
+		return errors.New(i18n.T(i18n.Normalize(lang), "gui_mcp_limit_bad"))
+	}
 	f, err := profile.Load()
 	if err != nil {
 		return err
