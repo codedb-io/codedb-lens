@@ -22,8 +22,8 @@
 </p>
 
 <p align="center">
-  <a href="https://lens.codedb.com.br/demo/report.html"><img src="assets/screenshots/report-summary.png" width="760" alt="codeDB Lens report summary: A-F grade, coverage seal and top risks"></a><br>
-  <sub>Report summary (demo data). <a href="https://lens.codedb.com.br/demo/report.html">Open the full demo report</a>.</sub>
+  <a href="https://lens.codedb.com.br/demo/report.html"><img src="assets/screenshots/demo.gif" width="860" alt="codeDB Lens demo: running check, the A-F report with evidence and next actions, and the record timeline"></a><br>
+  <sub>Real run against a test SQL Server (host renamed). <a href="https://lens.codedb.com.br/demo/report.html">Open a demo report</a>.</sub>
 </p>
 
 ---
