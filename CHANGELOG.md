@@ -20,6 +20,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   rolled back (PostgreSQL also read-only), limits (500 rows, 2 KB per cell, 10 s by default; `mcp_max_rows` and
   `mcp_timeout_s` per profile up to 10,000 rows and 120 s; a cut result says `truncated: true`), and a warning when the
   login itself can write. Prompt `explore_data`.
+- `mcp install|uninstall --client claude-desktop|vscode|cursor [--profile a,b] [--redact] [--dry-run]`: adds or removes
+  only the `codedb-lens` entry in the client's settings, with the absolute path of the Lens, keeps everything else,
+  saves a `.bak`, leaves invalid JSON untouched (and prints the snippet to paste) and changes nothing on a second run.
+  For Claude Code it prints the `claude mcp add` command instead. `mcp status` shows which clients have the Lens and
+  whether the recorded path still exists.
 
 ## [0.8.0] - 2026-10-23
 

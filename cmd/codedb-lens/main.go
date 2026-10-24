@@ -39,6 +39,8 @@ Usage:
   codedb-lens register  get the free key (sends only the name and e-mail you type, once)
   codedb-lens license [status|import <key>|reset|remove]
   codedb-lens mcp     [--profile a,b]   MCP server (stdio) for AI clients; read-only
+  codedb-lens mcp install|uninstall --client claude-desktop|claude-code|vscode|cursor [--profile a,b] [--dry-run]
+  codedb-lens mcp status   which AI clients have the Lens configured
   codedb-lens update    download, verify (Ed25519) and install the latest release
   codedb-lens version
 
