@@ -99,16 +99,6 @@ func compareFiles(lang, fileA, fileB, out string) (*report.Comparison, string, e
 	return c, path, err
 }
 
-// latestTwo returns the two newest JSON reports of a profile's folder, older first.
-func latestTwo(dir string) (string, string, bool) {
-	h := report.History(dir, 2)
-	if len(h) < 2 {
-		return "", "", false
-	}
-	js := func(s report.Summary) string { return strings.TrimSuffix(s.Path, ".html") + ".json" }
-	return js(h[1]), js(h[0]), true
-}
-
 func compareCmd(args []string) error {
 	fs := flag.NewFlagSet("compare", flag.ExitOnError)
 	prof := fs.String("profile", "", "compare the two latest runs of this profile (default: last used)")
@@ -133,7 +123,7 @@ func compareCmd(args []string) error {
 		name := firstNonEmpty(*prof, profiles.Last)
 		p, _ := profiles.Get(name)
 		var ok bool
-		if a, b, ok = latestTwo(firstNonEmpty(p.OutDir, report.DefaultDir(firstNonEmpty(name, "default")))); !ok {
+		if a, b, ok = report.LatestTwo(firstNonEmpty(p.OutDir, report.DefaultDir(firstNonEmpty(name, "default")))); !ok {
 			return errors.New(i18n.T(*lang, "cmp_need_two"))
 		}
 	default:

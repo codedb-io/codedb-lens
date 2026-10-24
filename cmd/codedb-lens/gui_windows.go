@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -480,24 +479,18 @@ type RecSummary struct {
 
 // Recordings lists the profile's recordings, newest first.
 func (a *App) Recordings(p profile.Profile) []RecSummary {
-	entries, _ := os.ReadDir(recordingsDir(p))
 	var out []RecSummary
-	for _, e := range entries {
-		dir := filepath.Join(recordingsDir(p), e.Name())
-		m, err := record.ReadMeta(dir)
-		if !e.IsDir() || err != nil {
-			continue
-		}
-		r := RecSummary{Dir: dir, Started: m.StartedAt.Format(time.RFC3339), Stop: m.StopReason}
+	for _, l := range record.List(recordingsDir(p)) {
+		m := l.Meta
+		r := RecSummary{Dir: l.Dir, Started: m.StartedAt.Format(time.RFC3339), Stop: m.StopReason}
 		if !m.StoppedAt.IsZero() {
 			r.Stopped = m.StoppedAt.Format(time.RFC3339)
 		}
-		if _, err := os.Stat(filepath.Join(dir, "report.html")); err == nil {
-			r.Report = filepath.Join(dir, "report.html")
+		if _, err := os.Stat(filepath.Join(l.Dir, "report.html")); err == nil {
+			r.Report = filepath.Join(l.Dir, "report.html")
 		}
 		out = append(out, r)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Started > out[j].Started })
 	return out
 }
 

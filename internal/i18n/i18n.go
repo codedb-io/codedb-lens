@@ -370,9 +370,17 @@ var messages = map[string]map[string]string{
 		"gui_promo_6":             "Automatic baselines: know what normal looks like on your server.",
 
 		// v0.9: MCP server
-		"mcp_profile_unknown": "profile %q not found (codedb-lens mcp --profile)",
-		"mcp_rule_unknown":    "rule %q not found; list_rules shows the catalog",
-		"mcp_engine_invalid":  "engine must be mssql or pg, not %q",
+		"mcp_profile_unknown":     "profile %q not found (codedb-lens mcp --profile)",
+		"mcp_rule_unknown":        "rule %q not found; list_rules shows the catalog",
+		"mcp_engine_invalid":      "engine must be mssql or pg, not %q",
+		"mcp_profile_unavailable": "profile %q not found or not available to this AI session; list_profiles shows the ones you can use",
+		"mcp_no_password":         "no saved password for profile %q: save it in the codeDB Lens app, or set CODEDB_LENS_PASSWORD in the AI client's server settings",
+		"mcp_no_runs":             "profile %q has no saved runs yet; run check first",
+		"mcp_run_unknown":         "%q is not a run of profile %q; history lists the runs",
+		"mcp_rule_not_in_run":     "rule %q is not in that run",
+		"mcp_bad_time":            "%q is not a date and time in RFC 3339, e.g. 2026-10-23T14:00:00-03:00",
+		"mcp_bad_duration":        "%q is not a valid duration: use e.g. 30m, 1h or 24h (at most 24h)",
+		"mcp_record_note":         "Run it in a terminal: the recording keeps going after this chat ends and stops by itself at the end. Then ask for the analysis (recording_report).",
 	},
 	"pt-BR": {
 		"grade":                 "Nota",
@@ -736,9 +744,17 @@ var messages = map[string]map[string]string{
 		"gui_promo_6":             "Baseline automático: saiba o que é normal no seu servidor.",
 
 		// v0.9: servidor MCP
-		"mcp_profile_unknown": "perfil %q não encontrado (codedb-lens mcp --profile)",
-		"mcp_rule_unknown":    "regra %q não encontrada; o list_rules mostra o catálogo",
-		"mcp_engine_invalid":  "engine deve ser mssql ou pg, não %q",
+		"mcp_profile_unknown":     "perfil %q não encontrado (codedb-lens mcp --profile)",
+		"mcp_rule_unknown":        "regra %q não encontrada; o list_rules mostra o catálogo",
+		"mcp_engine_invalid":      "engine deve ser mssql ou pg, não %q",
+		"mcp_profile_unavailable": "perfil %q não encontrado ou não liberado para esta sessão de IA; o list_profiles mostra os que você pode usar",
+		"mcp_no_password":         "não há senha salva para o perfil %q: salve-a no app codeDB Lens ou defina CODEDB_LENS_PASSWORD na configuração do servidor no cliente de IA",
+		"mcp_no_runs":             "o perfil %q ainda não tem execuções salvas; rode o check primeiro",
+		"mcp_run_unknown":         "%q não é uma execução do perfil %q; o history lista as execuções",
+		"mcp_rule_not_in_run":     "a regra %q não está nessa execução",
+		"mcp_bad_time":            "%q não é data e hora em RFC 3339, ex.: 2026-10-23T14:00:00-03:00",
+		"mcp_bad_duration":        "%q não é uma duração válida: use, por exemplo, 30m, 1h ou 24h (no máximo 24h)",
+		"mcp_record_note":         "Rode no terminal: a gravação continua depois que esta conversa termina e para sozinha no fim. Depois peça a análise (recording_report).",
 	},
 }
 

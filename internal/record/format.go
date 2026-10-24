@@ -89,6 +89,26 @@ func ReadMeta(dir string) (Meta, error) {
 	return m, nil
 }
 
+// Listed is one recording found by List.
+type Listed struct {
+	Dir  string
+	Meta Meta
+}
+
+// List returns the recordings directly inside root, newest first; other folders are skipped.
+func List(root string) []Listed {
+	entries, _ := os.ReadDir(root)
+	var out []Listed
+	for _, e := range entries {
+		dir := filepath.Join(root, e.Name())
+		if m, err := ReadMeta(dir); e.IsDir() && err == nil {
+			out = append(out, Listed{dir, m})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Meta.StartedAt.After(out[j].Meta.StartedAt) })
+	return out
+}
+
 // Writer appends lines to the segment of their hour (UTC), opening a new file when the hour changes.
 type Writer struct {
 	dir    string

@@ -360,3 +360,13 @@ func History(dir string, n int) []Summary {
 	}
 	return out
 }
+
+// LatestTwo returns the two newest JSON reports of a folder, older first.
+func LatestTwo(dir string) (string, string, bool) {
+	h := History(dir, 2)
+	if len(h) < 2 {
+		return "", "", false
+	}
+	js := func(s Summary) string { return strings.TrimSuffix(s.Path, ".html") + ".json" }
+	return js(h[1]), js(h[0]), true
+}

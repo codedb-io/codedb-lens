@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/codedb-io/codedb-lens/internal/adapter"
 	"github.com/codedb-io/codedb-lens/internal/profile"
+	"github.com/codedb-io/codedb-lens/internal/report"
 	"github.com/codedb-io/codedb-lens/rules"
 )
 
@@ -28,6 +30,8 @@ func connect(t *testing.T, o Options) *mcp.ClientSession {
 	dir := t.TempDir()
 	t.Setenv("APPDATA", dir)         // Windows
 	t.Setenv("XDG_CONFIG_HOME", dir) // Linux
+	t.Setenv("USERPROFILE", dir)     // reports and recordings (report.DefaultDir)
+	t.Setenv("HOME", dir)
 	keyring.MockInit()
 	f := profile.File{}
 	f.Put(profile.Profile{Name: "prod", Conn: adapter.Conn{Engine: "mssql", Server: "sql01,1433", User: "lens", Password: sentinel}})
@@ -46,6 +50,14 @@ func connect(t *testing.T, o Options) *mcp.ClientSession {
 	}
 	if o.Lang == "" {
 		o.Lang = "en"
+	}
+	if o.Check == nil {
+		o.Check = fakeCheck(t, nil)
+	}
+	if o.Compare == nil {
+		o.Compare = func(string, string, string) (*report.Comparison, string, error) {
+			return nil, "", errors.New("no compare")
+		}
 	}
 	srv, err := New(o)
 	if err != nil {

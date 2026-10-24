@@ -6,13 +6,17 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/codedb-io/codedb-lens/internal/adapter"
 	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/codedb-io/codedb-lens/internal/i18n"
 	"github.com/codedb-io/codedb-lens/internal/profile"
+	"github.com/codedb-io/codedb-lens/internal/report"
 )
 
 type Options struct {
@@ -20,12 +24,22 @@ type Options struct {
 	Lang     string   // language of rule texts and error messages
 	Profiles []string // profiles the AI may see; empty = all saved profiles
 	Catalog  fs.FS    // rules.FS or --rules-dir
+	Redact   bool     // mask names in check, compare and recording results (--redact)
+	// Fixed replaces the saved profiles with one connection from flags (Docker, servers); its password is in Conn.
+	Fixed *profile.Profile
+
+	// Check diagnoses and saves the report in the profile's history, like the GUI (main's Diagnose + saveReport).
+	Check func(ctx context.Context, p profile.Profile, c adapter.Conn, lang string, redact bool) (*report.Report, string, error)
+	// Compare is main's compareFiles: free key, instance limit, diff, save.
+	Compare func(lang, fileA, fileB string) (*report.Comparison, string, error)
 }
 
 const instructions = `codeDB Lens: read-only health checks for SQL Server and PostgreSQL.
 Nothing you call here changes a database or any configuration.
 Connections come from the user's saved profiles (list_profiles); passwords are never shown.
-Use list_rules and explain_rule to explain what a check measures and how to fix a finding.`
+check runs the diagnosis (10-60 s) and saves the report in the profile's history; get_finding gives the full evidence.
+A finding is Confirmed or a Hint; "no data" means the rule could not run (permissions, platform), never "OK".
+Recordings are started by the user in a terminal (record_command); you read them with recording_report.`
 
 type server struct {
 	Options
@@ -57,6 +71,9 @@ func New(o Options) (*mcp.Server, error) {
 	mcp.AddTool(m, &mcp.Tool{Name: "explain_rule", Annotations: ro,
 		Description: "Explain one rule: what it measures, why it matters, the next action, how to verify the fix, the permission it needs, its SQL and its documentation link."},
 		s.explainRule)
+	addDiagTools(m, s, ro)
+	addRecordingTools(m, s, ro)
+	addPrompts(m)
 	return m, nil
 }
 
@@ -74,19 +91,29 @@ type listProfilesOut struct {
 
 func (s *server) listProfiles(context.Context, *mcp.CallToolRequest, struct{}) (*mcp.CallToolResult, listProfilesOut, error) {
 	out := listProfilesOut{Profiles: []profileOut{}}
-	f, err := profile.Load()
-	if err != nil {
-		return nil, out, err
+	ps, err := s.all()
+	for _, p := range ps {
+		out.Profiles = append(out.Profiles, profileOut{p.Name, p.Conn.Engine, p.Conn.Server, p.Conn.Database, p.Lang})
 	}
-	for _, p := range f.Profiles {
-		if s.visible(p.Name) {
-			out.Profiles = append(out.Profiles, profileOut{p.Name, p.Conn.Engine, p.Conn.Server, p.Conn.Database, p.Lang})
-		}
-	}
-	return nil, out, nil
+	return nil, out, err
 }
 
-// visible applies --profile. Later tools that take a profile argument must refuse hidden ones too.
+// all returns the profiles the AI may use: the fixed connection, or the saved profiles filtered by --profile.
+func (s *server) all() ([]profile.Profile, error) {
+	if s.Fixed != nil {
+		return []profile.Profile{*s.Fixed}, nil
+	}
+	f, err := profile.Load()
+	var out []profile.Profile
+	for _, p := range f.Profiles {
+		if s.visible(p.Name) {
+			out = append(out, p)
+		}
+	}
+	return out, err
+}
+
+// visible applies --profile.
 func (s *server) visible(name string) bool {
 	if len(s.Profiles) == 0 {
 		return true
@@ -98,6 +125,52 @@ func (s *server) visible(name string) bool {
 	}
 	return false
 }
+
+// profile finds a profile the AI may use; hidden and missing ones get the same answer.
+func (s *server) profile(name string) (profile.Profile, error) {
+	ps, err := s.all()
+	if err != nil {
+		return profile.Profile{}, err
+	}
+	for _, p := range ps {
+		if strings.EqualFold(p.Name, name) {
+			return p, nil
+		}
+	}
+	return profile.Profile{}, fmt.Errorf(i18n.T(s.Lang, "mcp_profile_unavailable"), name)
+}
+
+// conn adds the password: OS credential store, then CODEDB_LENS_PASSWORD. Never a prompt: stdin is the protocol.
+func (s *server) conn(p profile.Profile) (adapter.Conn, error) {
+	c := p.Conn
+	if c.Password != "" || c.DSN != "" || c.Auth == "windows" && c.Engine == "mssql" {
+		return c, nil
+	}
+	if pw, err := profile.Password(p.Name); err == nil {
+		c.Password = pw
+	} else if c.Password = os.Getenv("CODEDB_LENS_PASSWORD"); c.Password == "" {
+		return c, fmt.Errorf(i18n.T(s.Lang, "mcp_no_password"), p.Name)
+	}
+	return c, nil
+}
+
+// lang is the profile's language, else the server's.
+func (s *server) lang(p profile.Profile) string {
+	if p.Lang != "" {
+		return i18n.Normalize(p.Lang)
+	}
+	return s.Lang
+}
+
+// reportsDir is where check, the GUI and compare keep a profile's runs.
+func reportsDir(p profile.Profile) string {
+	if p.OutDir != "" {
+		return p.OutDir
+	}
+	return report.DefaultDir(p.Name)
+}
+
+func recordingsDir(p profile.Profile) string { return filepath.Join(reportsDir(p), "recordings") }
 
 type listRulesIn struct {
 	Engine string `json:"engine,omitempty" jsonschema:"mssql or pg; empty lists both"`

@@ -4,6 +4,443 @@
       "idempotentHint": false,
       "readOnlyHint": true
     },
+    "description": "Run the codeDB Lens health check on a profile (read-only, 10-60 s): A-F grade with its coverage, findings with severity, confidence, evidence preview and next action, and rules without data. Saves the report in the profile's history, like the app does.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        },
+        "redact": {
+          "description": "mask host, database, object, login and file names and drop query text",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "check",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage": {
+          "type": "number"
+        },
+        "findings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "columns": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "doc_url": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "next_action": {
+                "type": "string"
+              },
+              "rows": {
+                "items": {
+                  "items": true,
+                  "type": [
+                    "null",
+                    "array"
+                  ]
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "total_rows": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "confidence",
+              "title",
+              "next_action",
+              "doc_url",
+              "total_rows"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "grade": {
+          "type": "string"
+        },
+        "no_data": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "report": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "server": {
+          "additionalProperties": false,
+          "properties": {
+            "engine": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "platform": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "engine",
+            "version",
+            "platform",
+            "host"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "server",
+        "grade",
+        "score",
+        "coverage",
+        "findings",
+        "no_data",
+        "passed",
+        "report",
+        "note"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Compare two runs of the same instance: new, resolved and persisting findings and the grade change. Default: the two latest runs. Needs the user's free key (codedb-lens register).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "description": "older run path from history; default: the second latest",
+          "type": "string"
+        },
+        "b": {
+          "description": "newer run path from history; default: the latest",
+          "type": "string"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "compare",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "type": "number"
+            },
+            "grade": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            },
+            "when": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "when",
+            "grade",
+            "score",
+            "coverage"
+          ],
+          "type": "object"
+        },
+        "before": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "type": "number"
+            },
+            "grade": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            },
+            "when": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "when",
+            "grade",
+            "score",
+            "coverage"
+          ],
+          "type": "object"
+        },
+        "changed": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "after": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "rows_after": {
+                "type": "integer"
+              },
+              "rows_before": {
+                "type": "integer"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "title",
+              "rows_before",
+              "rows_after"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "new": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "after": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "rows_after": {
+                "type": "integer"
+              },
+              "rows_before": {
+                "type": "integer"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "title",
+              "rows_before",
+              "rows_after"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "persisting": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "after": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "rows_after": {
+                "type": "integer"
+              },
+              "rows_before": {
+                "type": "integer"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "title",
+              "rows_before",
+              "rows_after"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "report": {
+          "type": "string"
+        },
+        "resolved": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "after": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "rows_after": {
+                "type": "integer"
+              },
+              "rows_before": {
+                "type": "integer"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "title",
+              "rows_before",
+              "rows_after"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "new",
+        "resolved",
+        "persisting",
+        "changed",
+        "report"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
     "description": "Explain one rule: what it measures, why it matters, the next action, how to verify the fix, the permission it needs, its SQL and its documentation link.",
     "inputSchema": {
       "additionalProperties": false,
@@ -82,6 +519,195 @@
       "idempotentHint": false,
       "readOnlyHint": true
     },
+    "description": "Full detail of one rule in a saved run: status, impact, next action, how to verify the fix, and all evidence rows. Default run: the latest.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        },
+        "rule_id": {
+          "description": "rule ID from check, e.g. MSSQL-BACKUP-001",
+          "type": "string"
+        },
+        "run": {
+          "description": "run path from history; default: the latest run",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile",
+        "rule_id"
+      ],
+      "type": "object"
+    },
+    "name": "get_finding",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "caveat": {
+          "type": "string"
+        },
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "doc_url": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "impact": {
+          "type": "string"
+        },
+        "next_action": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "items": true,
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "run": {
+          "type": "string"
+        },
+        "run_at": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "total_rows": {
+          "type": "integer"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "verify": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "confidence",
+        "title",
+        "next_action",
+        "doc_url",
+        "total_rows",
+        "status",
+        "impact",
+        "verify",
+        "run",
+        "run_at"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Saved check runs of a profile, newest first: date, grade, coverage and number of findings. Each run's path can be passed to get_finding or compare.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "how many runs, newest first (default 10, at most 50)",
+          "type": "integer"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "history",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "runs": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "coverage": {
+                "type": "number"
+              },
+              "findings": {
+                "type": "integer"
+              },
+              "grade": {
+                "type": "string"
+              },
+              "run": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              },
+              "when": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "when",
+              "grade",
+              "score",
+              "coverage",
+              "findings",
+              "run"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "runs"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
     "description": "List the saved connection profiles you may use: name, engine, host, initial database and language. Never returns passwords or connection strings.",
     "inputSchema": {
       "additionalProperties": false,
@@ -126,6 +752,72 @@
       },
       "required": [
         "profiles"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Recordings (activity sampled every 15 s for 1 or 24 h) kept with a profile's reports, newest first. Recordings made elsewhere can still be read with recording_report and their folder.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "description": "profile name; empty lists the recordings of every profile you may use",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_recordings",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "recordings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "engine": {
+                "type": "string"
+              },
+              "folder": {
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "profile": {
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "stop_reason": {
+                "type": "string"
+              },
+              "stopped": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "profile",
+              "folder",
+              "engine",
+              "started"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "recordings"
       ],
       "type": "object"
     }
@@ -190,6 +882,287 @@
       },
       "required": [
         "rules"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "The command the user runs in a terminal (or on the server) to record a profile for up to 1 h, or 24 h with the free key. You cannot start a recording: give the user this command.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "duration": {
+          "description": "how long to record, e.g. 30m, 1h or 24h (default 1h; more than 1h needs the free key)",
+          "type": "string"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "record_command",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "report_command": {
+          "type": "string"
+        },
+        "server_command": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command",
+        "server_command",
+        "report_command",
+        "note"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Analyse a recording, optionally for a period (e.g. an incident): time coverage, gaps without data, findings as episodes (blocking, waits, long queries, workers or connections), peak of each chart and the top queries. Also writes the HTML report into the recording folder.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "folder": {
+          "description": "recording folder, from list_recordings or given by the user",
+          "type": "string"
+        },
+        "from": {
+          "description": "start of the period, RFC 3339 (default: start of the recording)",
+          "type": "string"
+        },
+        "to": {
+          "description": "end of the period, RFC 3339 (default: end of the recording)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "folder"
+      ],
+      "type": "object"
+    },
+    "name": "recording_report",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "charts": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "peak": {
+                "type": "number"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "peak"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "coverage": {
+          "type": "number"
+        },
+        "findings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "columns": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "doc_url": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "next_action": {
+                "type": "string"
+              },
+              "rows": {
+                "items": {
+                  "items": true,
+                  "type": [
+                    "null",
+                    "array"
+                  ]
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "total_rows": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "confidence",
+              "title",
+              "next_action",
+              "doc_url",
+              "total_rows"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "from": {
+          "type": "string"
+        },
+        "gaps": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "report": {
+          "type": "string"
+        },
+        "server": {
+          "additionalProperties": false,
+          "properties": {
+            "engine": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "platform": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "engine",
+            "version",
+            "platform",
+            "host"
+          ],
+          "type": "object"
+        },
+        "started": {
+          "type": "string"
+        },
+        "stop_reason": {
+          "type": "string"
+        },
+        "stopped": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "top_queries": {
+          "additionalProperties": false,
+          "properties": {
+            "columns": {
+              "items": {
+                "type": "string"
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            },
+            "rows": {
+              "items": {
+                "items": true,
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            }
+          },
+          "required": [
+            "columns",
+            "rows"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "server",
+        "started",
+        "from",
+        "to",
+        "coverage",
+        "gaps",
+        "findings",
+        "charts",
+        "top_queries",
+        "report"
       ],
       "type": "object"
     }

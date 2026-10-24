@@ -9,6 +9,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - `mcp`: MCP server over stdio for AI clients (Claude, VS Code, Cursor), read-only, in the same binary. First tools:
   `list_profiles` (never returns passwords or connection strings), `list_rules` and `explain_rule`. `--profile a,b`
   limits which saved profiles the AI sees. Uses the official Go SDK (`github.com/modelcontextprotocol/go-sdk`).
+- `mcp` diagnosis tools: `check` (saves the report in the profile's history, like the app), `get_finding`, `history`,
+  `compare` (free key), `list_recordings`, `recording_report` (a period of a recording) and `record_command` (the AI
+  never starts a recording; it gives the user the command). Prompts `diagnose` and `incident`. `--redact` masks names in
+  the results. Without saved profiles (servers, Docker), `mcp --engine ... --server ...` takes the connection from flags
+  and `CODEDB_LENS_PASSWORD`. A whole MCP session is tested to make no HTTP call.
 
 ## [0.8.0] - 2026-10-23
 
