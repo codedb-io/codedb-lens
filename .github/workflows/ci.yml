@@ -24,6 +24,19 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -tags desktop,production -o /dev/null ./cmd/codedb-lens
           GOOS=linux GOARCH=arm64 go build -o /dev/null ./cmd/codedb-lens
 
+  # The release .exe is a GUI-subsystem binary; AI clients start it with pipes for `mcp`.
+  unit-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - name: MCP over stdio with the GUI-subsystem binary
+        shell: bash
+        run: |
+          go build -tags desktop,production -ldflags "-H=windowsgui" -o "$RUNNER_TEMP/codedb-lens.exe" ./cmd/codedb-lens
+          LENS_BIN="$RUNNER_TEMP/codedb-lens.exe" go test -count=1 -run TestMCPStdio -v ./cmd/codedb-lens/
+
   integration:
     runs-on: ubuntu-latest
     strategy:

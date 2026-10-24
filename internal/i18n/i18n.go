@@ -368,6 +368,11 @@ var messages = map[string]map[string]string{
 		"gui_promo_4":             "Months of history, not just a snapshot.",
 		"gui_promo_5":             "All your instances on one dashboard.",
 		"gui_promo_6":             "Automatic baselines: know what normal looks like on your server.",
+
+		// v0.9: MCP server
+		"mcp_profile_unknown": "profile %q not found (codedb-lens mcp --profile)",
+		"mcp_rule_unknown":    "rule %q not found; list_rules shows the catalog",
+		"mcp_engine_invalid":  "engine must be mssql or pg, not %q",
 	},
 	"pt-BR": {
 		"grade":                 "Nota",
@@ -729,6 +734,11 @@ var messages = map[string]map[string]string{
 		"gui_promo_4":             "Meses de histórico, não só uma foto.",
 		"gui_promo_5":             "Todas as suas instâncias em um só painel.",
 		"gui_promo_6":             "Baseline automático: saiba o que é normal no seu servidor.",
+
+		// v0.9: servidor MCP
+		"mcp_profile_unknown": "perfil %q não encontrado (codedb-lens mcp --profile)",
+		"mcp_rule_unknown":    "regra %q não encontrada; o list_rules mostra o catálogo",
+		"mcp_engine_invalid":  "engine deve ser mssql ou pg, não %q",
 	},
 }
 

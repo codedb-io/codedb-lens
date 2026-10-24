@@ -1,0 +1,197 @@
+[
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Explain one rule: what it measures, why it matters, the next action, how to verify the fix, the permission it needs, its SQL and its documentation link.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "rule_id": {
+          "description": "rule ID, e.g. MSSQL-BACKUP-001 or PG-AUTOVAC-001",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id"
+      ],
+      "type": "object"
+    },
+    "name": "explain_rule",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "caveat": {
+          "type": "string"
+        },
+        "doc_url": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "impact": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "next_action": {
+          "type": "string"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "sql": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "verify": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "engine",
+        "category",
+        "severity",
+        "title",
+        "impact",
+        "next_action",
+        "verify",
+        "permission",
+        "doc_url"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "List the saved connection profiles you may use: name, engine, host, initial database and language. Never returns passwords or connection strings.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "name": "list_profiles",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profiles": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "database": {
+                "type": "string"
+              },
+              "engine": {
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "lang": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "engine",
+              "host"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "profiles"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "List the Lens rule catalog (health checks): ID, engine, category, severity and title. Kind \"series\" rules judge recordings, the others run in a check.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "description": "mssql or pg; empty lists both",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_rules",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "rules": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "engine": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "engine",
+              "category",
+              "severity",
+              "title"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "rules"
+      ],
+      "type": "object"
+    }
+  }
+]

@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- `mcp`: MCP server over stdio for AI clients (Claude, VS Code, Cursor), read-only, in the same binary. First tools:
+  `list_profiles` (never returns passwords or connection strings), `list_rules` and `explain_rule`. `--profile a,b`
+  limits which saved profiles the AI sees. Uses the official Go SDK (`github.com/modelcontextprotocol/go-sdk`).
+
 ## [0.8.0] - 2026-10-23
 
 ### Added

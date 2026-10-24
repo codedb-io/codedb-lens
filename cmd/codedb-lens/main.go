@@ -10,7 +10,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/fs"
 	"os"
 	"os/signal"
 	"time"
@@ -24,7 +23,6 @@ import (
 	"github.com/codedb-io/codedb-lens/internal/report"
 	"github.com/codedb-io/codedb-lens/internal/saas"
 	"github.com/codedb-io/codedb-lens/internal/update"
-	"github.com/codedb-io/codedb-lens/rules"
 )
 
 var version = "dev" // set by -ldflags at release
@@ -40,6 +38,7 @@ Usage:
   codedb-lens compare [--profile NAME | OLD.json NEW.json]   compare two runs (free key)
   codedb-lens register  get the free key (sends only the name and e-mail you type, once)
   codedb-lens license [status|import <key>|reset|remove]
+  codedb-lens mcp     [--profile a,b]   MCP server (stdio) for AI clients; read-only
   codedb-lens update    download, verify (Ed25519) and install the latest release
   codedb-lens version
 
@@ -72,6 +71,8 @@ func main() {
 		err = registerCmd(os.Args[2:])
 	case "license":
 		err = licenseCmd(os.Args[2:])
+	case "mcp":
+		err = mcpCmd(os.Args[2:])
 	case "update":
 		err = selfUpdate()
 	case "version", "--version", "-v":
@@ -256,10 +257,7 @@ func selfUpdate() error {
 // Diagnose is the whole check: connect, run the catalog, score. Shared by CLI and GUI.
 // onRule (optional) sees each rule before (res == nil) and after it runs.
 func Diagnose(ctx context.Context, c adapter.Conn, lang, rulesDir string, log func(string), onRule func(i, total int, r *engine.Rule, res *engine.Result)) (*report.Report, error) {
-	var catalog fs.FS = rules.FS
-	if rulesDir != "" {
-		catalog = os.DirFS(rulesDir)
-	}
+	catalog := catalogFS(rulesDir)
 	ruleset, err := engine.LoadCatalog(catalog, c.Engine)
 	if err != nil {
 		return nil, err
