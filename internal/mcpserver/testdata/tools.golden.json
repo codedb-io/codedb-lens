@@ -975,12 +975,16 @@
               },
               "name": {
                 "type": "string"
+              },
+              "write_enabled": {
+                "type": "boolean"
               }
             },
             "required": [
               "name",
               "engine",
-              "host"
+              "host",
+              "write_enabled"
             ],
             "type": "object"
           },

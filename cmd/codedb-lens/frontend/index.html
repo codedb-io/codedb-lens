@@ -460,6 +460,8 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
     <div><h1 data-t="gui_mcp_title"></h1><p data-t="gui_mcp_sub"></p></div></div>
   <div class="secure" style="max-width:860px;margin-bottom:var(--s5);background:var(--surface-2);border-color:var(--line);color:var(--muted);align-items:center"><svg class="i"><use href="#i-shield"/></svg>
     <b style="color:var(--text);margin:0" data-t="gui_mcp_readonly"></b><i data-info="gui_mcp_info_provider"></i></div>
+  <div class="alert err" id="mcpwrite" style="max-width:860px" hidden><div><b id="mcpwritemsg"></b>
+    <button type="button" class="linkbtn" id="mcpwritedoc" style="color:inherit;text-decoration:underline" data-t="gui_mcp_write_doc"></button></div></div>
   <div class="tabs" id="mcptabs" role="tablist" style="max-width:860px">
     <button type="button" role="tab" data-mtab="guide" data-t="gui_mcp_tab_guide"></button>
     <button type="button" role="tab" data-mtab="setup" data-t="gui_mcp_tab_setup"></button>
@@ -684,6 +686,8 @@ function renderMCP() {
     esc(p.name) + ' <small>' + esc(p.conn.server) + '</small></span></label>').join('') : '<p class="hint" style="margin:0">' + esc(t('gui_no_conn')) + '</p>';
   const qs = Object.entries(QS).map(([h, ks]) => '<h4>' + esc(t(h)) + '</h4>' + ks.map(k => '<div class="qrow"><span>' + esc(t(k)) + '</span>' + copyBtn(t(k)) + '</div>').join('')).join('');
   $$('#mcpview .qs').forEach(b => b.innerHTML = qs);
+  const w = ps.filter(p => p.mcp_write).map(p => p.name); // a security alert, not a feature: no way to turn it on here
+  $('#mcpwrite').hidden = !w.length; $('#mcpwritemsg').textContent = tf('gui_mcp_write_on', w.join(', '));
   const on = mcpSt.filter(s => s.configured && !s.missing).map(s => s.name);
   $('#actmcps').textContent = on.length ? tf('gui_mcp_configured_in', on.join(', ')) : t('gui_card_mcp_s');
 }
@@ -951,6 +955,7 @@ $('#mcpprofiles').addEventListener('change', () => { mcpSel = [...$$('#mcpprofil
 $('#mcpredact').onchange = loadMCP;
 $('#mcpdata').onclick = () => api().OpenURL(docs('mcp-data'));
 $('#mcpfull').onclick = () => api().OpenURL(docs('mcp'));
+$('#mcpwritedoc').onclick = () => api().OpenURL(docs('mcp-write'));
 $('#actnew').onclick = () => fill(null);
 $('#actrun').onclick = () => {
   const ps = state.profiles || [], p = ps.find(x => x.name === state.last) || ps[0];

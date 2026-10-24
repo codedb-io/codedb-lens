@@ -28,6 +28,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - GUI: "AI (MCP)" screen with a step-by-step "How to use" guide and a "Configuration" tab (which clients have the Lens,
   the command and the JSON to copy for the profiles you tick); a "Use with AI" card on Home. The GUI installs nothing.
   Connections get "Max rows for the AI" and "Max query time" fields.
+- `mcp` write mode, documented only in the docs (`mcp-write`): `execute_sql` exists only when the profile allows it
+  (`codedb-lens mcp allow-write`, which must run in a terminal and asks you to type the profile name; `revoke-write`
+  turns it off) and the client
+  runs `mcp --allow-write`. The user confirms every call in the AI client, `dry_run` (the default) rolls back,
+  statements without a transaction need `dry_run: false`, a deny list holds even then (logins, permissions, server
+  settings, `DROP DATABASE`, OS and file access, transaction control, impersonation, dynamic SQL), and every attempt is written to `mcp-audit.jsonl`
+  (no log, no write). The app never turns it on and shows a warning while any profile allows it.
 
 ## [0.8.0] - 2026-10-23
 

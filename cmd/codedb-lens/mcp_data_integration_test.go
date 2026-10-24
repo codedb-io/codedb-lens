@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -34,6 +35,8 @@ type dataFixture struct {
 	bigCell     string
 	slow        string
 	refused     []string // the guard corpus for this engine
+	direct      string   // a statement without a transaction, for the write mode
+	secretRows  func() int64
 }
 
 func mcpData(t *testing.T, f dataFixture) {
@@ -191,6 +194,97 @@ func mcpData(t *testing.T, f dataFixture) {
 	if after := f.canary(); after != before {
 		t.Fatalf("canary changed: %s -> %s", before, after)
 	}
+
+	mcpWrite(t, f, before)
+}
+
+// mcpWrite: the write mode with both keys on and a user who confirms (plan §7.6): a preview counts the rows and
+// leaves the database as it was, dry_run false applies, and every run is in the audit log.
+func mcpWrite(t *testing.T, f dataFixture, canary string) {
+	pf, _ := profile.Load()
+	p, _ := pf.Get("admin")
+	p.MCPWrite = true
+	pf.Put(p)
+	if err := pf.Save(); err != nil {
+		t.Fatal(err)
+	}
+	o := mcpOptions("en", "", false)
+	o.AllowWrite = "confirm"
+	srv, err := mcpserver.New(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	st, cl := mcp.NewInMemoryTransports()
+	if _, err := srv.Connect(ctx, st, nil); err != nil {
+		t.Fatal(err)
+	}
+	asked := 0
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, &mcp.ClientOptions{
+		ElicitationHandler: func(_ context.Context, req *mcp.ElicitRequest) (*mcp.ElicitResult, error) {
+			asked++
+			return &mcp.ElicitResult{Action: "accept", Content: map[string]any{"confirm": true}}, nil
+		}}).Connect(ctx, cl, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+	run := func(sql string, dry bool) map[string]any {
+		t.Helper()
+		res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: "execute_sql",
+			Arguments: map[string]any{"profile": "admin", "database": "lens_shop", "sql": sql, "dry_run": dry}})
+		if err != nil || res.IsError {
+			t.Fatalf("execute_sql %q: %v %+v", sql, err, res)
+		}
+		raw, _ := json.Marshal(res.StructuredContent)
+		var m map[string]any
+		_ = json.Unmarshal(raw, &m)
+		return m
+	}
+	if m := run("UPDATE customers SET city = 'X'", true); m["rows_affected"] != float64(2) || m["rolled_back"] != true {
+		t.Errorf("preview: %v", m)
+	}
+	if after := f.canary(); after != canary {
+		t.Fatalf("preview changed the canary: %s -> %s", canary, after)
+	}
+	before := f.secretRows()
+	if m := run("INSERT INTO secret VALUES (1)", false); m["rows_affected"] != float64(1) || m["rolled_back"] != false {
+		t.Errorf("apply: %v", m)
+	}
+	if n := f.secretRows(); n != before+1 {
+		t.Errorf("apply: secret has %d rows, want %d", n, before+1)
+	}
+	run(f.direct, false)
+
+	// A COMMIT inside a preview (security review): PostgreSQL takes one statement only; SQL Server cannot stop a
+	// batch from committing, so Write reports it and execute_sql's deny list keeps COMMIT out.
+	c := f.admin
+	c.Database = "lens_shop"
+	sess, err := adapter.Open(ctx, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before = f.secretRows()
+	_, err = sess.Write(ctx, "INSERT INTO secret VALUES (2); COMMIT", adapter.Preview, 5*time.Second)
+	sess.Close()
+	if c.Engine == "pg" && (err == nil || f.secretRows() != before) {
+		t.Errorf("pg preview with COMMIT: err %v, rows %d -> %d", err, before, f.secretRows())
+	}
+	if c.Engine == "mssql" && !errors.Is(err, adapter.ErrTxEnded) {
+		t.Errorf("mssql preview with COMMIT: want ErrTxEnded, got %v", err)
+	}
+	if res, _ := cs.CallTool(ctx, &mcp.CallToolParams{Name: "execute_sql", Arguments: map[string]any{
+		"profile": "admin", "database": "lens_shop", "sql": "INSERT INTO secret VALUES (3); COMMIT"}}); res == nil || !res.IsError {
+		t.Error("execute_sql ran a statement with COMMIT")
+	}
+	if asked != 3 {
+		t.Errorf("the user was asked %d times, want 3", asked)
+	}
+	path, _ := mcpserver.AuditPath()
+	raw, _ := os.ReadFile(path)
+	if a := string(raw); strings.Count(a, `"result":"ok"`) != 3 || !strings.Contains(a, `"mode":"preview"`) || !strings.Contains(a, `"mode":"direct"`) {
+		t.Errorf("audit:\n%s", a)
+	}
 }
 
 // refusedCorpus is the guard's attack corpus for engine (internal/mcpserver/guard_test.go).
@@ -248,6 +342,11 @@ func TestMSSQLMCPData(t *testing.T) {
 		bigCell: "SELECT REPLICATE(CAST('x' AS varchar(max)), 10000) AS s",
 		slow:    "SELECT COUNT_BIG(*) FROM sys.all_objects a CROSS JOIN sys.all_objects b CROSS JOIN sys.all_objects c WHERE CAST(a.object_id AS bigint) + b.object_id + c.object_id = 7",
 		refused: refusedCorpus(t, "mssql"),
+		direct:  "ALTER DATABASE lens_shop SET RECOVERY SIMPLE",
+		secretRows: func() (n int64) {
+			_ = admin.QueryRow("SELECT COUNT_BIG(*) FROM lens_shop.dbo.secret").Scan(&n)
+			return n
+		},
 	})
 }
 
@@ -310,5 +409,10 @@ func TestPGMCPData(t *testing.T) {
 		bigCell: "SELECT repeat('x', 10000) AS s",
 		slow:    "SELECT count(*) FROM generate_series(1, 2000000000)",
 		refused: refusedCorpus(t, "pg"),
+		direct:  "VACUUM customers",
+		secretRows: func() (n int64) {
+			_ = shop.QueryRow(ctx, "SELECT count(*) FROM secret").Scan(&n)
+			return n
+		},
 	})
 }

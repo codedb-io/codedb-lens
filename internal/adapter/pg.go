@@ -157,6 +157,40 @@ func (p *PG) ReadOnly(ctx context.Context, q string, max int, timeout time.Durat
 	return queryN(ctx, tx, q, max, cancel)
 }
 
+// Write lifts the session's read-only default for this statement only: a READ WRITE transaction, or, for Direct,
+// the session setting itself (the session is closed after the call).
+func (p *PG) Write(ctx context.Context, q string, mode WriteMode, timeout time.Duration) (int64, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	ms := strconv.FormatInt((timeout + time.Second).Milliseconds(), 10)
+	if mode == Direct {
+		if _, err := p.conn.Exec(ctx, "SELECT set_config('default_transaction_read_only', 'off', false), set_config('statement_timeout', $1, false)", ms); err != nil {
+			return 0, err
+		}
+		tag, err := p.conn.Exec(ctx, q)
+		return tag.RowsAffected(), err
+	}
+	tx, err := p.conn.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadWrite})
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback(context.Background())
+	if _, err := tx.Exec(ctx, "SELECT set_config('statement_timeout', $1, true)", ms); err != nil {
+		return 0, err
+	}
+	// Extended protocol: one statement only, so no "...; COMMIT" can end the preview's transaction.
+	// (pgx's Exec switches to the simple protocol, which takes several, when there are no arguments.)
+	res := tx.Conn().PgConn().ExecParams(ctx, q, nil, nil, nil, nil).Read()
+	tag, err := res.CommandTag, res.Err
+	if err != nil {
+		return 0, err
+	}
+	if mode == Commit {
+		return tag.RowsAffected(), tx.Commit(ctx)
+	}
+	return tag.RowsAffected(), nil
+}
+
 func query(ctx context.Context, conn *pgx.Conn, q string) ([]string, [][]any, error) {
 	cols, out, _, err := queryN(ctx, conn, q, 0, nil)
 	return cols, out, err

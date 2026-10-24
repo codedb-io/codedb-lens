@@ -1,5 +1,6 @@
 // Package mcpserver exposes the Lens to AI clients over the Model Context Protocol (stdio).
-// Read-only: no tool here writes to a database or to any configuration.
+// Read-only by default: only execute_sql writes, and it exists only with the double opt-in of write.go.
+// No tool changes any configuration.
 package mcpserver
 
 import (
@@ -27,6 +28,8 @@ type Options struct {
 	Redact   bool     // mask names in check, compare and recording results (--redact)
 	// Fixed replaces the saved profiles with one connection from flags (Docker, servers); its password is in Conn.
 	Fixed *profile.Profile
+	// AllowWrite is --allow-write: "", "confirm" or "no-confirm". The other key is the profile's mcp_write.
+	AllowWrite string
 
 	// Check diagnoses and saves the report in the profile's history, like the GUI (main's Diagnose + saveReport).
 	Check func(ctx context.Context, p profile.Profile, c adapter.Conn, lang string, redact bool) (*report.Report, string, error)
@@ -45,7 +48,8 @@ query is read-only and stops at the profile's row limit; truncated: true means a
 
 type server struct {
 	Options
-	rules []*engine.Rule
+	rules   []*engine.Rule
+	pending pendingWrites // execute_sql questions waiting for the user's answer
 }
 
 // New builds the MCP server. The catalog is loaded once; profiles are read on every call,
@@ -62,7 +66,7 @@ func New(o Options) (*mcp.Server, error) {
 		}
 	}
 	m := mcp.NewServer(&mcp.Implementation{Name: "codedb-lens", Title: "codeDB Lens", Version: o.Version,
-		WebsiteURL: "https://lens.codedb.com.br/"}, &mcp.ServerOptions{Instructions: instructions})
+		WebsiteURL: "https://lens.codedb.com.br/"}, &mcp.ServerOptions{Instructions: s.instructions()})
 	ro := &mcp.ToolAnnotations{ReadOnlyHint: true}
 	mcp.AddTool(m, &mcp.Tool{Name: "list_profiles", Annotations: ro,
 		Description: "List the saved connection profiles you may use: name, engine, host, initial database and language. Never returns passwords or connection strings."},
@@ -76,8 +80,30 @@ func New(o Options) (*mcp.Server, error) {
 	addDiagTools(m, s, ro)
 	addRecordingTools(m, s, ro)
 	addDataTools(m, s, ro)
+	if s.anyWrite() {
+		addWriteTool(m, s)
+	}
 	addPrompts(m)
 	return m, nil
+}
+
+// anyWrite: execute_sql is listed only when both keys are turned for some profile the AI may use (Q44).
+func (s *server) anyWrite() bool {
+	ps, _ := s.all()
+	for _, p := range ps {
+		if s.writeEnabled(p) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *server) instructions() string {
+	if !s.anyWrite() {
+		return instructions
+	}
+	return strings.Replace(instructions, "Nothing you call here changes a database or any configuration.",
+		"Only execute_sql changes a database, on profiles with write_enabled: the user confirms each call and dry_run (the default) rolls back. Nothing changes any configuration.", 1)
 }
 
 type profileOut struct {
@@ -86,6 +112,7 @@ type profileOut struct {
 	Host     string `json:"host"`
 	Database string `json:"database,omitempty"`
 	Lang     string `json:"lang,omitempty"`
+	Write    bool   `json:"write_enabled"` // execute_sql may change this profile's database
 }
 
 type listProfilesOut struct {
@@ -96,7 +123,7 @@ func (s *server) listProfiles(context.Context, *mcp.CallToolRequest, struct{}) (
 	out := listProfilesOut{Profiles: []profileOut{}}
 	ps, err := s.all()
 	for _, p := range ps {
-		out.Profiles = append(out.Profiles, profileOut{p.Name, p.Conn.Engine, p.Conn.Server, p.Conn.Database, p.Lang})
+		out.Profiles = append(out.Profiles, profileOut{p.Name, p.Conn.Engine, p.Conn.Server, p.Conn.Database, p.Lang, s.writeEnabled(p)})
 	}
 	return nil, out, err
 }

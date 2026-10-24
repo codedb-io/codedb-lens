@@ -54,8 +54,23 @@ type Session interface {
 	// ReadOnly runs one statement the caller has vetted inside a transaction that is always rolled back,
 	// stopping after max rows (truncated = rows were left) or at timeout. The MCP query tool's layer 2.
 	ReadOnly(ctx context.Context, q string, max int, timeout time.Duration) (cols []string, rows [][]any, truncated bool, err error)
+	// Write runs a statement the user confirmed (MCP write mode only) and returns the rows it affected.
+	Write(ctx context.Context, q string, mode WriteMode, timeout time.Duration) (int64, error)
 	Close() error
 }
+
+// ErrTxEnded: the statement committed or rolled back the transaction it ran in (COMMIT inside it, or a procedure
+// that does). What it did may be committed, so it must never be reported as a preview that was rolled back.
+var ErrTxEnded = errors.New("the statement ended the transaction it ran in; its changes may have been committed")
+
+// WriteMode is how Write runs a statement.
+type WriteMode int
+
+const (
+	Preview WriteMode = iota // in a transaction that is rolled back
+	Commit                   // in a transaction that is committed
+	Direct                   // without a transaction (VACUUM, CREATE INDEX CONCURRENTLY, BACKUP): cannot be undone
+)
 
 // Denied: the login lacks permission on an object (SQL Server 229/230, PostgreSQL 42501).
 func Denied(err error) bool {

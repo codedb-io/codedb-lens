@@ -147,6 +147,41 @@ func (m *MSSQL) ReadOnly(ctx context.Context, q string, max int, timeout time.Du
 	return scanN(rows, max, cancel)
 }
 
+func (m *MSSQL) Write(ctx context.Context, q string, mode WriteMode, timeout time.Duration) (int64, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	if mode == Direct {
+		r, err := m.conn.ExecContext(ctx, q)
+		if err != nil {
+			return 0, err
+		}
+		n, _ := r.RowsAffected()
+		return n, nil
+	}
+	if _, err := m.conn.ExecContext(ctx, "SET XACT_ABORT ON"); err != nil {
+		return 0, err
+	}
+	tx, err := m.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	r, err := tx.ExecContext(ctx, q)
+	if err != nil {
+		return 0, err
+	}
+	n, _ := r.RowsAffected()
+	// A batch can run COMMIT, which T-SQL accepts mid-batch: check the transaction is still the one we opened.
+	var open int
+	if err := tx.QueryRowContext(ctx, "SELECT @@TRANCOUNT").Scan(&open); err != nil || open == 0 {
+		return n, errors.Join(ErrTxEnded, err)
+	}
+	if mode == Commit {
+		return n, tx.Commit()
+	}
+	return n, nil
+}
+
 func (m *MSSQL) Close() error {
 	if m.conn != nil {
 		m.conn.Close()

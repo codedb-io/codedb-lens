@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"flag"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"golang.org/x/term"
 
 	"github.com/codedb-io/codedb-lens/internal/adapter"
 	"github.com/codedb-io/codedb-lens/internal/i18n"
@@ -29,6 +31,8 @@ func mcpCmd(args []string) error {
 			return mcpInstallCmd(args[0], args[1:])
 		case "status":
 			return mcpStatusCmd()
+		case "allow-write", "revoke-write":
+			return mcpWriteCmd(args[0], args[1:])
 		}
 	}
 	var c checkOpts
@@ -39,9 +43,12 @@ func mcpCmd(args []string) error {
 	fs.Lookup("engine").Usage = "mssql or pg: use this connection instead of saved profiles (servers, Docker)"
 	rulesDir := fs.String("rules-dir", "", "use rules from this folder instead of the built-in catalog")
 	redact := fs.Bool("redact", false, "mask host, database, object, login and file names in check, compare and recording results")
+	var write writeFlag
+	fs.Var(&write, "allow-write", "with a profile allowed by mcp allow-write: list execute_sql (=no-confirm also for clients without confirmation prompts)")
 	_ = fs.Parse(args)
 
 	o := mcpOptions(i18n.Normalize(firstNonEmpty(c.lang, i18n.Detect())), *rulesDir, *redact)
+	o.AllowWrite = string(write)
 	switch {
 	case c.conn.Engine != "": // no profiles: the connection comes from flags and env
 		if c.dsnEnv != "" {
@@ -73,6 +80,67 @@ func mcpCmd(args []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	return srv.Run(ctx, &mcp.StdioTransport{})
+}
+
+// stdinTerminal is replaced by the tests, which type through a pipe.
+var stdinTerminal = func() bool { return term.IsTerminal(int(os.Stdin.Fd())) }
+
+// writeFlag is --allow-write (confirm) or --allow-write=no-confirm.
+type writeFlag string
+
+func (w *writeFlag) String() string   { return string(*w) }
+func (w *writeFlag) IsBoolFlag() bool { return true }
+func (w *writeFlag) Set(v string) error {
+	switch v {
+	case "true":
+		*w = "confirm"
+	case "no-confirm":
+		*w = "no-confirm"
+	case "false":
+		*w = ""
+	default:
+		return fmt.Errorf("--allow-write takes no value or =no-confirm, not %q", v)
+	}
+	return nil
+}
+
+// mcpWriteCmd turns the profile's key of the write mode on (after the user types the profile name) or off.
+func mcpWriteCmd(verb string, args []string) error {
+	lang := i18n.Normalize(i18n.Detect())
+	fs := flag.NewFlagSet("mcp "+verb, flag.ExitOnError)
+	name := fs.String("profile", "", "saved profile")
+	_ = fs.Parse(args)
+	f, err := profile.Load()
+	if err != nil {
+		return err
+	}
+	p, ok := f.Get(*name)
+	if !ok {
+		return fmt.Errorf(i18n.T(lang, "mcp_profile_unknown"), *name)
+	}
+	if verb == "allow-write" {
+		if !stdinTerminal() { // a person types it; an AI client with a shell tool has no terminal to type in
+			return errors.New(i18n.T(lang, "mcp_allow_write_tty"))
+		}
+		fmt.Printf(i18n.T(lang, "mcp_allow_write_ask"), p.Name)
+		typed, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+		if strings.TrimSpace(typed) != p.Name {
+			return errors.New(i18n.T(lang, "mcp_allow_write_mismatch"))
+		}
+	}
+	last := f.Last
+	p.MCPWrite = verb == "allow-write"
+	f.Put(p)
+	f.Last = last // Put marks the profile as last used; this is not a use
+	if err := f.Save(); err != nil {
+		return err
+	}
+	key := "mcp_write_revoked"
+	if p.MCPWrite {
+		key = "mcp_write_allowed"
+	}
+	fmt.Printf(i18n.T(lang, key)+"\n", p.Name)
+	return nil
 }
 
 // mcpInstallCmd adds or removes the Lens in an AI client's settings. Claude Code gets its own command instead.
@@ -197,7 +265,13 @@ func mcpStatusCmd() error {
 		}
 		fmt.Printf("%-15s %s\n", st.Name, line)
 	}
-	return nil
+	f, err := profile.Load()
+	for _, p := range f.Profiles {
+		if p.MCPWrite {
+			fmt.Printf(i18n.T(lang, "mcp_status_write")+"\n", p.Name)
+		}
+	}
+	return err
 }
 
 // mcpOptions wires the server to the same diagnosis, history and compare as the CLI and the GUI.

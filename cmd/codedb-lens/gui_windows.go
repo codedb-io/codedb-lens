@@ -173,6 +173,8 @@ func (a *App) SaveProfile(p profile.Profile, password, old, lang string) error {
 	if err != nil {
 		return err
 	}
+	prev, _ := f.Get(old)
+	p.MCPWrite = old != "" && prev.MCPWrite // only mcp allow-write turns it on; editing keeps it, a copy does not
 	if !strings.EqualFold(p.Name, old) {
 		if _, taken := f.Get(p.Name); taken {
 			return fmt.Errorf(i18n.T(i18n.Normalize(lang), "gui_name_taken"), p.Name)
