@@ -341,7 +341,7 @@ func TestPrompts(t *testing.T) {
 		}
 		names = append(names, p.Name)
 	}
-	if strings.Join(names, ",") != "diagnose,incident" {
+	if strings.Join(names, ",") != "diagnose,explore_data,incident" {
 		t.Fatalf("prompts: %v", names)
 	}
 	res, err := cs.GetPrompt(context.Background(), &mcp.GetPromptParams{Name: "diagnose", Arguments: map[string]string{"profile": "prod"}})

@@ -59,7 +59,8 @@ func TestMCPNoHTTP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	args := map[string]any{"profile": "local", "rule_id": "PG-LOCKS-001", "folder": dir, "duration": "1h"}
+	args := map[string]any{"profile": "local", "rule_id": "PG-LOCKS-001", "folder": dir, "duration": "1h",
+		"sql": "SELECT 1", "table": "t"}
 	for _, tool := range tools.Tools {
 		if _, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: tool.Name, Arguments: args}); err != nil {
 			t.Errorf("%s: %v", tool.Name, err) // tool errors (no server, no key) are fine; protocol errors are not

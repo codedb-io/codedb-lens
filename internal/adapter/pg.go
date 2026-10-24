@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/codedb-io/codedb-lens/internal/engine"
 	"github.com/jackc/pgx/v5"
@@ -47,6 +48,9 @@ func pgConfig(c Conn) (*pgx.ConnConfig, error) {
 	}
 	if c.DSN != "" && c.Password != "" && cfg.Password == "" {
 		cfg.Password = c.Password
+	}
+	if c.DSN != "" && c.Database != "" { // the MCP tools open other databases of a DSN connection
+		cfg.Database = c.Database
 	}
 	// Low impact and read-only at the session level, whatever the login could do.
 	cfg.RuntimeParams["application_name"] = AppName
@@ -136,10 +140,35 @@ func (p *PG) QueryDB(ctx context.Context, db, q string) ([]string, [][]any, erro
 	return query(ctx, c, q)
 }
 
+// ReadOnly: the session is already read-only; BEGIN READ ONLY repeats it, and the extended protocol refuses
+// more than one statement. statement_timeout, for this transaction only, is a backstop one second past the
+// caller's timeout, so the caller sees its own deadline.
+func (p *PG) ReadOnly(ctx context.Context, q string, max int, timeout time.Duration) ([]string, [][]any, bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	tx, err := p.conn.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return nil, nil, false, err
+	}
+	defer tx.Rollback(context.Background())
+	if _, err := tx.Exec(ctx, "SELECT set_config('statement_timeout', $1, true)", strconv.FormatInt((timeout + time.Second).Milliseconds(), 10)); err != nil {
+		return nil, nil, false, err
+	}
+	return queryN(ctx, tx, q, max, cancel)
+}
+
 func query(ctx context.Context, conn *pgx.Conn, q string) ([]string, [][]any, error) {
+	cols, out, _, err := queryN(ctx, conn, q, 0, nil)
+	return cols, out, err
+}
+
+// queryN reads up to max rows (0 = all); on a longer result stop cancels the query instead of reading the rest.
+func queryN(ctx context.Context, conn interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+}, q string, max int, stop func()) ([]string, [][]any, bool, error) {
 	rows, err := conn.Query(ctx, q)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	defer rows.Close()
 	var cols []string
@@ -148,16 +177,20 @@ func query(ctx context.Context, conn *pgx.Conn, q string) ([]string, [][]any, er
 	}
 	var out [][]any
 	for rows.Next() {
+		if max > 0 && len(out) == max {
+			stop()
+			return cols, out, true, nil
+		}
 		vals, err := rows.Values()
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, false, err
 		}
 		for i := range vals {
 			vals[i] = normalize(vals[i])
 		}
 		out = append(out, vals)
 	}
-	return cols, out, rows.Err()
+	return cols, out, false, rows.Err()
 }
 
 func (p *PG) Close() error {

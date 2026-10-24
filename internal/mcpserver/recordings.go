@@ -254,6 +254,18 @@ func addPrompts(m *mcp.Server) {
 				"Tell me what happened, in time order: blocking, waits, long queries and the top queries, and whether gaps "+
 				"without data limit the conclusion. Then suggest what to check or fix.", a["folder"], a["from"], a["to"])), nil
 		})
+	m.AddPrompt(&mcp.Prompt{Name: "explore_data", Title: "Explore a database",
+		Description: "Describe the tables of a database and suggest questions the data can answer.",
+		Arguments: []*mcp.PromptArgument{
+			{Name: "profile", Description: "profile name from list_profiles", Required: true},
+			{Name: "database", Description: "database name (list_databases); empty means the profile's"},
+		}},
+		func(_ context.Context, req *mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
+			a := req.Params.Arguments
+			return userPrompt(fmt.Sprintf("On the profile %q, database %q (empty means the profile's), use list_tables and "+
+				"describe_table on the main tables. Explain in plain words what the data is about and how the tables relate, "+
+				"then suggest 5 questions it can answer, each with the SQL you would run.", a["profile"], a["database"])), nil
+		})
 }
 
 func userPrompt(text string) *mcp.GetPromptResult {

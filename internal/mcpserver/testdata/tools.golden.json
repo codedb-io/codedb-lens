@@ -441,6 +441,186 @@
       "idempotentHint": false,
       "readOnlyHint": true
     },
+    "description": "Columns (type, nullable, default), primary key, foreign keys with the referenced table, indexes and estimated rows of one table or view. Use it before writing a query, so column names are right.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "database": {
+          "description": "database name from list_databases; default: the profile's",
+          "type": "string"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        },
+        "table": {
+          "description": "table or view: schema.name, or name in the default schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile",
+        "table"
+      ],
+      "type": "object"
+    },
+    "name": "describe_table",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "default": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "nullable": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "nullable"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "estimated_rows": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "foreign_keys": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "columns": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "ref_columns": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "references": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "columns",
+              "references",
+              "ref_columns"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "indexes": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "columns": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "primary": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string"
+              },
+              "unique": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "unique",
+              "primary",
+              "columns"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "primary_key": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "schema": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "name",
+        "type",
+        "columns",
+        "primary_key",
+        "foreign_keys",
+        "indexes"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
     "description": "Explain one rule: what it measures, why it matters, the next action, how to verify the fix, the permission it needs, its SQL and its documentation link.",
     "inputSchema": {
       "additionalProperties": false,
@@ -708,6 +888,66 @@
       "idempotentHint": false,
       "readOnlyHint": true
     },
+    "description": "Databases this profile's login can open: name, state, recovery model or encoding, collation and size in bytes.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "list_databases",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "items": true,
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "columns",
+        "rows",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
     "description": "List the saved connection profiles you may use: name, engine, host, initial database and language. Never returns passwords or connection strings.",
     "inputSchema": {
       "additionalProperties": false,
@@ -882,6 +1122,162 @@
       },
       "required": [
         "rules"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Tables and views visible to the profile's login in a database: schema, name, type, estimated rows, size and whether the login can read them. Start here, then describe_table, then query.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "database": {
+          "description": "database name from list_databases; default: the profile's",
+          "type": "string"
+        },
+        "filter": {
+          "description": "name pattern: plain text matches anywhere in the name, or a LIKE pattern with %",
+          "type": "string"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        },
+        "schema": {
+          "description": "only this schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "type": "object"
+    },
+    "name": "list_tables",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "items": true,
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "columns",
+        "rows",
+        "truncated"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Run one read-only SELECT (or WITH ... SELECT) on a profile and get columns and rows. Aggregate in SQL (GROUP BY, TOP/LIMIT) instead of fetching raw rows: results stop at the profile's row limit (500 unless the user changed it), cells at 2 KB, and truncated: true means the answer is partial. Writes, EXEC, multiple statements and functions with side effects are refused; quote a column named like an SQL keyword. SQL Server reads uncommitted data, like the health check.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "database": {
+          "description": "database name from list_databases; default: the profile's",
+          "type": "string"
+        },
+        "max_rows": {
+          "description": "row limit; default and ceiling: the profile's",
+          "type": "integer"
+        },
+        "profile": {
+          "description": "profile name from list_profiles",
+          "type": "string"
+        },
+        "sql": {
+          "description": "one SELECT or WITH ... SELECT statement",
+          "type": "string"
+        },
+        "timeout_s": {
+          "description": "seconds; default and ceiling: the profile's",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "profile",
+        "sql"
+      ],
+      "type": "object"
+    },
+    "name": "query",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "elapsed_ms": {
+          "type": "integer"
+        },
+        "note": {
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "items": true,
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "warning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "columns",
+        "rows",
+        "truncated",
+        "elapsed_ms"
       ],
       "type": "object"
     }

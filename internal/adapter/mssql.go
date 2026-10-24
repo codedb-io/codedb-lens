@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/codedb-io/codedb-lens/internal/engine"
 	_ "github.com/microsoft/go-mssqldb"
@@ -126,6 +127,26 @@ func (m *MSSQL) Query(ctx context.Context, q string) ([]string, [][]any, error) 
 	return scanAll(rows)
 }
 
+// ReadOnly: SQL Server has no read-only session, so the statement runs in a transaction that is rolled back;
+// XACT_ABORT makes any error abort it whole. Reads stay READ UNCOMMITTED, like the check: never blocked by writers.
+func (m *MSSQL) ReadOnly(ctx context.Context, q string, max int, timeout time.Duration) ([]string, [][]any, bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	if _, err := m.conn.ExecContext(ctx, "SET XACT_ABORT ON"); err != nil {
+		return nil, nil, false, err
+	}
+	tx, err := m.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, false, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.QueryContext(ctx, q)
+	if err != nil {
+		return nil, nil, false, err
+	}
+	return scanN(rows, max, cancel)
+}
+
 func (m *MSSQL) Close() error {
 	if m.conn != nil {
 		m.conn.Close()
@@ -134,27 +155,38 @@ func (m *MSSQL) Close() error {
 }
 
 func scanAll(rows *sql.Rows) ([]string, [][]any, error) {
+	cols, out, _, err := scanN(rows, 0, nil)
+	return cols, out, err
+}
+
+// scanN reads up to max rows (0 = all). On a longer result it calls stop, which cancels the query:
+// closing the rows would otherwise read the rest from the server.
+func scanN(rows *sql.Rows, max int, stop func()) ([]string, [][]any, bool, error) {
 	defer rows.Close()
 	cols, err := rows.Columns()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	var out [][]any
 	for rows.Next() {
+		if max > 0 && len(out) == max {
+			stop()
+			return cols, out, true, nil
+		}
 		vals := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
 		for i := range vals {
 			ptrs[i] = &vals[i]
 		}
 		if err := rows.Scan(ptrs...); err != nil {
-			return nil, nil, err
+			return nil, nil, false, err
 		}
 		for i := range vals {
 			vals[i] = normalize(vals[i])
 		}
 		out = append(out, vals)
 	}
-	return cols, out, rows.Err()
+	return cols, out, false, rows.Err()
 }
 
 func firstNonEmpty(s ...string) string {

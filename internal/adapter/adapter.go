@@ -4,8 +4,11 @@ package adapter
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/codedb-io/codedb-lens/internal/engine"
 )
@@ -48,7 +51,24 @@ func normalize(v any) any {
 // Session is an open, read-only connection the engine can run rules on.
 type Session interface {
 	engine.Adapter
+	// ReadOnly runs one statement the caller has vetted inside a transaction that is always rolled back,
+	// stopping after max rows (truncated = rows were left) or at timeout. The MCP query tool's layer 2.
+	ReadOnly(ctx context.Context, q string, max int, timeout time.Duration) (cols []string, rows [][]any, truncated bool, err error)
 	Close() error
+}
+
+// Denied: the login lacks permission on an object (SQL Server 229/230, PostgreSQL 42501).
+func Denied(err error) bool {
+	var pe *pgconn.PgError
+	if errors.As(err, &pe) {
+		return pe.Code == "42501"
+	}
+	var me interface{ SQLErrorNumber() int32 }
+	if errors.As(err, &me) {
+		n := me.SQLErrorNumber()
+		return n == 229 || n == 230
+	}
+	return false
 }
 
 func Open(ctx context.Context, c Conn) (Session, error) {

@@ -14,6 +14,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   never starts a recording; it gives the user the command). Prompts `diagnose` and `incident`. `--redact` masks names in
   the results. Without saved profiles (servers, Docker), `mcp --engine ... --server ...` takes the connection from flags
   and `CODEDB_LENS_PASSWORD`. A whole MCP session is tested to make no HTTP call.
+- `mcp` data tools: `list_databases`, `list_tables` (with whether the login can read each table), `describe_table`
+  (columns, primary and foreign keys, indexes) and `query`, one read-only `SELECT` with four layers: a text guard (one
+  statement, no write keyword or function with side effects; a 150-case attack corpus), a transaction that is always
+  rolled back (PostgreSQL also read-only), limits (500 rows, 2 KB per cell, 10 s by default; `mcp_max_rows` and
+  `mcp_timeout_s` per profile up to 10,000 rows and 120 s; a cut result says `truncated: true`), and a warning when the
+  login itself can write. Prompt `explore_data`.
 
 ## [0.8.0] - 2026-10-23
 

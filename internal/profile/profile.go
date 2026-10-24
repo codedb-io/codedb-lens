@@ -21,6 +21,9 @@ type Profile struct {
 	Conn   adapter.Conn `json:"conn"`
 	Lang   string       `json:"lang,omitempty"`
 	OutDir string       `json:"out_dir,omitempty"`
+	// MCP query limits (0 = default); the MCP server clamps them to its ceilings.
+	MCPMaxRows  int `json:"mcp_max_rows,omitempty"`
+	MCPTimeoutS int `json:"mcp_timeout_s,omitempty"`
 }
 
 type File struct {

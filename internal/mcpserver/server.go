@@ -39,7 +39,9 @@ Nothing you call here changes a database or any configuration.
 Connections come from the user's saved profiles (list_profiles); passwords are never shown.
 check runs the diagnosis (10-60 s) and saves the report in the profile's history; get_finding gives the full evidence.
 A finding is Confirmed or a Hint; "no data" means the rule could not run (permissions, platform), never "OK".
-Recordings are started by the user in a terminal (record_command); you read them with recording_report.`
+Recordings are started by the user in a terminal (record_command); you read them with recording_report.
+For data questions: list_tables, describe_table, then query with one SELECT that aggregates in SQL.
+query is read-only and stops at the profile's row limit; truncated: true means a partial answer, so refine and ask again.`
 
 type server struct {
 	Options
@@ -73,6 +75,7 @@ func New(o Options) (*mcp.Server, error) {
 		s.explainRule)
 	addDiagTools(m, s, ro)
 	addRecordingTools(m, s, ro)
+	addDataTools(m, s, ro)
 	addPrompts(m)
 	return m, nil
 }
