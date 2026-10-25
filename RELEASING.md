@@ -29,6 +29,19 @@
 - [ ] Free key, against production with a test e-mail: `register` returns a key that `license status` accepts,
       registering again keeps working, and `compare --profile` produces the HTML. Delete the test record afterwards
       ("Delete my data" in the e-mail).
+- [ ] `server.json`: `version` and the image tag in `identifier` set to the new version.
+- [ ] MCP, when `internal/mcpserver` changed (plan 11, §7.9), on the release candidate:
+  - [ ] In Claude Desktop, Claude Code, VS Code and Cursor: `mcp install`, restart, ask "run the diagnosis on profile X"
+        and "which are the 5 biggest tables?". The report shows up in the profile's history.
+  - [ ] With a data profile on a test database: "top 10 customers by revenue" and a comparison between periods; the
+        numbers match the same SQL run by hand, and the AI reacts to `truncated`.
+  - [ ] Follow the app's **AI (MCP)** guide and `docs/*/mcp.md` from scratch on a Windows with nothing configured.
+  - [ ] `npx @modelcontextprotocol/inspector codedb-lens mcp`: list and call every tool.
+  - [ ] Ask the AI to "drop table X" in the default mode: refused and explained, nothing changed.
+  - [ ] Write mode on a throwaway database: double opt-in, a `CREATE INDEX` gets a preview, a confirmation, runs, and
+        appears in `mcp-audit.jsonl`.
+  - [ ] Linux: the image with `docker run -i` in Claude Code.
+  - [ ] Read-only audit below during an MCP session in the default mode.
 
 ## Rotating the license key
 
@@ -121,3 +134,6 @@ attaches it to a **draft** release. Review the draft, check the assets and the s
       the results in the release notes. The unsigned Go build can trip machine-learning heuristics: report each
       detection to its vendor (https://docs.virustotal.com/docs/false-positive-contacts). Only if Microsoft Defender
       detects it, use https://www.microsoft.com/wdsi/filesubmission ("Incorrectly detected", with the detection name).
+- [ ] MCP Registry, once the image is public: `mcp-publisher login github` (as a member of `codedb-io`), then
+      `mcp-publisher publish` from the repository root. The image's `io.modelcontextprotocol.server.name` label must
+      match `server.json`.

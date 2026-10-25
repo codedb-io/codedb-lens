@@ -34,6 +34,10 @@ plugins:
             Record over time: Gravar ao longo do tempo
             How the grade works: Como a nota é calculada
             AI write mode: Modo escrita da IA
+            Use with AI (MCP): Use com IA (MCP)
+            Set up and ask: Configurar e perguntar
+            Use with data: Uso com dados
+            MCP with Docker: MCP com Docker
 
 nav:
   - Home: index.md
@@ -41,7 +45,11 @@ nav:
   - Why Windows shows a warning: windows-warning.md
   - Compare and free key: compare.md
   - Record over time: record.md
-  - AI write mode: mcp-write.md
+  - Use with AI (MCP):
+      - Set up and ask: mcp.md
+      - Use with data: mcp-data.md
+      - MCP with Docker: mcp-docker.md
+      - AI write mode: mcp-write.md
   - How the grade works: methodology.md
   - Permissions: permissions.md
   - Privacy: privacy.md

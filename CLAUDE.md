@@ -11,7 +11,10 @@ Proposta completa, matriz de validação e análise: https://claude.ai/code/arti
 
 ## Invariantes (não quebrar)
 
-- **Somente leitura** no banco do usuário. Nenhum DDL/DML, nenhum agente obrigatório.
+- **Somente leitura** no banco do usuário: `check`, `record`, `report` e `compare` são sempre somente leitura, e nenhum
+  agente é obrigatório. O `mcp` é somente leitura por padrão; escrever no banco só com o opt-in duplo da Q44 (perfil
+  com `mcp allow-write`, digitado num terminal, + `--allow-write` no cliente), divulgado apenas nas docs
+  (`mcp-write`), nunca no README, na GUI ou no site. As permissões mínimas do Lens não mudam.
 - **Sem telemetria.** Nenhum dado do banco ou do usuário sai da máquina. Chamadas de rede: checagem
   de versão ≤ 1×/dia (GET anônimo ao GitHub Releases), desligável (`--no-update-check`, `CODEDB_LENS_NO_UPDATE=1`),
   e os POSTs de cadastro e renovação da chave grátis (`internal/license`), só por ação explícita do usuário. Licença verificada offline.

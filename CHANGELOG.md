@@ -35,6 +35,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   statements without a transaction need `dry_run: false`, a deny list holds even then (logins, permissions, server
   settings, `DROP DATABASE`, OS and file access, transaction control, impersonation, dynamic SQL), and every attempt is written to `mcp-audit.jsonl`
   (no log, no write). The app never turns it on and shows a warning while any profile allows it.
+- Docs: "Use with AI (MCP)" (set up and ask, use with data, MCP with Docker), in English and Portuguese; README
+  section. `server.json` and the image label for the official MCP Registry (`io.github.codedb-io/codedb-lens`).
 
 ## [0.8.0] - 2026-10-23
 

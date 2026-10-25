@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.codedb-io/codedb-lens",
+  "title": "codeDB Lens",
+  "description": "Read-only health checks and data questions for SQL Server and PostgreSQL, with your saved profiles.",
+  "repository": {
+    "url": "https://github.com/codedb-io/codedb-lens",
+    "source": "github"
+  },
+  "websiteUrl": "https://lens.codedb.com.br/mcp/",
+  "version": "0.9.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/codedb-io/codedb-lens:0.9.0",
+      "transport": { "type": "stdio" },
+      "packageArguments": [
+        { "type": "positional", "value": "mcp" },
+        { "type": "named", "name": "--engine", "description": "mssql or pg", "isRequired": true, "choices": ["mssql", "pg"] },
+        { "type": "named", "name": "--server", "description": "host, \"host,port\" or host\\instance", "isRequired": true },
+        { "type": "named", "name": "--user", "description": "login name (read-only login: see the docs)" },
+        { "type": "named", "name": "--database", "description": "initial database" }
+      ],
+      "environmentVariables": [
+        { "name": "CODEDB_LENS_PASSWORD", "description": "password of the login", "isSecret": true }
+      ]
+    }
+  ]
+}

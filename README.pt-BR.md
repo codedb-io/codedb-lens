@@ -88,6 +88,22 @@ codedb-lens check --engine pg --dsn-env PG_DSN
 
 Senhas nunca são aceitas como argumento. Use autenticação integrada, variável de ambiente ou um perfil salvo.
 
+## Use com IA (MCP)
+
+Pergunte ao Claude, ao GitHub Copilot ou ao Cursor sobre o seu banco. O `codedb-lens mcp` é um servidor MCP somente
+leitura que o seu cliente de IA inicia no seu computador, com os seus perfis salvos:
+
+- **Diagnóstico**: com o login mínimo do Lens, a IA roda o diagnóstico, lê gravações e explica o que corrigir, sem ler
+  dados de negócio.
+- **Dados**: com um login que lê as tabelas que você escolher, a IA lista e descreve as tabelas e responde perguntas
+  com um `SELECT` por vez, dentro de limites de linhas e de tempo.
+
+```bash
+codedb-lens mcp install --client claude-desktop --profile prod   # ou vscode, cursor, claude-code
+```
+
+A tela **IA (MCP)** do app tem os comandos prontos para copiar. Guia: [lens.codedb.com.br/pt-BR/mcp](https://lens.codedb.com.br/pt-BR/mcp/).
+
 ## Permissões mínimas
 
 ```sql

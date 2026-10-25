@@ -151,7 +151,7 @@ func (p *PG) ReadOnly(ctx context.Context, q string, max int, timeout time.Durat
 		return nil, nil, false, err
 	}
 	defer tx.Rollback(context.Background())
-	if _, err := tx.Exec(ctx, "SELECT set_config('statement_timeout', $1, true)", strconv.FormatInt((timeout + time.Second).Milliseconds(), 10)); err != nil {
+	if _, err := tx.Exec(ctx, "SELECT set_config('statement_timeout', $1, true)", strconv.FormatInt((timeout+time.Second).Milliseconds(), 10)); err != nil {
 		return nil, nil, false, err
 	}
 	return queryN(ctx, tx, q, max, cancel)
