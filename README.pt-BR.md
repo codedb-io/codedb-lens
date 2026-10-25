@@ -90,6 +90,11 @@ Senhas nunca são aceitas como argumento. Use autenticação integrada, variáve
 
 ## Use com IA (MCP)
 
+<p align="center">
+  <img src="assets/screenshots/mcp-demo.gif" width="760" alt="Claude usando o codeDB Lens por MCP: um diagnóstico com três achados e depois uma pergunta de faturamento respondida com um SELECT somente leitura"><br>
+  <sub>Sessões reais do Claude Code em bancos de teste; respostas encurtadas.</sub>
+</p>
+
 Pergunte ao Claude, ao GitHub Copilot ou ao Cursor sobre o seu banco. O `codedb-lens mcp` é um servidor MCP somente
 leitura que o seu cliente de IA inicia no seu computador, com os seus perfis salvos:
 

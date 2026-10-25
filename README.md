@@ -90,6 +90,11 @@ Passwords are never accepted as command-line arguments. Use integrated auth, an 
 
 ## Use with AI (MCP)
 
+<p align="center">
+  <img src="assets/screenshots/mcp-demo.gif" width="760" alt="Claude using codeDB Lens over MCP: a health check with three findings, then a revenue question answered with one read-only SELECT"><br>
+  <sub>Real Claude Code sessions against test databases; answers shortened.</sub>
+</p>
+
 Ask Claude, GitHub Copilot or Cursor about your database. `codedb-lens mcp` is a read-only MCP server that your AI
 client starts on your computer, with your saved profiles:
 
