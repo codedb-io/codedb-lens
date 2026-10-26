@@ -90,6 +90,9 @@ Last run: 0.6.0 candidate, 2026-10-22, PostgreSQL 17 (18 statements) and SQL Ser
 For `record`, do the same with a recording of a few minutes: the collectors must show only `SELECT`/`WITH` too.
 Last run for `record`: 0.8.0 candidate, 2026-10-23, 35 s recordings: PostgreSQL 17 (15 statements, all `SELECT`) and
 SQL Server 2022 (19 `SELECT`s plus the session `SET`s): no DDL/DML.
+Last run for `mcp` (default mode): 0.9.0 candidate, 2026-10-24, Claude Code sessions calling `check`, schema tools
+and `query`: PostgreSQL 17 (60 statements: `SELECT`/`WITH` and `BEGIN READ ONLY`/`ROLLBACK`) and SQL Server 2022 (50:
+`SELECT`/`WITH`, session `SET`s, `USE <db>`, `sp_reset_connection`): no DDL/DML.
 
 ## Recorder overhead
 
@@ -134,6 +137,9 @@ attaches it to a **draft** release. Review the draft, check the assets and the s
       the results in the release notes. The unsigned Go build can trip machine-learning heuristics: report each
       detection to its vendor (https://docs.virustotal.com/docs/false-positive-contacts). Only if Microsoft Defender
       detects it, use https://www.microsoft.com/wdsi/filesubmission ("Incorrectly detected", with the detection name).
+      Every build has a new hash, so an earlier clearance does not carry over: check each release. Send the file
+      in a zip with the password `infected`. History: `Trojan:Win32/Wacatac.B!ml` on the 0.6.1 installer, cleared as
+      "not malware" (submission 77f4bd65).
 - [ ] MCP Registry, once the image is public: `mcp-publisher login github` (as a member of `codedb-io`), then
       `mcp-publisher publish` from the repository root. The image's `io.modelcontextprotocol.server.name` label must
       match `server.json`.
