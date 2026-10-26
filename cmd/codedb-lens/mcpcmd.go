@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -30,7 +31,7 @@ func mcpCmd(args []string) error {
 		case "install", "uninstall":
 			return mcpInstallCmd(args[0], args[1:])
 		case "status":
-			return mcpStatusCmd()
+			return mcpStatusCmd(args[1:])
 		case "allow-write", "revoke-write":
 			return mcpWriteCmd(args[0], args[1:])
 		}
@@ -106,10 +107,11 @@ func (w *writeFlag) Set(v string) error {
 
 // mcpWriteCmd turns the profile's key of the write mode on (after the user types the profile name) or off.
 func mcpWriteCmd(verb string, args []string) error {
-	lang := i18n.Normalize(i18n.Detect())
 	fs := flag.NewFlagSet("mcp "+verb, flag.ExitOnError)
 	name := fs.String("profile", "", "saved profile")
+	langF := fs.String("lang", "", "en or pt-BR (default: system language)")
 	_ = fs.Parse(args)
+	lang := i18n.Normalize(firstNonEmpty(*langF, i18n.Detect()))
 	f, err := profile.Load()
 	if err != nil {
 		return err
@@ -145,13 +147,14 @@ func mcpWriteCmd(verb string, args []string) error {
 
 // mcpInstallCmd adds or removes the Lens in an AI client's settings. Claude Code gets its own command instead.
 func mcpInstallCmd(verb string, args []string) error {
-	lang := i18n.Normalize(i18n.Detect())
 	fs := flag.NewFlagSet("mcp "+verb, flag.ExitOnError)
+	langF := fs.String("lang", "", "en or pt-BR (default: system language)")
 	client := fs.String("client", "", "claude-desktop, claude-code, vscode or cursor")
 	profiles := fs.String("profile", "", "comma-separated saved profiles the AI may use (default: all)")
 	redact := fs.Bool("redact", false, "mask names in check, compare and recording results")
 	dry := fs.Bool("dry-run", false, "show the change without writing it")
 	_ = fs.Parse(args)
+	lang := i18n.Normalize(firstNonEmpty(*langF, i18n.Detect()))
 	cl, ok := mcpserver.FindClient(*client)
 	if !ok {
 		return fmt.Errorf(i18n.T(lang, "mcp_client_unknown"), *client)
@@ -224,6 +227,17 @@ type mcpGuide struct {
 	Snippet string `json:"snippet,omitempty"`
 }
 
+// consoleExe is the codedb-lens.com next to the GUI .exe, when there is one: typed in a terminal, it waits and prints
+// in order (cmd/codedb-lens-com). The clients keep the .exe.
+func consoleExe(exe string) string {
+	if com := strings.TrimSuffix(exe, filepath.Ext(exe)) + ".com"; statOK(com) {
+		return com
+	}
+	return exe
+}
+
+func statOK(path string) bool { _, err := os.Stat(path); return err == nil }
+
 // mcpGuides builds the same entries as mcp install, from the same generator.
 func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
 	args := mcpserver.Args(profiles, redact)
@@ -233,7 +247,7 @@ func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
 		if c.ID == "claude-code" {
 			g.Command = mcpserver.ClaudeCodeCommand(exe, args)
 		} else {
-			g.Command = mcpserver.Quote(exe) + " mcp install --client " + c.ID
+			g.Command = "& " + mcpserver.Quote(consoleExe(exe)) + " mcp install --client " + c.ID // PowerShell, the Windows default
 			if len(profiles) > 0 {
 				g.Command += " --profile " + mcpserver.Quote(strings.Join(profiles, ","))
 			}
@@ -247,8 +261,11 @@ func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
 	return out
 }
 
-func mcpStatusCmd() error {
-	lang := i18n.Normalize(i18n.Detect())
+func mcpStatusCmd(args []string) error {
+	fs := flag.NewFlagSet("mcp status", flag.ExitOnError)
+	langF := fs.String("lang", "", "en or pt-BR (default: system language)")
+	_ = fs.Parse(args)
+	lang := i18n.Normalize(firstNonEmpty(*langF, i18n.Detect()))
 	for _, st := range mcpserver.Status() {
 		var line string
 		switch {

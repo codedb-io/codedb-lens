@@ -117,6 +117,7 @@ type profileOut struct {
 
 type listProfilesOut struct {
 	Profiles []profileOut `json:"profiles"`
+	Note     string       `json:"note,omitempty"`
 }
 
 func (s *server) listProfiles(context.Context, *mcp.CallToolRequest, struct{}) (*mcp.CallToolResult, listProfilesOut, error) {
@@ -124,6 +125,10 @@ func (s *server) listProfiles(context.Context, *mcp.CallToolRequest, struct{}) (
 	ps, err := s.all()
 	for _, p := range ps {
 		out.Profiles = append(out.Profiles, profileOut{p.Name, p.Conn.Engine, p.Conn.Server, p.Conn.Database, p.Lang, s.writeEnabled(p)})
+	}
+	if s.AllowWrite != "" && !s.anyWrite() { // only one of the two keys: say so instead of leaving the AI to guess
+		out.Note = "The client started the Lens with --allow-write, but no profile here allows writing, so execute_sql is not available. " +
+			"The user turns it on for a saved profile by typing codedb-lens mcp allow-write --profile NAME in a terminal, then restarts the client."
 	}
 	return nil, out, err
 }

@@ -40,6 +40,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Docs: "Use with AI (MCP)" (set up and ask, use with data, MCP with Docker), in English and Portuguese; README
   section with a demo GIF. `server.json` and the image label for the official MCP Registry (`io.github.codedb-io/codedb-lens`).
 
+### Fixed
+- Windows: typed in PowerShell or cmd, commands that ask something (`mcp allow-write`, `key register`) lost the
+  keyboard to the shell, which does not wait for the app's GUI `.exe`. The zip and the installer now carry
+  `codedb-lens.com`, a console twin that terminals pick first for `codedb-lens` and wait for; `update` installs it too.
+- The app's AI (MCP) screen shows the install command in PowerShell syntax (`& "..."`), using `codedb-lens.com`.
+- `mcp status`, `install`, `uninstall`, `allow-write` and `revoke-write` accept `--lang`.
+- `mcp`: with `--allow-write` but no profile allowed, `list_profiles` says what is missing. The prompts ask the AI to
+  answer in the user's language instead of following their English text.
+
 ## [0.8.0] - 2026-10-23
 
 ### Added

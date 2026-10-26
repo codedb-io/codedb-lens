@@ -71,6 +71,7 @@ Salve um perfil com ele no app (por exemplo `app-write`), separado do seu perfil
 codedb-lens mcp allow-write --profile app-write
 ```
 
+Sem o Lens no `PATH`, no PowerShell: `& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" mcp allow-write --profile app-write`.
 Ele pede para você digitar o nome do perfil. A partir daí o app mostra um alerta na tela **IA (MCP)** enquanto algum
 perfil permitir escrita.
 

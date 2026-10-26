@@ -1,9 +1,14 @@
 package update
 
 import (
+	"archive/zip"
+	"bytes"
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
+	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -32,5 +37,30 @@ func TestVerify(t *testing.T) {
 func TestDevBuildsNeverNag(t *testing.T) {
 	if Newer(t.Context(), "dev") != "" {
 		t.Fatal("dev build reported an update")
+	}
+}
+
+// The Windows zip carries the console twin; update writes it next to the .exe, also when it did not exist yet.
+func TestExtractAndReplaceConsoleTwin(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("zip layout is Windows only")
+	}
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	for name, body := range map[string]string{"codedb-lens.exe": "gui", "codedb-lens.com": "console"} {
+		w, _ := zw.Create(name)
+		_, _ = w.Write([]byte(body))
+	}
+	_ = zw.Close()
+	com, err := extract(buf.Bytes(), "x.zip", "codedb-lens.com")
+	if err != nil || string(com) != "console" {
+		t.Fatalf("extract: %q %v", com, err)
+	}
+	path := filepath.Join(t.TempDir(), "codedb-lens.com")
+	if err := replace(path, com); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := os.ReadFile(path); string(got) != "console" {
+		t.Fatalf("got %q", got)
 	}
 }

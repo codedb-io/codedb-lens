@@ -15,6 +15,11 @@ builds:
     tags: [desktop, production]
     env: [CGO_ENABLED=0]
     ldflags: ["-s -w -H windowsgui -X main.version={{ .Version }}"]
+    hooks:
+      post:
+        # Console twin of the GUI .exe, so terminals wait for it (see cmd/codedb-lens-com). Shipped in the zip and the installer.
+        - cmd: go build -ldflags "-s -w" -o build/windows/codedb-lens.com ./cmd/codedb-lens-com
+          env: [GOOS=windows, GOARCH=amd64, CGO_ENABLED=0]
   - id: linux
     main: ./cmd/codedb-lens
     binary: codedb-lens
@@ -24,11 +29,15 @@ builds:
     ldflags: ["-s -w -X main.version={{ .Version }}"]
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}" # no version: releases/latest/download/<name> links stay valid
+  - id: windows
+    ids: [windows]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}" # no version: releases/latest/download/<name> links stay valid
+    formats: [zip]
+    files: [LICENSE, README.md, README.pt-BR.md, {src: build/windows/codedb-lens.com, strip_parent: true}]
+  - id: linux
+    ids: [linux]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     formats: [tar.gz]
-    format_overrides:
-      - goos: windows
-        formats: [zip]
     files: [LICENSE, README.md, README.pt-BR.md]
 
 checksum:

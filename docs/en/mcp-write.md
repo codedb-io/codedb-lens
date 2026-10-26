@@ -72,6 +72,7 @@ Save a profile with it in the app (for example `app-write`), separate from your 
 codedb-lens mcp allow-write --profile app-write
 ```
 
+Without the Lens on `PATH`, in PowerShell: `& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" mcp allow-write --profile app-write`.
 It asks you to type the profile name. The app then shows a warning on the **AI (MCP)** screen while any profile allows
 writing.
 

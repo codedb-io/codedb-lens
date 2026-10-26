@@ -43,6 +43,7 @@ Name: "addtopath"; Description: "Add codedb-lens to PATH (command line)"; Flags:
 
 [Files]
 Source: "{#SourceExe}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "codedb-lens.com"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

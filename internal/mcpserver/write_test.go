@@ -107,6 +107,10 @@ func TestWriteNeedsBothKeys(t *testing.T) {
 		if w := m["profiles"].([]any)[0].(map[string]any)["write_enabled"]; w != c.want {
 			t.Errorf("allow %q, key %v: write_enabled %v", c.allow, c.key, w)
 		}
+		// --allow-write with the profile key off says what is missing.
+		if note, _ := m["note"].(string); (note != "") != (c.allow != "" && !c.key) {
+			t.Errorf("allow %q, key %v: note %q", c.allow, c.key, note)
+		}
 	}
 }
 

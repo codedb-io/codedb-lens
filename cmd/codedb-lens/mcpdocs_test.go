@@ -21,7 +21,7 @@ func TestMCPDocsCommandsExist(t *testing.T) {
 	code := string(src) + string(conn)
 	files, _ := filepath.Glob("../../docs/*/mcp*.md")
 	files = append(files, "../../README.md", "../../README.pt-BR.md")
-	cmd := regexp.MustCompile(`codedb-lens(?:\.exe)?"? mcp\b([^\x60\n|]*)`)
+	cmd := regexp.MustCompile(`codedb-lens(?:\.exe|\.com)?"? mcp\b([^\x60\n|]*)`)
 	sub := regexp.MustCompile(`^\s+([a-z][a-z-]+)`)
 	flag := regexp.MustCompile(`--([a-z][a-z-]*)`)
 	client := regexp.MustCompile(`--client ([a-z-]+)`)

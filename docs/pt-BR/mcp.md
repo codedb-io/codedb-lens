@@ -26,10 +26,10 @@ Dois usos, definidos pelo login do perfil que você entrega à IA:
 ## 2. Adicione o Lens ao seu cliente
 
 O app mostra estes comandos, prontos para copiar, na tela **IA (MCP)**. O instalador não coloca o Lens no `PATH` por
-padrão, por isso os comandos usam o caminho completo:
+padrão, por isso os comandos usam o caminho completo, no PowerShell (o padrão do Terminal do Windows):
 
-```bash
-"%LOCALAPPDATA%\Programs\codeDB Lens\codedb-lens.exe" mcp install --client claude-desktop --profile prod-diag
+```powershell
+& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" mcp install --client claude-desktop --profile prod-diag
 ```
 
 | Cliente | `--client` | O que acontece |

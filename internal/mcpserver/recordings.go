@@ -268,6 +268,9 @@ func addPrompts(m *mcp.Server) {
 		})
 }
 
+// userPrompt is the message a prompt puts in the chat. The text is English, so it asks the AI not to switch the
+// conversation to English: a slash command is often the only thing the user "said".
 func userPrompt(text string) *mcp.GetPromptResult {
+	text += " Answer in the language the user usually writes to you in, which may not be English."
 	return &mcp.GetPromptResult{Messages: []*mcp.PromptMessage{{Role: "user", Content: &mcp.TextContent{Text: text}}}}
 }

@@ -30,6 +30,10 @@ Download the files from [GitHub Releases](https://github.com/codedb-io/codedb-le
 
 ### Command line (Windows and Linux)
 
+On Windows, the installer's **Add codedb-lens to PATH** option makes `codedb-lens` work in any terminal. Without it,
+use the full path, in PowerShell: `& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" check ...`. The `.com` is the app's terminal twin: the terminal
+waits for it and its questions get your typing. `codedb-lens.exe` opens the app.
+
 ```bash
 # SQL Server, Windows authentication
 codedb-lens check --engine mssql --server sql01 --auth windows

@@ -957,6 +957,9 @@
     "outputSchema": {
       "additionalProperties": false,
       "properties": {
+        "note": {
+          "type": "string"
+        },
         "profiles": {
           "items": {
             "additionalProperties": false,

@@ -42,3 +42,4 @@ graphify-out/
 .claude/worktrees/
 /cmd/codedb-lens/rsrc_*.syso
 /bin/
+build/windows/codedb-lens.com

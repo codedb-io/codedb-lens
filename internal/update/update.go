@@ -200,17 +200,33 @@ func Apply(ctx context.Context, current string) (string, error) {
 	if got := sha256.Sum256(archive); hex.EncodeToString(got[:]) != want {
 		return "", errors.New("downloaded file does not match checksums.txt; refusing to update")
 	}
-	bin, err := extract(archive, name)
+	binName := "codedb-lens"
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	bin, err := extract(archive, name, binName)
 	if err != nil {
 		return "", err
 	}
-	return r.Tag, replaceSelf(bin)
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	exe, _ = filepath.EvalSymlinks(exe)
+	if err := replace(exe, bin); err != nil {
+		return "", err
+	}
+	// The console twin (cmd/codedb-lens-com) comes along; archives before 0.9 have none.
+	if com, err := extract(archive, name, "codedb-lens.com"); err == nil && runtime.GOOS == "windows" {
+		if err := replace(strings.TrimSuffix(exe, filepath.Ext(exe))+".com", com); err != nil {
+			return "", err
+		}
+	}
+	return r.Tag, nil
 }
 
-func extract(archive []byte, name string) ([]byte, error) {
-	want := "codedb-lens"
+func extract(archive []byte, name, want string) ([]byte, error) {
 	if runtime.GOOS == "windows" {
-		want += ".exe"
 		zr, err := zip.NewReader(bytes.NewReader(archive), int64(len(archive)))
 		if err != nil {
 			return nil, err
@@ -243,19 +259,14 @@ func extract(archive []byte, name string) ([]byte, error) {
 	}
 }
 
-// replaceSelf writes the new binary next to the old one and swaps them. Windows allows renaming a running exe.
-func replaceSelf(bin []byte) error {
-	exe, err := os.Executable()
-	if err != nil {
-		return err
-	}
-	exe, _ = filepath.EvalSymlinks(exe)
+// replace writes the new binary next to the old one and swaps them. Windows allows renaming a running exe.
+func replace(exe string, bin []byte) error {
 	tmp, old := exe+".new", exe+".old"
 	if err := os.WriteFile(tmp, bin, 0o755); err != nil {
 		return err
 	}
 	_ = os.Remove(old)
-	if err := os.Rename(exe, old); err != nil {
+	if err := os.Rename(exe, old); err != nil && !os.IsNotExist(err) { // a .com may not exist yet
 		os.Remove(tmp)
 		return err
 	}
