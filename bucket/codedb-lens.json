@@ -1,13 +1,13 @@
 {
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Free, read-only health check for SQL Server and PostgreSQL.",
   "homepage": "https://lens.codedb.com.br/",
   "license": "Apache-2.0",
   "notes": "Run 'codedb-lens' without arguments for the app, or 'codedb-lens check --help' for the command line. Update with 'scoop update codedb-lens'.",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/codedb-io/codedb-lens/releases/download/v0.8.0/codedb-lens_windows_amd64.zip",
-      "hash": "95543cc63bf71740e6d23f8f0a9fb9975d40e55bfe5b452ace04f4cf4a2a428d"
+      "url": "https://github.com/codedb-io/codedb-lens/releases/download/v0.9.0/codedb-lens_windows_amd64.zip",
+      "hash": "823b6e05f48ba1d094ee2f99abcdea259d6f16fe41b013c1d0831c27400ef3ed"
     }
   },
   "bin": "codedb-lens.exe",
