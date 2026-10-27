@@ -43,7 +43,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ### Fixed
 - Windows: typed in PowerShell or cmd, commands that ask something (`mcp allow-write`, `key register`) lost the
   keyboard to the shell, which does not wait for the app's GUI `.exe`. The zip and the installer now carry
-  `codedb-lens.com`, a console twin that terminals pick first for `codedb-lens` and wait for; `update` installs it too.
+  `codedb-lens.com`, a console twin that terminals pick first for `codedb-lens` and wait for. `update` brings it from
+  0.9 on; updating from 0.8 with `codedb-lens update` replaces only the `.exe` (0.8 does not know the `.com`): take it
+  from the zip or run the installer again.
 - The app's AI (MCP) screen shows the install command in PowerShell syntax (`& "..."`), using `codedb-lens.com`.
 - `mcp status`, `install`, `uninstall`, `allow-write` and `revoke-write` accept `--lang`.
 - `mcp`: with `--allow-write` but no profile allowed, `list_profiles` says what is missing. The prompts ask the AI to
