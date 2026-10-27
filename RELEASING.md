@@ -139,7 +139,8 @@ attaches it to a **draft** release. Review the draft, check the assets and the s
       detects it, use https://www.microsoft.com/wdsi/filesubmission ("Incorrectly detected", with the detection name).
       Every build has a new hash, so an earlier clearance does not carry over: check each release. Send the file
       in a zip with the password `infected`. History: `Trojan:Win32/Wacatac.B!ml` on the 0.6.1 installer, cleared as
-      "not malware" (submission 77f4bd65).
+      "not malware" (submission 77f4bd65); `Trojan:Win32/Wacatac.C!ml` on the 0.9.0 installer, removed (submission
+      283d8430, 2026-10-27).
 - [ ] MCP Registry, once the image is public: `mcp-publisher login github` (as a member of `codedb-io`), then
       `mcp-publisher publish` from the repository root. The image's `io.modelcontextprotocol.server.name` label must
       match `server.json`.
