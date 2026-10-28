@@ -34,6 +34,11 @@ var style string
 //go:embed icon.png
 var icon []byte
 
+// logo.svg is the horizontal codeDB Lens logo; the word "codeDB" uses currentColor (Papel on the hero, Breu in print).
+//
+//go:embed logo.svg
+var logo string
+
 type Report struct {
 	Tool        string    `json:"tool"`
 	ToolVersion string    `json:"tool_version"`
@@ -243,6 +248,9 @@ var funcs = template.FuncMap{
 			return "PostgreSQL"
 		}
 		return "SQL Server"
+	},
+	"logo": func() template.HTML {
+		return template.HTML(strings.Replace(logo, "<svg ", `<svg role="img" aria-label="codeDB Lens" `, 1))
 	},
 	"icon": func() template.URL {
 		return template.URL("data:image/png;base64," + base64.StdEncoding.EncodeToString(icon))

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Render lens-icon.svg into icon.ico, PNGs and the GitHub social preview.
+"""Render lens-icon.svg into icon.ico, PNGs and the GitHub social preview, and copy the PNGs into the app.
+
+lens-icon.svg is the app icon from the codeDB brand kit (03-favicon-e-icones/icone-app-escuro.svg).
 
 Needs Pillow and a Chromium browser (Edge or Chrome) for headless SVG rendering.
 ponytail: headless browser instead of cairo/resvg, no native deps on Windows.
@@ -15,7 +17,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).resolve().parent
 SVG = HERE / "lens-icon.svg"
-NAVY = (10, 14, 23)
+BREU = (10, 12, 17)
+PAPEL = (241, 242, 244)
+SINAL = (255, 90, 31)
+NEVOA = (139, 147, 161)
+ROOT = HERE.parent.parent
+FONTS = Path(os.environ.get("GEIST_DIR", ROOT.parent / "MonitorSQL" / "estrategia_marca" / "05-tipografia"))
 
 BROWSERS = [
     os.environ.get("CHROME_PATH", ""),
@@ -50,20 +57,20 @@ def render(size: int) -> Image.Image:
         return Image.open(out).convert("RGBA").crop((0, 0, size, size))
 
 
-def social_preview(icon: Image.Image) -> Image.Image:
-    img = Image.new("RGB", (1280, 640), NAVY)
-    icon = icon.resize((360, 360), Image.LANCZOS)
-    img.paste(icon, (90, 140), icon)
+def social_preview() -> Image.Image:
+    # The symbol is the "c" of codeDB, so the preview uses the horizontal logo, never icon + "codeDB" text.
+    img = Image.new("RGB", (1280, 640), BREU)
+    logo = Image.open(FONTS.parent / "01-logo" / "png" / "codeDB-Lens-claro-sobre-escuro-480px.png").convert("RGBA")
+    logo = logo.resize((880, round(880 * logo.height / logo.width)), Image.LANCZOS)
+    img.paste(logo, ((1280 - logo.width) // 2, 220), logo)
     d = ImageDraw.Draw(img)
     try:
-        big = ImageFont.truetype("segoeuib.ttf", 96)
-        small = ImageFont.truetype("segoeui.ttf", 32)
+        small = ImageFont.truetype(str(FONTS / "Geist-400.ttf"), 32)
     except OSError:
-        big = small = ImageFont.load_default()
-    d.text((500, 220), "codeDB", font=big, fill=(255, 255, 255))
-    d.text((500 + d.textlength("codeDB ", font=big), 220), "Lens", font=big, fill=(56, 189, 248))
-    d.text((504, 350), "See what your database isn't showing you.", font=small, fill=(186, 230, 253))
-    d.text((504, 400), "SQL Server · PostgreSQL · free & read-only", font=small, fill=(125, 211, 252))
+        small = ImageFont.load_default()
+    for y, text, fill in [(370, "See what your database isn't showing you.", PAPEL),
+                          (420, "SQL Server · PostgreSQL · free & read-only", NEVOA)]:
+        d.text((640, y), text, font=small, fill=fill, anchor="mt")
     return img
 
 
@@ -73,8 +80,11 @@ def main() -> None:
     big.resize((256, 256), Image.LANCZOS).save(
         HERE / "icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
     )
-    social_preview(big).save(HERE / "social-preview.png", optimize=True)
-    print("icon-512.png, icon.ico, social-preview.png")
+    social_preview().save(HERE / "social-preview.png", optimize=True)
+    for dst, size in [("cmd/codedb-lens/winres/icon.png", 512), ("docs/assets/icon.png", 512),
+                      ("internal/report/icon.png", 96)]:
+        big.resize((size, size), Image.LANCZOS).save(ROOT / dst, optimize=True)
+    print("icon-512.png, icon.ico, social-preview.png + app copies")
 
 
 if __name__ == "__main__":

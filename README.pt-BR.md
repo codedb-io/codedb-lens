@@ -1,8 +1,9 @@
-<p align="center">
-  <img src="assets/icon/icon-512.png" width="128" alt="codeDB Lens">
-</p>
-
-<h1 align="center">codeDB Lens</h1>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/icon/logo-dark.svg">
+    <img src="assets/icon/logo-light.svg" width="360" alt="codeDB Lens">
+  </picture>
+</h1>
 
 <p align="center">
   <b>Enxergue o que o seu banco não está mostrando.</b><br>

@@ -1,0 +1,18 @@
+/* codeDB brand 2026: Breu surfaces, Sinal as the only orange (links use Sinal claro), Geist. */
+[data-md-color-scheme="slate"] {
+  --md-hue: 222;
+  --md-default-bg-color: #0a0c11;
+  --md-default-fg-color--light: #8b93a1;
+  --md-code-bg-color: #12151c;
+  --md-footer-bg-color: #0a0c11;
+  --md-footer-bg-color--dark: #0a0c11;
+  --md-primary-fg-color: #0a0c11;
+  --md-primary-bg-color: #f1f2f4;
+  --md-accent-fg-color: #ff5a1f;
+  --md-typeset-a-color: #ff8a5c;
+}
+.md-header, .md-tabs { border-bottom: 1px solid #1c212b; }
+/* The logo already reads "codeDB Lens": hide the repeated site name next to it (symbol + "codeDB" reads "c c"). */
+.md-header__button.md-logo img { height: 1.3rem; width: auto; }
+.md-header__title .md-header__topic:first-child { visibility: hidden; }
+.md-nav__title .md-nav__button.md-logo img { height: 1.3rem; width: auto; }

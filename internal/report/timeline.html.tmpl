@@ -9,22 +9,22 @@
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .info { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; padding: 0; vertical-align: 2px;
   border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--muted); font: 600 11px/1 var(--font); cursor: pointer; }
-.info:hover, .info:focus-visible { color: var(--blue-700); border-color: var(--blue-500); outline: none; box-shadow: var(--focus); }
+.info:hover, .info:focus-visible { color: var(--text); border-color: var(--sinal); outline: none; box-shadow: var(--focus); }
 .hero .info { background: transparent; color: var(--on-dark); border-color: rgb(255 255 255 / 35%); }
 .pop { max-width: min(440px, calc(100vw - 32px)); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-md);
   background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); font: var(--fs-md)/1.55 var(--font); }
-.pop::backdrop { background: rgb(15 23 42 / 18%); }
+.pop::backdrop { background: rgb(10 12 17 / 18%); }
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: var(--s3); }
 .chart { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s4); box-shadow: var(--shadow-sm); }
 .chart h3 { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin: 0 0 var(--s2); font: 600 var(--fs-md) var(--font); }
 .chart h3 small { color: var(--muted); font-weight: 400; }
 .chart svg { display: block; width: 100%; height: 120px; background: var(--surface-2); border-radius: var(--r-sm); }
-.chart polyline { fill: none; stroke: var(--blue-600); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.chart polyline { fill: none; stroke: var(--sinal); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .chart rect.gap { fill: var(--low-bg); } .chart rect.ep { fill: var(--crit-bg); }
 .ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: var(--fs-xs); margin-top: var(--s1); }
 .legend { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: center; color: var(--muted); font-size: var(--fs-sm); margin: 0 0 var(--s3); }
 .legend i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-.legend .l-line { background: var(--blue-600); height: 3px; } .legend .l-gap { background: var(--low-bg); border: 1px solid var(--line); } .legend .l-ep { background: var(--crit-bg); }
+.legend .l-line { background: var(--sinal); height: 3px; } .legend .l-gap { background: var(--low-bg); border: 1px solid var(--line); } .legend .l-ep { background: var(--crit-bg); }
 td.q { white-space: normal; min-width: 280px; font-family: var(--mono); font-size: var(--fs-xs); }
 </style>
 </head>
@@ -33,7 +33,7 @@ td.q { white-space: normal; min-width: 280px; font-family: var(--mono); font-siz
 <header class="hero">
   <div class="hero-in">
     <div class="hero-top">
-      <a class="brand" href="{{landing "record_header"}}" target="_blank" rel="noopener"><img src="{{icon}}" alt="" width="40" height="40"><b>codeDB <span>Lens</span></b></a>
+      <a class="brand" href="{{landing "record_header"}}" target="_blank" rel="noopener">{{logo}}</a>
       <div class="hero-actions">
         <a class="chip-link" href="{{landing "record_header"}}" target="_blank" rel="noopener">{{t "powered"}}</a>
         <button type="button" class="lang" onclick="toggleLang()"><span lang="en">Português</span><span lang="pt-BR">English</span></button>

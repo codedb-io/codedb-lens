@@ -1,31 +1,32 @@
-/* codeDB Lens design tokens — shared by the app and the report. Palette from the codeDB SaaS and its PDF reports. */
+/* codeDB Lens design tokens — shared by the app and the report. codeDB brand 2026 (kit: 04-cores/tokens.css).
+   Sinal is the only orange and stays rare (70·25·5). On light surfaces it is never text: fills and borders only,
+   with Breu text on top. No blue; "info" is neutral. Health colours are for status only. */
 :root {
   /* brand */
-  --navy-950: #070b14; --navy-900: #0a0e17; --navy-800: #0f1a2e; --navy-700: #16233d;
-  --blue-700: #1d4ed8; --blue-600: #2563eb; --blue-500: #3b82f6; --blue-100: #dbeafe; --blue-50: #eaf2ff;
-  --sky-400: #38bdf8; --sky-300: #7dd3fc;
-  --hero: linear-gradient(110deg, #070b14 0%, #0d1a33 55%, #163a8a 100%);
+  --breu: #0a0c11; --carvao: #12151c; --grafite: #1c212b; --ardosia: #2a303c;
+  --nevoa: #8b93a1; --nuvem: #c9ced6; --papel: #f1f2f4;
+  --sinal: #ff5a1f; --sinal-claro: #ff8a5c; --sinal-bg: #ffe6dc; --sinal-bg-2: #ffd5c4;
 
-  /* surfaces & text */
-  --bg: #f3f6fb; --surface: #ffffff; --surface-2: #f8fafc; --line: #e3e8f0; --line-strong: #cbd5e1;
-  --text: #0f172a; --text-2: #334155; --muted: #64748b; --on-dark: #e2e8f0; --on-dark-muted: #94a3b8;
+  /* surfaces & text (light theme: app main area and report) */
+  --bg: #f1f2f4; --surface: #ffffff; --surface-2: #f7f8f9; --line: #dee1e6; --line-strong: #c9ced6;
+  --text: #0a0c11; --text-2: #2a303c; --muted: #5b6372; --on-dark: #c9ced6; --on-dark-muted: #8b93a1;
 
-  /* semantic (severity / confidence / status) */
-  --crit: #e5484d; --crit-bg: #fdecec; --high: #f08c00; --high-bg: #fff4e5;
-  --med: #d4a106; --med-bg: #fdf8e4; --low: #94a3b8; --low-bg: #f1f5f9;
-  --ok: #16a34a; --ok-bg: #e8f7ee; --info: var(--blue-600); --info-bg: var(--blue-50);
+  /* health / severity (status only) */
+  --crit: #ef4444; --crit-bg: #fdecec; --high: #ff9f43; --high-bg: #fff1e3;
+  --med: #f2c94c; --med-bg: #fdf7e1; --low: #8b93a1; --low-bg: #eef0f2;
+  --ok: #22c27a; --ok-ink: #12804f; --ok-bg: #e6f7ef; --grade-b: #8bd14a;
 
-  /* type */
-  --font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
-  --font-display: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
-  --mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  /* type: Geist / Geist Mono (data: time, instance, metric, label) */
+  --font: Geist, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font);
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --fs-xs: 12px; --fs-sm: 13px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px; --fs-2xl: 28px; --fs-3xl: 40px;
 
   /* shape & depth */
   --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
-  --shadow-md: 0 4px 16px rgb(15 23 42 / 8%);
-  --focus: 0 0 0 3px rgb(37 99 235 / 25%);
+  --shadow-sm: 0 1px 2px rgb(10 12 17 / 6%);
+  --shadow-md: 0 4px 16px rgb(10 12 17 / 8%);
+  --focus: 0 0 0 3px rgb(255 90 31 / 30%);
 
   /* spacing */
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
