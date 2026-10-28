@@ -56,12 +56,7 @@ MONO, SANS, SANS_B = font("GeistMono-400.ttf", 15), font("Geist-400.ttf", 19), f
 
 
 def chromium() -> str:
-    # Playwright's headless shell first: a desktop Edge/Chrome already running may swallow --screenshot.
-    shells = glob.glob(os.path.expanduser("~/AppData/Local/ms-playwright/chromium_headless_shell-*/*/chrome-headless-shell*"))
-    shells += glob.glob(os.path.expanduser("~/.cache/ms-playwright/chromium_headless_shell-*/*/chrome-headless-shell"))
-    if os.environ.get("CHROME_PATH") or not shells:
-        return generate.browser()
-    return sorted(shells)[-1]
+    return generate.browser()
 
 
 def shot(html: str, tmp: Path, name: str, height: int = 5000, src_w: int = SRC_W, out_w: int = W) -> Image.Image:

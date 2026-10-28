@@ -3,10 +3,11 @@
 
 lens-icon.svg is the app icon from the codeDB brand kit (03-favicon-e-icones/icone-app-escuro.svg).
 
-Needs Pillow and a Chromium browser (Edge or Chrome) for headless SVG rendering.
+Needs Pillow and a Chromium (CHROME_PATH, Playwright's chrome-headless-shell, Edge or Chrome) for headless SVG rendering.
 ponytail: headless browser instead of cairo/resvg, no native deps on Windows.
 """
 
+import glob
 import os
 import shutil
 import subprocess
@@ -33,6 +34,11 @@ BROWSERS = [
 
 
 def browser() -> str:
+    # Playwright's headless shell first: a desktop Edge/Chrome already running may swallow --screenshot.
+    shells = glob.glob(os.path.expanduser("~/AppData/Local/ms-playwright/chromium_headless_shell-*/*/chrome-headless-shell*"))
+    shells += glob.glob(os.path.expanduser("~/.cache/ms-playwright/chromium_headless_shell-*/*/chrome-headless-shell"))
+    if shells and not os.environ.get("CHROME_PATH"):
+        return sorted(shells)[-1]
     for b in BROWSERS:
         if b and (Path(b).is_file() or shutil.which(b)):
             return b
@@ -50,7 +56,7 @@ def render(size: int) -> Image.Image:
         out = Path(tmp) / "out.png"
         subprocess.run(
             [browser(), "--headless", "--disable-gpu", "--hide-scrollbars",
-             "--default-background-color=00000000", f"--window-size={size},{size}",
+             "--default-background-color=00000000", f"--window-size={size},{size}", f"--user-data-dir={Path(tmp) / 'profile'}",
              f"--screenshot={out}", page.as_uri()],
             check=True, capture_output=True,
         )
