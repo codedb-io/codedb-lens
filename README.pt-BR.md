@@ -20,6 +20,7 @@
   <img src="https://img.shields.io/badge/banco-somente%20leitura-brightgreen" alt="Somente leitura">
   <img src="https://img.shields.io/badge/telemetria-nenhuma-brightgreen" alt="Sem telemetria">
   <a href="https://github.com/codedb-io/codedb-lens/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/codedb-io/codedb-lens/ci.yml?label=CI" alt="Status do CI"></a>
+  <a href="https://mcpservers.org/servers/codedb-io/codedb-lens"><img src="https://mcpservers.org/badge.svg" alt="Listed on mcpservers.org"></a>
 </p>
 
 <p align="center">
