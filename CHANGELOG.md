@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-10-29
+
 ### Changed
 - codeDB brand 2026: new logo and app icon, Breu/Sinal palette (no blue), Geist and Geist Mono, in the app, the HTML
   report, the comparison, the recording timeline, the docs site, the README and the social preview. The app ships
