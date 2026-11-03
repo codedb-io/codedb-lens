@@ -36,7 +36,7 @@ func addDataTools(m *mcp.Server, s *server, ro *mcp.ToolAnnotations) {
 		Description: "Columns (type, nullable, default), primary key, foreign keys with the referenced table, indexes and estimated rows of one table or view. Use it before writing a query, so column names are right."},
 		s.describeTable)
 	mcp.AddTool(m, &mcp.Tool{Name: "query", Annotations: ro,
-		Description: "Run one read-only SELECT (or WITH ... SELECT) on a profile and get columns and rows. Aggregate in SQL (GROUP BY, TOP/LIMIT) instead of fetching raw rows: results stop at the profile's row limit (500 unless the user changed it), cells at 2 KB, and truncated: true means the answer is partial. Writes, EXEC, multiple statements and functions with side effects are refused; quote a column named like an SQL keyword. SQL Server reads uncommitted data, like the health check."},
+		Description: "Run one read-only SELECT (or WITH ... SELECT) on a profile and get columns and rows. Aggregate in SQL (GROUP BY, TOP/LIMIT) instead of fetching raw rows: results stop at the profile's row limit (500 unless the user changed it), cells at 2 KB, and truncated: true means the answer is partial. Writes, EXEC, multiple statements and functions with side effects are refused; quote a column named like an SQL keyword. SQL Server reads uncommitted data, like the health check: counts and sums taken while other transactions are open can be off, so present them as approximate, not final."},
 		s.query)
 }
 
