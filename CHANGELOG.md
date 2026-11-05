@@ -5,6 +5,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-11-05
+
+### Changed
+- Index rules (`MSSQL-UNUSEDIDX-001`, `PG-INDEXES-001`) now report their findings as review candidates, not removal
+  advice, and add `observed_days` to the evidence (days since restart or since the last statistics reset), so a short
+  window is visible before anyone drops an index.
+- `MSSQL-BACKUP-001` says plainly that a recent backup does not prove the database can be restored: the log chain and
+  restore tests are not verified, and `RESTORE VERIFYONLY` only checks that the file is readable.
+- MCP `query` tool: the description warns that SQL Server reads uncommitted data, so counts and sums can be approximate.
+
 ## [0.9.1] - 2026-10-29
 
 ### Changed
