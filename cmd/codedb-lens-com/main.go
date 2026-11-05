@@ -6,6 +6,8 @@
 // console, and returns its exit code.
 package main
 
+//go:generate go run github.com/tc-hib/go-winres@v0.3.3 make --in winres/winres.json --out rsrc
+
 import (
 	"errors"
 	"fmt"

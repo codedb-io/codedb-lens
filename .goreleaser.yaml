@@ -4,7 +4,7 @@ project_name: codedb-lens
 before:
   hooks:
     - go mod tidy
-    - go generate ./cmd/codedb-lens   # Windows icon + manifest (.syso)
+    - go generate ./cmd/codedb-lens ./cmd/codedb-lens-com   # Windows icon + manifest + version info (.syso)
 
 builds:
   - id: windows
