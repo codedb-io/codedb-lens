@@ -39,7 +39,8 @@ graphify-out/
 
 # Claude Code — local
 .claude/settings.local.json
+/CLAUDE.md
 .claude/worktrees/
-/cmd/codedb-lens/rsrc_*.syso
+/cmd/codedb-lens*/rsrc_*.syso
 /bin/
 build/windows/codedb-lens.com
