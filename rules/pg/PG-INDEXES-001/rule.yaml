@@ -8,17 +8,17 @@ permission: pg_monitor + CONNECT on each database
 params:
   min_unused_mb: 10   # unused indexes at least this big
 title:
-  en: Unused, duplicate or invalid indexes
-  pt-BR: Índices não usados, duplicados ou inválidos
+  en: Index candidates to review (unused, duplicate or invalid)
+  pt-BR: Índices candidatos a revisão (não usados, duplicados ou inválidos)
 impact:
   en: Every index is updated on every write and takes space in memory, disk and backups. Unused and duplicate ones are pure cost; invalid ones (a failed CREATE INDEX CONCURRENTLY) are maintained but never used.
   pt-BR: Todo índice é atualizado em cada escrita e ocupa memória, disco e backup. Os não usados e duplicados são puro custo; os inválidos (um CREATE INDEX CONCURRENTLY que falhou) são mantidos mas nunca usados.
 next_action:
-  en: Drop invalid indexes and recreate them if needed (DROP INDEX CONCURRENTLY). For unused ones, confirm over a full business cycle and on replicas before dropping. Keep one of each duplicate pair.
-  pt-BR: Remova os índices inválidos e recrie se precisar (DROP INDEX CONCURRENTLY). Para os não usados, confirme durante um ciclo completo do negócio e nas réplicas antes de remover. Mantenha um de cada par duplicado.
+  en: Drop invalid indexes and recreate them if needed (DROP INDEX CONCURRENTLY). Unused ones are candidates to review, not drop recommendations, so check `observed_days` (since the last stats reset) and confirm over a full business cycle and on replicas before dropping. Keep one of each duplicate pair.
+  pt-BR: Remova os índices inválidos e recrie se precisar (DROP INDEX CONCURRENTLY). Os não usados são candidatos a revisão, não recomendações de remover, então veja `observed_days` (desde o último reset das estatísticas) e confirme durante um ciclo completo do negócio e nas réplicas antes de remover. Mantenha um de cada par duplicado.
 verify:
   en: "After dropping, confirm the index is gone: `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid` must return nothing, and `SELECT relname, indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan` should no longer list the dropped ones. Watch query times and the slow log for a few days; if one regresses, recreate the index. Counters reset with `pg_stat_reset()`, so judge usage over a full business cycle."
   pt-BR: "Depois de remover, confirme que o índice saiu: `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid` deve voltar vazio, e `SELECT relname, indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan` não deve mais listar os removidos. Acompanhe o tempo das consultas e o log de lentas por alguns dias; se alguma piorar, recrie o índice. Os contadores zeram com `pg_stat_reset()`, então avalie o uso ao longo de um ciclo completo de negócio."
 caveat:
-  en: Usage counters reset with pg_stat_reset(); replicas keep their own counters, so an index unused here may be used on a replica.
-  pt-BR: Os contadores de uso zeram com pg_stat_reset(); réplicas têm contadores próprios, então um índice sem uso aqui pode ser usado numa réplica.
+  en: Usage counters reset with pg_stat_reset() and cover only `observed_days` days (empty if never reset); an index used only by a month-end job can look unused in a short window. Replicas keep their own counters, so an index unused here may be used on a replica.
+  pt-BR: Os contadores de uso zeram com pg_stat_reset() e cobrem só `observed_days` dias (vazio se nunca zeraram); um índice usado apenas por um job de fechamento de mês pode parecer sem uso numa janela curta. Réplicas têm contadores próprios, então um índice sem uso aqui pode ser usado numa réplica.

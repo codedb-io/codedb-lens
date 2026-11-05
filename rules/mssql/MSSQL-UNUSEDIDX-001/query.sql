@@ -15,16 +15,17 @@ u AS (
            ISNULL(us.user_seeks + us.user_scans + us.user_lookups, 0) AS reads,
            ISNULL(us.user_updates, 0) AS writes,
            (SELECT SUM(ps.used_page_count) * 8 / 1024 FROM sys.dm_db_partition_stats ps
-            WHERE ps.object_id = ix.object_id AND ps.index_id = ix.index_id) AS size_mb
+            WHERE ps.object_id = ix.object_id AND ps.index_id = ix.index_id) AS size_mb,
+           (SELECT DATEDIFF(day, sqlserver_start_time, SYSDATETIME()) FROM sys.dm_os_sys_info) AS observed_days
     FROM ix
     LEFT JOIN sys.dm_db_index_usage_stats us
            ON us.database_id = DB_ID() AND us.object_id = ix.object_id AND us.index_id = ix.index_id
 )
-SELECT u.[table], u.name AS [index], 'unused' AS issue, u.keys, u.reads, u.writes, u.size_mb, CAST(NULL AS sysname) AS duplicate_of
+SELECT u.[table], u.name AS [index], 'unused' AS issue, u.keys, u.reads, u.writes, u.size_mb, u.observed_days, CAST(NULL AS sysname) AS duplicate_of
 FROM u
 WHERE u.reads = 0 AND u.writes >= {{min_writes}}
 UNION ALL
-SELECT u.[table], u.name, 'duplicate', u.keys, u.reads, u.writes, u.size_mb, d.name
+SELECT u.[table], u.name, 'duplicate', u.keys, u.reads, u.writes, u.size_mb, u.observed_days, d.name
 FROM u
 JOIN u AS d ON d.object_id = u.object_id AND d.index_id < u.index_id
             AND d.keys = u.keys AND ISNULL(d.filter_definition, '') = ISNULL(u.filter_definition, '')
