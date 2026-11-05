@@ -5,6 +5,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-11-05
+
+### Fixed
+- `codedb-lens.com` (the console launcher) now carries version info, a manifest and the app icon, like the `.exe`.
+  The bare binary was flagged heuristically by some antivirus products.
+
 ## [0.9.2] - 2026-11-05
 
 ### Changed
