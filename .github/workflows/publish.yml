@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with: { ref: main }
       - name: Write bucket/codedb-lens.json
         env:
@@ -36,7 +36,7 @@ jobs:
       WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}   # classic PAT, public_repo, of an account with a fork of winget-pkgs
     steps:
       - if: env.WINGET_TOKEN != ''
-        uses: vedantmgoyal9/winget-releaser@v2
+        uses: vedantmgoyal9/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54  # v2
         with:
           identifier: codeDB.Lens
           installers-regex: '_setup\.exe$'

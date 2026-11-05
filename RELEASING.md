@@ -2,8 +2,11 @@
 
 ## One-time setup
 
-1. Repository secret `LENS_SIGNING_KEY`: the private Ed25519 seed from `go run ./tools/sign -genkey`. The matching public
-   key is `PublicKey` in `internal/update/update.go`. Never commit the private key.
+1. Secret `LENS_SIGNING_KEY` in the `release` environment (Settings → Environments), never at repository level: the
+   private Ed25519 seed from `go run ./tools/sign -genkey`. The matching public key is `PublicKey` in
+   `internal/update/update.go`. Never commit the private key. The environment requires a maintainer's approval and
+   accepts only `v*` tags; the `release tags` ruleset lets only admins create, move or delete `v*` tags, and the
+   `main` ruleset blocks force pushes and deletion. Actions are pinned by commit SHA (Dependabot updates them).
 2. GitHub Pages: Settings → Pages → Source "GitHub Actions", custom domain `lens.codedb.com.br` (DNS: `CNAME lens` →
    `codedb-io.github.io`), then "Enforce HTTPS". The `Docs` workflow publishes on every change to `docs/`.
 3. After the first image push: make the `codedb-lens` package on ghcr.io public (Package settings → Change visibility).
@@ -125,7 +128,8 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-The `Release` workflow builds Windows and Linux archives, signs `checksums.txt`, builds the per-user installer and
+Approve the `release` deployment in the workflow run (Actions → Release → Review deployments). The `Release` workflow
+then builds Windows and Linux archives, signs `checksums.txt`, builds the per-user installer and
 attaches it to a **draft** release. Review the draft, check the assets and the signature file, then publish.
 
 ## After publishing

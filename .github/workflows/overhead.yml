@@ -30,8 +30,8 @@ jobs:
       CODEDB_LENS_PASSWORD: ${{ matrix.password }}
       CODEDB_LENS_NO_UPDATE: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff  # v5
         with: { go-version-file: go.mod }
       - name: Start database
         run: |
