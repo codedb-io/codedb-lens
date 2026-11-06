@@ -64,6 +64,7 @@ nav:
           - MSSQL-BLOCKING-001: rules/mssql-blocking-001.md
           - MSSQL-CHECKDB-001: rules/mssql-checkdb-001.md
           - MSSQL-CONFIG-001: rules/mssql-config-001.md
+          - MSSQL-DBOPTIONS-001: rules/mssql-dboptions-001.md
           - MSSQL-MISSINGIDX-001: rules/mssql-missingidx-001.md
           - MSSQL-REC-BLOCKING-001: rules/mssql-rec-blocking-001.md
           - MSSQL-REC-LONGQUERY-001: rules/mssql-rec-longquery-001.md

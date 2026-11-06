@@ -1,0 +1,25 @@
+id: MSSQL-DBOPTIONS-001
+engine: mssql
+category: configuration
+severity: medium
+confidence: confirmed
+skip_on: [azure_sqldb]
+permission: VIEW ANY DEFINITION
+title:
+  en: Databases with risky options (auto-shrink, auto-close, page verify)
+  pt-BR: Bancos com opções de risco (auto-shrink, auto-close, page verify)
+impact:
+  en: Auto-shrink fragments indexes and fights autogrowth, auto-close makes the first connection to the database slow, and without PAGE_VERIFY CHECKSUM corruption is found late, often after it reached the backups.
+  pt-BR: O auto-shrink fragmenta índices e briga com o autogrowth, o auto-close deixa lenta a primeira conexão ao banco, e sem PAGE_VERIFY CHECKSUM a corrupção é descoberta tarde, muitas vezes depois de chegar aos backups.
+next_action:
+  en: "Turn the options off: `ALTER DATABASE [db] SET AUTO_SHRINK OFF, AUTO_CLOSE OFF;` and `ALTER DATABASE [db] SET PAGE_VERIFY CHECKSUM;`. Pages are only checksummed when they are next written, so run a full backup and DBCC CHECKDB afterwards."
+  pt-BR: "Desligue as opções: `ALTER DATABASE [banco] SET AUTO_SHRINK OFF, AUTO_CLOSE OFF;` e `ALTER DATABASE [banco] SET PAGE_VERIFY CHECKSUM;`. As páginas só recebem checksum quando são gravadas de novo, então faça um backup completo e um DBCC CHECKDB depois."
+verify:
+  en: "Run `SELECT name, is_auto_shrink_on, is_auto_close_on, page_verify_option_desc FROM sys.databases WHERE database_id > 4`: both flags must be 0 and page_verify_option_desc must be CHECKSUM. The database stops appearing here on the next run."
+  pt-BR: "Execute `SELECT name, is_auto_shrink_on, is_auto_close_on, page_verify_option_desc FROM sys.databases WHERE database_id > 4`: as duas flags devem ser 0 e page_verify_option_desc deve ser CHECKSUM. O banco deixa de aparecer aqui na próxima execução."
+caveat:
+  en: Looks at online user databases only (database_id > 4, no snapshots). Not applicable to Azure SQL Database, where the platform manages these options. Some vendor applications ask for AUTO_CLOSE on SQL Server Express; confirm with the vendor before changing it.
+  pt-BR: Considera apenas bancos de usuário online (database_id > 4, sem snapshots). Não se aplica ao Azure SQL Database, onde a plataforma gerencia essas opções. Alguns aplicativos de fornecedores pedem AUTO_CLOSE no SQL Server Express; confirme com o fornecedor antes de alterar.
+saas_cta:
+  en: codeDB tracks database options on every instance and warns when one drifts to a risky value.
+  pt-BR: O codeDB acompanha as opções dos bancos de todas as instâncias e avisa quando uma muda para um valor de risco.

@@ -118,6 +118,17 @@ func TestMSSQL(t *testing.T) {
 		expect(t, s, rs["MSSQL-CHECKDB-001"], engine.StatusOK, "")
 	})
 
+	t.Run("MSSQL-DBOPTIONS-001", func(t *testing.T) {
+		exec(t, `ALTER DATABASE lens_fixture SET AUTO_SHRINK OFF, AUTO_CLOSE OFF; ALTER DATABASE lens_fixture SET PAGE_VERIFY CHECKSUM`)
+		expect(t, s, rs["MSSQL-DBOPTIONS-001"], engine.StatusOK, "")
+		exec(t, `ALTER DATABASE lens_fixture SET AUTO_SHRINK ON`)
+		expect(t, s, rs["MSSQL-DBOPTIONS-001"], engine.StatusFinding, engine.Confirmed)
+		exec(t, `ALTER DATABASE lens_fixture SET AUTO_SHRINK OFF; ALTER DATABASE lens_fixture SET PAGE_VERIFY TORN_PAGE_DETECTION`)
+		expect(t, s, rs["MSSQL-DBOPTIONS-001"], engine.StatusFinding, engine.Confirmed)
+		exec(t, `ALTER DATABASE lens_fixture SET PAGE_VERIFY CHECKSUM`)
+		expect(t, s, rs["MSSQL-DBOPTIONS-001"], engine.StatusOK, "")
+	})
+
 	t.Run("MSSQL-AGENT-001", func(t *testing.T) {
 		exec(t, `IF EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = 'lens_failing_job') EXEC msdb.dbo.sp_delete_job @job_name = 'lens_failing_job'`)
 		expect(t, s, rs["MSSQL-AGENT-001"], engine.StatusOK, "")

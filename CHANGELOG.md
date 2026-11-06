@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- `MSSQL-DBOPTIONS-001`: flags online user databases with `AUTO_SHRINK` or `AUTO_CLOSE` on, or `PAGE_VERIFY` other than
+  `CHECKSUM`. Not run on Azure SQL Database.
+
 ## [0.9.3] - 2026-11-05
 
 ### Fixed
