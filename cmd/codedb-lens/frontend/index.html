@@ -452,6 +452,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
       <div class="card" id="renewcard" hidden><h3><svg class="i"><use href="#i-key"/></svg><span data-t="gui_key_renew"></span></h3>
         <p class="notice" data-t="lic_renew_sent"></p>
         <div class="f"><label for="rrcountry" data-t="reg_country_opt"></label><div class="ctl"><select id="rrcountry"></select></div></div>
+        <p class="notice" id="renewnotice" hidden></p>
         <label class="check" id="renewack" hidden><input type="checkbox" id="rrenewack"><span><span id="lrenewack"></span> (<a href="#" id="privlink2">↗</a>)</span></label>
         <div class="actions" style="margin-top:var(--s2)"><span class="sp"></span><button type="button" class="btn primary" id="rrenew" data-t="gui_key_renew"></button></div></div>
       <div class="card"><h3><svg class="i"><use href="#i-paste"/></svg><span data-t="gui_key_have"></span></h3>
@@ -793,12 +794,12 @@ async function loadKey() {
   const opts = (list, label) => '<option value=""></option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(label(v)) + '</option>').join('');
   const c = $('#rcountry').value || key.region, r = $('#rrole').value, i = $('#rinst').value;
   const dn = new Intl.DisplayNames([uiLang], { type: 'region' }), name = v => { try { return dn.of(v) || v; } catch { return v; } };
-  const cl = opts(key.countries.slice().sort((a, b) => name(a).localeCompare(name(b), uiLang)), name), rc = $('#rrcountry').value || key.region;
+  const nm = v => v === 'XX' ? t('country_other') : name(v), cl = opts(key.countries.filter(v => v !== 'XX').sort((a, b) => name(a).localeCompare(name(b), uiLang)).concat('XX'), nm), rc = $('#rrcountry').value || key.region;
   $('#rcountry').innerHTML = cl; $('#rcountry').value = c; $('#rrcountry').innerHTML = cl; $('#rrcountry').value = rc;
   $('#rrole').innerHTML = opts(key.roles, v => t('role_' + v)); $('#rrole').value = r;
   $('#rinst').innerHTML = opts(key.ranges, v => v === '100+' ? t('range_100+') : v.replace('-', '–')); $('#rinst').value = i;
   $('#rremove').hidden = !key.valid && !key.expired;
-  $('#renewcard').hidden = !key.can_renew; $('#lrenewack').textContent = key.consent.privacy_ack;
+  $('#renewcard').hidden = !key.can_renew; $('#lrenewack').textContent = key.consent.privacy_ack; $('#renewnotice').textContent = key.consent.notice;
 }
 function keyStatus(kind, msg) { $('#keystatus').innerHTML = kind ? '<div class="alert ' + kind + '"><div><b>' + esc(msg) + '</b></div></div>' : ''; }
 function showKey() {
@@ -821,8 +822,8 @@ async function renewKey() {
   $('#rrenew').disabled = true; keyStatus('info', t('gui_key_sending'));
   try {
     const r = await api().RenewLicense(uiLang, $('#rrcountry').value, ack);
-    if (r.consent_required) { $('#renewack').hidden = false; keyStatus('err', t('lic_renew_consent')); return; }
-    $('#renewack').hidden = true; await loadKey(); keyStatus('ok', tf('lic_renewed', key.expires));
+    if (r.consent_required) { $('#renewack').hidden = $('#renewnotice').hidden = false; keyStatus('err', t('lic_renew_consent')); return; }
+    $('#renewack').hidden = $('#renewnotice').hidden = true; await loadKey(); keyStatus('ok', tf('lic_renewed', key.expires));
   } catch (e) { keyStatus('err', String(e)); }
   finally { $('#rrenew').disabled = false; }
 }

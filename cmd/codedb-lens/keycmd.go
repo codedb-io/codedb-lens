@@ -323,7 +323,7 @@ func renewCmd(lang string, args []string) error {
 	fmt.Fprintln(os.Stderr, i18n.T(lang, "lic_renew_sent"))
 	n, err := license.Renew(context.Background(), l, version, *country, *ack)
 	if errors.Is(err, license.ErrConsentRequired) && !*ack && term.IsTerminal(int(os.Stdin.Fd())) {
-		fmt.Fprintf(os.Stderr, "\n%s\n%s\n%s%s", i18n.T(lang, "lic_renew_consent"),
+		fmt.Fprintf(os.Stderr, "\n%s\n%s\n\n%s\n%s%s", i18n.T(lang, "lic_renew_consent"), license.Consent[lang].Notice,
 			fmt.Sprintf(i18n.T(lang, "reg_privacy_link"), saas.Privacy), license.Consent[lang].PrivacyAck, i18n.T(lang, "reg_yn"))
 		s, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 		if s = strings.ToLower(strings.TrimSpace(s)); !strings.HasPrefix(s, "y") && !strings.HasPrefix(s, "s") {
