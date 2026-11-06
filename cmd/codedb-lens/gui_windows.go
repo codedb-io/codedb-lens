@@ -329,13 +329,16 @@ type KeyInfo struct {
 	Privacy         string            `json:"privacy"`
 	Roles           []string          `json:"roles"`
 	Ranges          []string          `json:"ranges"`
+	Countries       []string          `json:"countries"`
+	Region          string            `json:"region"` // OS region, to preselect the country
 }
 
 func (a *App) LicenseStatus(lang string) KeyInfo {
 	lang = i18n.Normalize(lang)
 	c := license.Consent[lang]
 	k := KeyInfo{Consent: map[string]string{"privacy_ack": c.PrivacyAck, "marketing": c.Marketing, "notice": c.Notice, "sent": c.Sent},
-		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges}
+		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges,
+		Countries: license.Countries, Region: i18n.Region()}
 	l, err := license.Load()
 	k.Expired = errors.Is(err, license.ErrExpired)
 	k.CanRenew = l != nil && license.RenewOpen(l, time.Now())

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -166,7 +167,7 @@ func TestRegister(t *testing.T) {
 	Keys["test-1"] = testKeys["test-1"]
 	defer delete(Keys, "test-1")
 
-	req := Request{Name: " Maria ", Email: "maria@example.com", LensVersion: "0.5.0", Lang: "pt-BR", PrivacyAck: true}
+	req := Request{Name: " Maria ", Email: "maria@example.com", LensVersion: "0.5.0", Lang: "pt-BR", Country: "br", PrivacyAck: true}
 	if _, err := Register(context.Background(), Request{Name: "x", Email: "x@y"}); err == nil || got != nil {
 		t.Fatal("must not send without privacy_ack")
 	}
@@ -174,7 +175,7 @@ func TestRegister(t *testing.T) {
 	if err != nil || l.Sub == "" {
 		t.Fatalf("200: %v", err)
 	}
-	want := map[string]bool{"name": true, "email": true, "lens_version": true, "lang": true, "privacy_ack": true,
+	want := map[string]bool{"name": true, "email": true, "lens_version": true, "lang": true, "privacy_ack": true, "country": true,
 		"marketing_opt_in": true, "consent_version": true}
 	for k := range got {
 		if !want[k] {
@@ -280,5 +281,20 @@ func TestRenew(t *testing.T) {
 		if RenewOpen(old, exp.Add(time.Duration(d)*24*time.Hour)) != want {
 			t.Errorf("RenewOpen at %+d days: want %v", d, want)
 		}
+	}
+}
+
+func TestCountryRequired(t *testing.T) {
+	r := Request{Name: "Maria", Email: "m@x.com", LensVersion: "1", Lang: "en", PrivacyAck: true}
+	for _, c := range []string{"", "ZZ", "BRA"} {
+		r.Country = c
+		var inv *InvalidError
+		if err := r.Validate(); !errors.As(err, &inv) || !slices.Contains(inv.Fields, "country") {
+			t.Errorf("country %q: want invalid country, got %v", c, err)
+		}
+	}
+	r.Country = "BR"
+	if err := r.Validate(); err != nil {
+		t.Errorf("BR: %v", err)
 	}
 }

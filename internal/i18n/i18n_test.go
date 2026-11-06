@@ -21,3 +21,12 @@ func TestNormalize(t *testing.T) {
 		}
 	}
 }
+
+func TestRegion(t *testing.T) {
+	for in, want := range map[string]string{"pt_BR.UTF-8": "BR", "en-US": "US", "en_GB": "GB", "pt": ""} {
+		t.Setenv("LC_ALL", in)
+		if got := Region(); got != want {
+			t.Errorf("%q: got %q, want %q", in, got, want)
+		}
+	}
+}

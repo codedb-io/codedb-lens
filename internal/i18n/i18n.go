@@ -308,6 +308,7 @@ var messages = map[string]map[string]string{
 		"reg_name":              "Name",
 		"reg_email":             "E-mail",
 		"reg_company":           "Company (optional)",
+		"reg_country":           "Country",
 		"reg_role":              "Role (optional)",
 		"reg_instances":         "How many instances do you manage (optional)",
 		"reg_privacy_link":      "Privacy Policy: %s",
@@ -779,6 +780,7 @@ var messages = map[string]map[string]string{
 		"reg_name":              "Nome",
 		"reg_email":             "E-mail",
 		"reg_company":           "Empresa (opcional)",
+		"reg_country":           "País",
 		"reg_role":              "Cargo (opcional)",
 		"reg_instances":         "Quantas instâncias você gerencia (opcional)",
 		"reg_privacy_link":      "Política de Privacidade: %s",
@@ -985,4 +987,20 @@ func Detect() string {
 		}
 	}
 	return Normalize(osLocale())
+}
+
+// Region is the user's country code (ISO 3166-1 alpha-2, upper case) from the locale ("pt_BR.UTF-8", "pt-BR"), or "".
+func Region() string {
+	loc := osLocale()
+	for _, k := range []string{"LC_ALL", "LC_MESSAGES", "LANG"} {
+		if v := os.Getenv(k); v != "" && v != "C" && v != "POSIX" {
+			loc = v
+			break
+		}
+	}
+	loc, _, _ = strings.Cut(loc, ".")
+	if _, r, ok := strings.Cut(strings.ReplaceAll(loc, "_", "-"), "-"); ok && len(r) == 2 {
+		return strings.ToUpper(r)
+	}
+	return ""
 }

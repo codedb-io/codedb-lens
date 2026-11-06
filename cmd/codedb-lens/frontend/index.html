@@ -435,6 +435,7 @@ details.adv .fields { padding: 0 var(--s4) var(--s4); }
         <div class="fields">
           <div class="f"><label for="rname"><span data-t="reg_name"></span> <span class="req">*</span></label><div class="ctl"><input id="rname" maxlength="200"></div></div>
           <div class="f"><label for="remail"><span data-t="reg_email"></span> <span class="req">*</span></label><div class="ctl"><input id="remail" type="email" maxlength="254"></div></div>
+          <div class="f"><label for="rcountry"><span data-t="reg_country"></span> <span class="req">*</span></label><div class="ctl"><select id="rcountry"></select></div></div>
           <div class="f"><label for="rcompany" data-t="reg_company"></label><div class="ctl"><input id="rcompany" maxlength="200"></div></div>
           <div class="f"><label for="rrole" data-t="reg_role"></label><div class="ctl"><select id="rrole"></select></div></div>
           <div class="f"><label for="rinst" data-t="reg_instances"></label><div class="ctl"><select id="rinst"></select></div></div>
@@ -789,7 +790,9 @@ async function loadKey() {
   $('#keylbl').textContent = $('#homekey span').textContent = key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) : key.expired ? t('gui_key_expired') : t('gui_key_activate');
   $('#lprivacy').textContent = key.consent.privacy_ack; $('#lmkt').textContent = key.consent.marketing; $('#rnotice').textContent = key.consent.notice;
   const opts = (list, label) => '<option value=""></option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(label(v)) + '</option>').join('');
-  const r = $('#rrole').value, i = $('#rinst').value;
+  const c = $('#rcountry').value || key.region, r = $('#rrole').value, i = $('#rinst').value;
+  const dn = new Intl.DisplayNames([uiLang], { type: 'region' }), name = v => { try { return dn.of(v) || v; } catch { return v; } };
+  $('#rcountry').innerHTML = opts(key.countries.slice().sort((a, b) => name(a).localeCompare(name(b), uiLang)), name); $('#rcountry').value = c;
   $('#rrole').innerHTML = opts(key.roles, v => t('role_' + v)); $('#rrole').value = r;
   $('#rinst').innerHTML = opts(key.ranges, v => v === '100+' ? t('range_100+') : v.replace('-', '–')); $('#rinst').value = i;
   $('#rremove').hidden = !key.valid && !key.expired;
@@ -800,11 +803,11 @@ function showKey() {
   show('keyview');
   keyStatus(key.valid ? 'ok' : '', key.valid ? tf(key.days_left === 1 ? 'gui_key_valid_1' : 'gui_key_valid', key.days_left) + ' (' + key.expires + ')' : '');
 }
-function canSend() { $('#rsend').disabled = !($('#rprivacy').checked && $('#rname').value.trim() && $('#remail').value.trim()); }
+function canSend() { $('#rsend').disabled = !($('#rprivacy').checked && $('#rname').value.trim() && $('#remail').value.trim() && $('#rcountry').value); }
 async function sendKey() {
   $('#rsend').disabled = true; keyStatus('info', t('gui_key_sending'));
   try {
-    await api().Register({ name: $('#rname').value, email: $('#remail').value, company: $('#rcompany').value, role: $('#rrole').value,
+    await api().Register({ name: $('#rname').value, email: $('#remail').value, company: $('#rcompany').value, country: $('#rcountry').value, role: $('#rrole').value,
       instances_range: $('#rinst').value, lang: uiLang, privacy_ack: $('#rprivacy').checked, marketing_opt_in: $('#rmkt').checked });
     await loadKey(); keyStatus('ok', tf('lic_saved', key.expires) + ' ' + key.consent.sent);
   } catch (e) { keyStatus('err', String(e)); }
@@ -989,6 +992,7 @@ $('#updbtn').onclick = async () => {
   finally { $('#updbtn').disabled = false; }
 };
 ['#rname', '#remail', '#rprivacy'].forEach(s => $(s).addEventListener('input', canSend));
+$('#rcountry').addEventListener('change', canSend);
 $('#privlink').onclick = e => { e.preventDefault(); api().OpenURL(key.privacy); };
 $('#privlink2').onclick = $('#privlink').onclick;
 $('#rsend').onclick = sendKey;
