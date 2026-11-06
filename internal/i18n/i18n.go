@@ -302,12 +302,14 @@ var messages = map[string]map[string]string{
 		"lic_renew_rejected":    "The server refused this key. Register again: codedb-lens register",
 		"lic_renew_consent":     "The Privacy Policy changed since you registered. Accept it to renew.",
 		"lic_renewed":           "Free key renewed, valid until %s.",
-		"lic_renew_sent":        "Renewing sends only the current key and the Lens version.",
+		"lic_renew_sent":        "Renewing sends only the current key, the Lens version and, if you choose, your country.",
 		"gui_key_renew":         "Renew key",
 		"reg_intro":             "Free key: unlocks compare for 90 days, renewable. Lens sends only what you type below, once, to codeDB. Nothing about your databases.",
 		"reg_name":              "Name",
 		"reg_email":             "E-mail",
 		"reg_company":           "Company (optional)",
+		"reg_country":           "Country",
+		"reg_country_opt":       "Country (optional)",
 		"reg_role":              "Role (optional)",
 		"reg_instances":         "How many instances do you manage (optional)",
 		"reg_privacy_link":      "Privacy Policy: %s",
@@ -322,6 +324,7 @@ var messages = map[string]map[string]string{
 		"role_it_manager":       "IT manager",
 		"role_consultant_msp":   "Consultant/MSP",
 		"role_other":            "Other",
+		"country_other":         "Other / not listed",
 		"range_100+":            "more than 100",
 		"gui_key_title":         "Free key",
 		"gui_key_sub":           "Unlocks comparing diagnoses over time. Free for 90 days, renewable.",
@@ -773,12 +776,14 @@ var messages = map[string]map[string]string{
 		"lic_renew_rejected":    "O servidor recusou esta chave. Cadastre-se de novo: codedb-lens register",
 		"lic_renew_consent":     "A Política de Privacidade mudou desde o seu cadastro. Aceite-a para renovar.",
 		"lic_renewed":           "Chave grátis renovada, válida até %s.",
-		"lic_renew_sent":        "A renovação envia só a chave atual e a versão do Lens.",
+		"lic_renew_sent":        "A renovação envia só a chave atual, a versão do Lens e, se você escolher, o seu país.",
 		"gui_key_renew":         "Renovar chave",
 		"reg_intro":             "Chave grátis: libera o compare por 90 dias, renovável. O Lens envia ao codeDB só o que você digitar abaixo, uma vez. Nada sobre os seus bancos.",
 		"reg_name":              "Nome",
 		"reg_email":             "E-mail",
 		"reg_company":           "Empresa (opcional)",
+		"reg_country":           "País",
+		"reg_country_opt":       "País (opcional)",
 		"reg_role":              "Cargo (opcional)",
 		"reg_instances":         "Quantas instâncias você gerencia (opcional)",
 		"reg_privacy_link":      "Política de Privacidade: %s",
@@ -793,6 +798,7 @@ var messages = map[string]map[string]string{
 		"role_it_manager":       "Gestor de TI",
 		"role_consultant_msp":   "Consultor/MSP",
 		"role_other":            "Outro",
+		"country_other":         "Outro / não listado",
 		"range_100+":            "mais de 100",
 		"gui_key_title":         "Chave grátis",
 		"gui_key_sub":           "Libera a comparação de diagnósticos ao longo do tempo. Grátis por 90 dias, renovável.",
@@ -985,4 +991,20 @@ func Detect() string {
 		}
 	}
 	return Normalize(osLocale())
+}
+
+// Region is the user's country code (ISO 3166-1 alpha-2, upper case) from the locale ("pt_BR.UTF-8", "pt-BR"), or "".
+func Region() string {
+	loc := osLocale()
+	for _, k := range []string{"LC_ALL", "LC_MESSAGES", "LANG"} {
+		if v := os.Getenv(k); v != "" && v != "C" && v != "POSIX" {
+			loc = v
+			break
+		}
+	}
+	loc, _, _ = strings.Cut(loc, ".")
+	if _, r, ok := strings.Cut(strings.ReplaceAll(loc, "_", "-"), "-"); ok && len(r) == 2 {
+		return strings.ToUpper(r)
+	}
+	return ""
 }

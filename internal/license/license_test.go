@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -166,7 +167,7 @@ func TestRegister(t *testing.T) {
 	Keys["test-1"] = testKeys["test-1"]
 	defer delete(Keys, "test-1")
 
-	req := Request{Name: " Maria ", Email: "maria@example.com", LensVersion: "0.5.0", Lang: "pt-BR", PrivacyAck: true}
+	req := Request{Name: " Maria ", Email: "maria@example.com", LensVersion: "0.5.0", Lang: "pt-BR", Country: "br", PrivacyAck: true}
 	if _, err := Register(context.Background(), Request{Name: "x", Email: "x@y"}); err == nil || got != nil {
 		t.Fatal("must not send without privacy_ack")
 	}
@@ -174,7 +175,7 @@ func TestRegister(t *testing.T) {
 	if err != nil || l.Sub == "" {
 		t.Fatalf("200: %v", err)
 	}
-	want := map[string]bool{"name": true, "email": true, "lens_version": true, "lang": true, "privacy_ack": true,
+	want := map[string]bool{"name": true, "email": true, "lens_version": true, "lang": true, "privacy_ack": true, "country": true,
 		"marketing_opt_in": true, "consent_version": true}
 	for k := range got {
 		if !want[k] {
@@ -252,25 +253,32 @@ func TestRenew(t *testing.T) {
 	}
 
 	body = `{"license":"` + sampleValid + `","expires_at":"2027-01-19T00:00:00Z"}`
-	l, err := Renew(context.Background(), old, "0.5.0", false)
+	l, err := Renew(context.Background(), old, "0.5.0", "", false)
 	if err != nil || l.Sub != old.Sub {
 		t.Fatalf("200: %v", err)
 	}
 	if len(got) != 3 || got["license"] != sampleExpired || got["consent_version"] != ConsentVersion {
 		t.Errorf("body without privacy_ack: %v", got)
 	}
-	_, _ = Renew(context.Background(), old, "0.5.0", true)
+	_, _ = Renew(context.Background(), old, "0.5.0", "br", true)
 	if got["privacy_ack"] != true {
 		t.Errorf("privacy_ack not sent: %v", got)
 	}
+	if got["country"] != "BR" {
+		t.Errorf("country not sent: %v", got)
+	}
+	_, _ = Renew(context.Background(), old, "0.5.0", "ZZ", false)
+	if _, ok := got["country"]; ok {
+		t.Errorf("invalid country must not be sent: %v", got)
+	}
 	status, body = 409, `{"error":"too_early","renew_from":"2027-01-05T12:00:00Z"}`
 	var early *TooEarlyError
-	if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.As(err, &early) || early.From.Day() != 5 {
+	if _, err := Renew(context.Background(), old, "0.5.0", "", false); !errors.As(err, &early) || early.From.Day() != 5 {
 		t.Errorf("409: %v", err)
 	}
 	for code, want := range map[int]error{400: ErrRenewRejected, 404: ErrRenewGone, 412: ErrConsentRequired, 503: ErrUnavailable} {
 		status, body = code, `{"error":"x"}`
-		if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.Is(err, want) {
+		if _, err := Renew(context.Background(), old, "0.5.0", "", false); !errors.Is(err, want) {
 			t.Errorf("%d: %v", code, err)
 		}
 	}
@@ -280,5 +288,20 @@ func TestRenew(t *testing.T) {
 		if RenewOpen(old, exp.Add(time.Duration(d)*24*time.Hour)) != want {
 			t.Errorf("RenewOpen at %+d days: want %v", d, want)
 		}
+	}
+}
+
+func TestCountryRequired(t *testing.T) {
+	r := Request{Name: "Maria", Email: "m@x.com", LensVersion: "1", Lang: "en", PrivacyAck: true}
+	for _, c := range []string{"", "ZZ", "BRA"} {
+		r.Country = c
+		var inv *InvalidError
+		if err := r.Validate(); !errors.As(err, &inv) || !slices.Contains(inv.Fields, "country") {
+			t.Errorf("country %q: want invalid country, got %v", c, err)
+		}
+	}
+	r.Country = "BR"
+	if err := r.Validate(); err != nil {
+		t.Errorf("BR: %v", err)
 	}
 }

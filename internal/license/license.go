@@ -30,7 +30,7 @@ var Keys = map[string]string{
 const (
 	API = "https://api.codedb.com.br/lens" // + /register, /renew
 	// ConsentVersion names the consent text shown before registering (see consent.go). The backend stores it.
-	ConsentVersion = "lens-2026-1"
+	ConsentVersion = "lens-2026-2"
 	FeatureCompare = "compare"
 	clockSkew      = 24 * time.Hour
 )
@@ -258,6 +258,7 @@ type Request struct {
 	Company        string `json:"company,omitempty"`
 	Role           string `json:"role,omitempty"`            // dba, dev, infra, it_manager, consultant_msp, other
 	InstancesRange string `json:"instances_range,omitempty"` // 1-5, 6-20, 21-100, 100+
+	Country        string `json:"country"`                   // ISO 3166-1 alpha-2; required here, optional for the backend (old clients omit it)
 	LensVersion    string `json:"lens_version"`
 	Lang           string `json:"lang"` // en or pt-BR
 	PrivacyAck     bool   `json:"privacy_ack"`
@@ -287,6 +288,9 @@ func (r Request) Validate() error {
 	}
 	if r.InstancesRange != "" && !slices.Contains(Ranges, r.InstancesRange) {
 		bad = append(bad, "instances_range")
+	}
+	if !slices.Contains(Countries, r.Country) {
+		bad = append(bad, "country")
 	}
 	if !r.PrivacyAck {
 		bad = append(bad, "privacy_ack")
@@ -351,6 +355,7 @@ func post(ctx context.Context, path, lensVersion string, body any) (int, respons
 func Register(ctx context.Context, r Request) (*License, error) {
 	r.ConsentVersion = ConsentVersion
 	r.Name, r.Email, r.Company = strings.TrimSpace(r.Name), strings.TrimSpace(r.Email), strings.TrimSpace(r.Company)
+	r.Country = strings.ToUpper(strings.TrimSpace(r.Country))
 	if err := r.Validate(); err != nil {
 		return nil, err
 	}
@@ -370,9 +375,13 @@ func Register(ctx context.Context, r Request) (*License, error) {
 }
 
 // Renew trades the current key (expired is fine) for a new 90-day one with the same sub. It sends only the key,
-// the Lens version and the consent version; privacyAck is needed only after ErrConsentRequired.
-func Renew(ctx context.Context, l *License, lensVersion string, privacyAck bool) (*License, error) {
+// the Lens version and the consent version; privacyAck is needed only after ErrConsentRequired. country (optional)
+// is sent when the user picked one: the backend fills it only for leads that have none and never overwrites.
+func Renew(ctx context.Context, l *License, lensVersion, country string, privacyAck bool) (*License, error) {
 	body := map[string]any{"license": l.Raw, "lens_version": lensVersion, "consent_version": ConsentVersion}
+	if country = strings.ToUpper(strings.TrimSpace(country)); slices.Contains(Countries, country) {
+		body["country"] = country
+	}
 	if privacyAck {
 		body["privacy_ack"] = true
 	}

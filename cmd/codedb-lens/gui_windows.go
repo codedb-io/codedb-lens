@@ -329,13 +329,16 @@ type KeyInfo struct {
 	Privacy         string            `json:"privacy"`
 	Roles           []string          `json:"roles"`
 	Ranges          []string          `json:"ranges"`
+	Countries       []string          `json:"countries"`
+	Region          string            `json:"region"` // OS region, to preselect the country
 }
 
 func (a *App) LicenseStatus(lang string) KeyInfo {
 	lang = i18n.Normalize(lang)
 	c := license.Consent[lang]
 	k := KeyInfo{Consent: map[string]string{"privacy_ack": c.PrivacyAck, "marketing": c.Marketing, "notice": c.Notice, "sent": c.Sent},
-		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges}
+		Privacy: saas.Privacy, Roles: license.Roles, Ranges: license.Ranges,
+		Countries: license.Countries, Region: i18n.Region()}
 	l, err := license.Load()
 	k.Expired = errors.Is(err, license.ErrExpired)
 	k.CanRenew = l != nil && license.RenewOpen(l, time.Now())
@@ -362,13 +365,13 @@ func (a *App) Register(r license.Request) (KeyInfo, error) {
 }
 
 // RenewLicense trades the saved key for a new one. ConsentRequired (no error) asks the page to show the privacy checkbox.
-func (a *App) RenewLicense(lang string, privacyAck bool) (KeyInfo, error) {
+func (a *App) RenewLicense(lang, country string, privacyAck bool) (KeyInfo, error) {
 	lang = i18n.Normalize(lang)
 	l, err := license.Load()
 	if err != nil && !errors.Is(err, license.ErrExpired) {
 		return KeyInfo{}, licenseError(lang, l, err)
 	}
-	n, err := license.Renew(a.ctx, l, version, privacyAck)
+	n, err := license.Renew(a.ctx, l, version, country, privacyAck)
 	if errors.Is(err, license.ErrConsentRequired) {
 		return KeyInfo{ConsentRequired: true}, nil // the page shows the checkbox and calls again
 	}
