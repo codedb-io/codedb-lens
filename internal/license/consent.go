@@ -16,7 +16,7 @@ var Consent = map[string]ConsentText{
 	"pt-BR": {
 		PrivacyAck: "Li e concordo com a Política de Privacidade",
 		Marketing:  "Quero receber novidades e contato comercial do codeDB por e-mail",
-		Notice: "Usamos seu nome e e-mail para emitir e enviar sua chave grátis. Também pedimos seu país, para entendermos onde o Lens é usado e priorizarmos idiomas e melhorias; ele não é usado para contato comercial sem a sua confirmação. " +
+		Notice: "Usamos seu nome e e-mail para emitir e enviar sua chave grátis. Também pedimos seu país (obrigatório para receber a chave), para entendermos onde o Lens é usado e priorizarmos idiomas e melhorias; ele não é usado para contato comercial sem a sua confirmação. " +
 			"Empresa, cargo e número de instâncias são opcionais. Nenhum dado dos seus bancos sai deste computador. " +
 			"O contato comercial só acontece se você marcar a segunda opção e confirmar pelo e-mail. Você pode se opor ao uso do país, se descadastrar " +
 			"ou apagar seus dados a qualquer momento pelos links do e-mail.",
@@ -25,7 +25,7 @@ var Consent = map[string]ConsentText{
 	"en": {
 		PrivacyAck: "I have read and agree to the Privacy Policy",
 		Marketing:  "I want to receive news and sales contact from codeDB by e-mail",
-		Notice: "We use your name and e-mail to issue and send your free key. We also ask for your country, to understand where Lens is used and to prioritize languages and improvements; it is not used for sales contact unless you confirm. " +
+		Notice: "We use your name and e-mail to issue and send your free key. We also ask for your country (required to receive the key), to understand where Lens is used and to prioritize languages and improvements; it is not used for sales contact unless you confirm. " +
 			"Company, role and number of instances are optional. No data from your databases leaves this computer. " +
 			"Sales contact only happens if you tick the second option and confirm by e-mail. You can object to the use of your country, unsubscribe " +
 			"or delete your data at any time through the links in the e-mail.",
