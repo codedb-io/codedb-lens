@@ -5,6 +5,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-11-06
+
+### Added
+- The free-key signup asks for your country (required; "Other / not listed" is available), preselected from the
+  system region. It is used only to understand where Lens is used. GUI and `license register --country XX`.
+- Key renewal accepts an optional country (`license renew --country XX`).
+- Consent notice `lens-2026-2` (states what is collected and that the country is required to receive the key).
+
+
 ## [0.9.3] - 2026-11-05
 
 ### Fixed
