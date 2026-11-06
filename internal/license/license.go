@@ -375,9 +375,13 @@ func Register(ctx context.Context, r Request) (*License, error) {
 }
 
 // Renew trades the current key (expired is fine) for a new 90-day one with the same sub. It sends only the key,
-// the Lens version and the consent version; privacyAck is needed only after ErrConsentRequired.
-func Renew(ctx context.Context, l *License, lensVersion string, privacyAck bool) (*License, error) {
+// the Lens version and the consent version; privacyAck is needed only after ErrConsentRequired. country (optional)
+// is sent when the user picked one: the backend fills it only for leads that have none and never overwrites.
+func Renew(ctx context.Context, l *License, lensVersion, country string, privacyAck bool) (*License, error) {
 	body := map[string]any{"license": l.Raw, "lens_version": lensVersion, "consent_version": ConsentVersion}
+	if country = strings.ToUpper(strings.TrimSpace(country)); slices.Contains(Countries, country) {
+		body["country"] = country
+	}
 	if privacyAck {
 		body["privacy_ack"] = true
 	}

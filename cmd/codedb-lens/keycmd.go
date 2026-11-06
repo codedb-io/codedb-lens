@@ -305,7 +305,7 @@ func licenseCmd(args []string) error {
 		license.Delete()
 		fmt.Println(i18n.T(lang, "lic_removed"))
 	default:
-		return errors.New("usage: codedb-lens license [status|import <key>|renew [--accept-privacy]|reset|remove]")
+		return errors.New("usage: codedb-lens license [status|import <key>|renew [--country XX] [--accept-privacy]|reset|remove]")
 	}
 	return nil
 }
@@ -314,13 +314,14 @@ func licenseCmd(args []string) error {
 func renewCmd(lang string, args []string) error {
 	fs := flag.NewFlagSet("license renew", flag.ExitOnError)
 	ack := fs.Bool("accept-privacy", false, "accept the current Privacy Policy, if it changed since you registered")
+	country := fs.String("country", "", "your country, ISO 3166-1 alpha-2 code such as BR (optional; only fills it if we have none)")
 	_ = fs.Parse(args)
 	l, err := license.Load()
 	if err != nil && !errors.Is(err, license.ErrExpired) {
 		return licenseError(lang, l, err)
 	}
 	fmt.Fprintln(os.Stderr, i18n.T(lang, "lic_renew_sent"))
-	n, err := license.Renew(context.Background(), l, version, *ack)
+	n, err := license.Renew(context.Background(), l, version, *country, *ack)
 	if errors.Is(err, license.ErrConsentRequired) && !*ack && term.IsTerminal(int(os.Stdin.Fd())) {
 		fmt.Fprintf(os.Stderr, "\n%s\n%s\n%s%s", i18n.T(lang, "lic_renew_consent"),
 			fmt.Sprintf(i18n.T(lang, "reg_privacy_link"), saas.Privacy), license.Consent[lang].PrivacyAck, i18n.T(lang, "reg_yn"))
@@ -328,7 +329,7 @@ func renewCmd(lang string, args []string) error {
 		if s = strings.ToLower(strings.TrimSpace(s)); !strings.HasPrefix(s, "y") && !strings.HasPrefix(s, "s") {
 			return errors.New(i18n.T(lang, "reg_not_sent"))
 		}
-		n, err = license.Renew(context.Background(), l, version, true)
+		n, err = license.Renew(context.Background(), l, version, *country, true)
 	}
 	if err != nil {
 		return renewError(lang, err)

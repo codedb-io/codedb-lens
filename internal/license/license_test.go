@@ -253,25 +253,32 @@ func TestRenew(t *testing.T) {
 	}
 
 	body = `{"license":"` + sampleValid + `","expires_at":"2027-01-19T00:00:00Z"}`
-	l, err := Renew(context.Background(), old, "0.5.0", false)
+	l, err := Renew(context.Background(), old, "0.5.0", "", false)
 	if err != nil || l.Sub != old.Sub {
 		t.Fatalf("200: %v", err)
 	}
 	if len(got) != 3 || got["license"] != sampleExpired || got["consent_version"] != ConsentVersion {
 		t.Errorf("body without privacy_ack: %v", got)
 	}
-	_, _ = Renew(context.Background(), old, "0.5.0", true)
+	_, _ = Renew(context.Background(), old, "0.5.0", "br", true)
 	if got["privacy_ack"] != true {
 		t.Errorf("privacy_ack not sent: %v", got)
 	}
+	if got["country"] != "BR" {
+		t.Errorf("country not sent: %v", got)
+	}
+	_, _ = Renew(context.Background(), old, "0.5.0", "ZZ", false)
+	if _, ok := got["country"]; ok {
+		t.Errorf("invalid country must not be sent: %v", got)
+	}
 	status, body = 409, `{"error":"too_early","renew_from":"2027-01-05T12:00:00Z"}`
 	var early *TooEarlyError
-	if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.As(err, &early) || early.From.Day() != 5 {
+	if _, err := Renew(context.Background(), old, "0.5.0", "", false); !errors.As(err, &early) || early.From.Day() != 5 {
 		t.Errorf("409: %v", err)
 	}
 	for code, want := range map[int]error{400: ErrRenewRejected, 404: ErrRenewGone, 412: ErrConsentRequired, 503: ErrUnavailable} {
 		status, body = code, `{"error":"x"}`
-		if _, err := Renew(context.Background(), old, "0.5.0", false); !errors.Is(err, want) {
+		if _, err := Renew(context.Background(), old, "0.5.0", "", false); !errors.Is(err, want) {
 			t.Errorf("%d: %v", code, err)
 		}
 	}

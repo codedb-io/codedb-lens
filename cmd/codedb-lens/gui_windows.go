@@ -365,13 +365,13 @@ func (a *App) Register(r license.Request) (KeyInfo, error) {
 }
 
 // RenewLicense trades the saved key for a new one. ConsentRequired (no error) asks the page to show the privacy checkbox.
-func (a *App) RenewLicense(lang string, privacyAck bool) (KeyInfo, error) {
+func (a *App) RenewLicense(lang, country string, privacyAck bool) (KeyInfo, error) {
 	lang = i18n.Normalize(lang)
 	l, err := license.Load()
 	if err != nil && !errors.Is(err, license.ErrExpired) {
 		return KeyInfo{}, licenseError(lang, l, err)
 	}
-	n, err := license.Renew(a.ctx, l, version, privacyAck)
+	n, err := license.Renew(a.ctx, l, version, country, privacyAck)
 	if errors.Is(err, license.ErrConsentRequired) {
 		return KeyInfo{ConsentRequired: true}, nil // the page shows the checkbox and calls again
 	}
