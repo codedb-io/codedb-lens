@@ -9,7 +9,6 @@ import (
 	"io/fs"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -227,17 +226,6 @@ type mcpGuide struct {
 	Snippet string `json:"snippet,omitempty"`
 }
 
-// consoleExe is the codedb-lens.com next to the GUI .exe, when there is one: typed in a terminal, it waits and prints
-// in order (cmd/codedb-lens-com). The clients keep the .exe.
-func consoleExe(exe string) string {
-	if com := strings.TrimSuffix(exe, filepath.Ext(exe)) + ".com"; statOK(com) {
-		return com
-	}
-	return exe
-}
-
-func statOK(path string) bool { _, err := os.Stat(path); return err == nil }
-
 // mcpGuides builds the same entries as mcp install, from the same generator.
 func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
 	args := mcpserver.Args(profiles, redact)
@@ -247,7 +235,7 @@ func mcpGuides(exe string, profiles []string, redact bool) []mcpGuide {
 		if c.ID == "claude-code" {
 			g.Command = mcpserver.ClaudeCodeCommand(exe, args)
 		} else {
-			g.Command = "& " + mcpserver.Quote(consoleExe(exe)) + " mcp install --client " + c.ID // PowerShell, the Windows default
+			g.Command = "& " + mcpserver.Quote(exe) + " mcp install --client " + c.ID // PowerShell, the Windows default
 			if len(profiles) > 0 {
 				g.Command += " --profile " + mcpserver.Quote(strings.Join(profiles, ","))
 			}

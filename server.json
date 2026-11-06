@@ -8,11 +8,11 @@
     "source": "github"
   },
   "websiteUrl": "https://lens.codedb.com.br/mcp/",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/codedb-io/codedb-lens:0.9.4",
+      "identifier": "ghcr.io/codedb-io/codedb-lens:0.9.5",
       "transport": { "type": "stdio" },
       "packageArguments": [
         { "type": "positional", "value": "mcp" },

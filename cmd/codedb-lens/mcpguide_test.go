@@ -1,9 +1,6 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/codedb-io/codedb-lens/internal/mcpserver"
@@ -31,26 +28,6 @@ func TestMCPGuides(t *testing.T) {
 		}
 		if g.Snippet != c.Snippet(exe, args) {
 			t.Errorf("%s snippet differs from mcp install's", g.Client)
-		}
-	}
-}
-
-// With codedb-lens.com next to the .exe, the command to paste uses it (the terminal waits); the clients keep the .exe.
-func TestMCPGuidesConsoleTwin(t *testing.T) {
-	dir := t.TempDir()
-	exe := filepath.Join(dir, "codedb-lens.exe")
-	com := filepath.Join(dir, "codedb-lens.com")
-	for _, f := range []string{exe, com} {
-		if err := os.WriteFile(f, nil, 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	for _, g := range mcpGuides(exe, nil, false) {
-		if g.Client == "claude-code" {
-			continue
-		}
-		if !strings.HasPrefix(g.Command, "& "+mcpserver.Quote(com)+" ") || !strings.Contains(g.Snippet, "codedb-lens.exe") {
-			t.Errorf("%s: %q / %q", g.Client, g.Command, g.Snippet)
 		}
 	}
 }

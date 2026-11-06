@@ -28,7 +28,7 @@ The app shows these commands, ready to copy, on the **AI (MCP)** screen. The ins
 `PATH` by default, so the commands use its full path, in PowerShell (the Windows Terminal default):
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" mcp install --client claude-desktop --profile prod-diag
+& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.exe" mcp install --client claude-desktop --profile prod-diag
 ```
 
 | Client | `--client` | What happens |

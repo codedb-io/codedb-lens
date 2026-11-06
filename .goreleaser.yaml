@@ -4,7 +4,7 @@ project_name: codedb-lens
 before:
   hooks:
     - go mod tidy
-    - go generate ./cmd/codedb-lens ./cmd/codedb-lens-com   # Windows icon + manifest + version info (.syso)
+    - go generate ./cmd/codedb-lens   # Windows icon + manifest + version info (.syso)
 
 builds:
   - id: windows
@@ -15,11 +15,6 @@ builds:
     tags: [desktop, production]
     env: [CGO_ENABLED=0]
     ldflags: ["-s -w -H windowsgui -X main.version={{ .Version }}"]
-    hooks:
-      post:
-        # Console twin of the GUI .exe, so terminals wait for it (see cmd/codedb-lens-com). Shipped in the zip and the installer.
-        - cmd: go build -ldflags "-s -w" -o build/windows/codedb-lens.com ./cmd/codedb-lens-com
-          env: [GOOS=windows, GOARCH=amd64, CGO_ENABLED=0]
   - id: linux
     main: ./cmd/codedb-lens
     binary: codedb-lens
@@ -33,7 +28,7 @@ archives:
     ids: [windows]
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}" # no version: releases/latest/download/<name> links stay valid
     formats: [zip]
-    files: [LICENSE, README.md, README.pt-BR.md, {src: build/windows/codedb-lens.com, strip_parent: true}]
+    files: [LICENSE, README.md, README.pt-BR.md]
   - id: linux
     ids: [linux]
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"

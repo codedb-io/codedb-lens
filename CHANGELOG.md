@@ -5,6 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-11-06
+
+### Removed
+- `codedb-lens.com` (the console launcher from 0.9.3-0.9.4) is gone: Kaspersky still flagged it heuristically
+  (`VHO:Trojan.Win32.Agent.gen`) and deleted it. In PowerShell use `Start-Process -Wait -NoNewWindow codedb-lens -ArgumentList ...`
+  (cmd: `start /wait codedb-lens ...`) so the terminal waits for the Lens. The installer and `update` delete a leftover `.com`.
+
 ## [0.9.4] - 2026-11-06
 
 ### Added

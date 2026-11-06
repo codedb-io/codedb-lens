@@ -31,8 +31,8 @@ Baixe os arquivos em [GitHub Releases](https://github.com/codedb-io/codedb-lens/
 ### Linha de comando (Windows e Linux)
 
 No Windows, a opção **Add codedb-lens to PATH** do instalador faz o `codedb-lens` funcionar em qualquer terminal. Sem
-ela, use o caminho completo, no PowerShell: `& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" check ...`. O `.com` é o gêmeo do app para o terminal:
-o terminal espera por ele e as perguntas dele recebem o que você digita. O `codedb-lens.exe` abre o app.
+ela, use o caminho completo, no PowerShell: `Start-Process -Wait -NoNewWindow "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.exe" -ArgumentList "check ..."`. O `-Wait` faz o terminal
+esperar o Lens, e as perguntas dele recebem o que você digita (no cmd: `start /wait codedb-lens check ...`). Sem argumentos, o `codedb-lens.exe` abre o app.
 
 ```bash
 # SQL Server, autenticação Windows

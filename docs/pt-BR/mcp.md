@@ -29,7 +29,7 @@ O app mostra estes comandos, prontos para copiar, na tela **IA (MCP)**. O instal
 padrão, por isso os comandos usam o caminho completo, no PowerShell (o padrão do Terminal do Windows):
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.com" mcp install --client claude-desktop --profile prod-diag
+& "$env:LOCALAPPDATA\Programs\codeDB Lens\codedb-lens.exe" mcp install --client claude-desktop --profile prod-diag
 ```
 
 | Cliente | `--client` | O que acontece |

@@ -41,9 +41,12 @@ ptbr.NoWebView2=O Microsoft Edge WebView2 Runtime não foi encontrado. A janela 
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "addtopath"; Description: "Add codedb-lens to PATH (command line)"; Flags: unchecked
 
+; 0.9.3-0.9.4 shipped codedb-lens.com; antivirus heuristics flagged it, 0.9.5 removed it
+[InstallDelete]
+Type: files; Name: "{app}\codedb-lens.com"
+
 [Files]
 Source: "{#SourceExe}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "codedb-lens.com"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

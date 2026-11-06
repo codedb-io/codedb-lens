@@ -216,12 +216,8 @@ func Apply(ctx context.Context, current string) (string, error) {
 	if err := replace(exe, bin); err != nil {
 		return "", err
 	}
-	// The console twin (cmd/codedb-lens-com) comes along; archives before 0.9 have none.
-	if com, err := extract(archive, name, "codedb-lens.com"); err == nil && runtime.GOOS == "windows" {
-		if err := replace(strings.TrimSuffix(exe, filepath.Ext(exe))+".com", com); err != nil {
-			return "", err
-		}
-	}
+	// 0.9.3/0.9.4 shipped a codedb-lens.com launcher that antivirus products flagged; drop it.
+	_ = os.Remove(strings.TrimSuffix(exe, filepath.Ext(exe)) + ".com")
 	return r.Tag, nil
 }
 
